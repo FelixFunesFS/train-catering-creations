@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle, ArrowLeft, Link2, Settings2 } from 'lucide-react';
+import { Loader2, DollarSign, Mail, CreditCard, Wallet, Copy, ExternalLink, CheckCircle2, AlertCircle, ArrowLeft, Link2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EmbeddedCheckout } from './EmbeddedCheckout';
 
@@ -48,8 +48,8 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [linkCopied, setLinkCopied] = useState(false);
   const [embeddedClientSecret, setEmbeddedClientSecret] = useState('');
   const [showLinkFallback, setShowLinkFallback] = useState(false);
-  const [showAmountPicker, setShowAmountPicker] = useState(false);
   const autoTriggered = useRef(false);
+  const [pendingTypeChange, setPendingTypeChange] = useState(false);
 
   const totalAmount = invoiceSummary?.total_amount || 0;
   const balanceRemaining = invoiceSummary?.balance_remaining || 0;
@@ -125,8 +125,6 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
         setEmbeddedClientSecret(data.clientSecret);
       }
     } catch (err: any) {
-      // On error, fall back to showing the amount picker so admin can retry
-      setShowAmountPicker(true);
       toast({
         title: 'Error',
         description: err.message || 'Failed to create checkout session',
@@ -204,6 +202,14 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
       handleTakePayment();
     }
   }, [invoiceSummary, loadingInvoice, balanceRemaining]);
+
+  // Auto-trigger checkout when amount type changes via inline selector
+  useEffect(() => {
+    if (pendingTypeChange && !stripeLoading) {
+      setPendingTypeChange(false);
+      handleTakePayment();
+    }
+  }, [pendingTypeChange, stripeLoading]);
 
   if (loadingInvoice) {
     return (
@@ -400,184 +406,173 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </Button>
                   </div>
                 </div>
-              ) : showAmountPicker ? (
-                /* ===== Amount Picker (Change Amount) ===== */
-                <>
-                  <div className="flex items-center justify-between">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setShowAmountPicker(false);
-                        // Re-trigger checkout with selected amount
-                        handleTakePayment();
-                      }}
-                      className="text-xs"
-                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
-                    >
-                      <ArrowLeft className="h-3 w-3 mr-1" />
-                      Charge {getStripeAmount() > 0 ? formatCurrency(getStripeAmount()) : ''}
-                    </Button>
-                  </div>
-
-                  {/* Payment Type Selection */}
+              ) : (
+                /* ===== Inline Amount Selector + Embedded Checkout ===== */
+                <div className="space-y-3">
+                  {/* Compact inline amount selector */}
                   <div className="space-y-2">
-                    <Label>Payment Type</Label>
-                    <Select 
-                      value={stripePaymentType} 
-                      onValueChange={(v) => {
-                        setStripePaymentType(v as 'full' | 'deposit' | 'milestone' | 'custom');
-                        setSelectedMilestoneId('');
-                        setCustomAmount('');
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="full">Full Balance — {formatCurrency(balanceRemaining)}</SelectItem>
-                        <SelectItem value="deposit">{depositLabel} — {formatCurrency(depositAmount)}</SelectItem>
-                        {pendingMilestones.length > 0 && (
-                          <SelectItem value="milestone">Pay Milestone</SelectItem>
-                        )}
-                        <SelectItem value="custom">Custom Amount</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Milestone selector */}
-                  {stripePaymentType === 'milestone' && pendingMilestones.length > 0 && (
-                    <div className="space-y-2">
-                      <Label>Select Milestone</Label>
-                      <Select value={selectedMilestoneId} onValueChange={setSelectedMilestoneId}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a milestone" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {pendingMilestones.map(m => (
-                            <SelectItem key={m.id} value={m.id}>
-                              {m.milestone_type} — {formatCurrency(m.amount_cents)} ({m.percentage}%)
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Custom amount input */}
-                  {stripePaymentType === 'custom' && (
-                    <div className="space-y-2">
-                      <Label>Amount</Label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0.01"
-                          value={customAmount}
-                          onChange={(e) => setCustomAmount(e.target.value)}
-                          className="pl-7"
-                          placeholder="0.00"
-                        />
-                      </div>
-                      {getStripeAmount() > balanceRemaining && balanceRemaining > 0 && (
-                        <p className="text-xs text-amber-600 flex items-center gap-1">
-                          <AlertCircle className="h-3 w-3" />
-                          Amount exceeds balance remaining ({formatCurrency(balanceRemaining)})
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Amount preview */}
-                  {getStripeAmount() > 0 && (
-                    <div className="bg-muted/30 rounded-lg p-3 text-center">
-                      <p className="text-xs text-muted-foreground">Checkout Amount</p>
-                      <p className="text-2xl font-bold text-primary">{formatCurrency(getStripeAmount())}</p>
-                    </div>
-                  )}
-
-                  {/* Actions */}
-                  <div className="flex flex-col gap-2 pt-2">
-                    <Button
-                      onClick={() => {
-                        setShowAmountPicker(false);
-                        handleTakePayment();
-                      }}
-                      disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
-                      className="w-full"
-                    >
-                      {stripeLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Take Payment
-                    </Button>
                     <div className="flex items-center justify-between">
+                      <Label className="text-xs text-muted-foreground">Payment Amount</Label>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="text-xs text-muted-foreground"
-                        onClick={() => handleTakePayment(true)}
-                        disabled={stripeLoading || (stripePaymentType === 'milestone' && !selectedMilestoneId) || (stripePaymentType === 'custom' && (!customAmount || parseFloat(customAmount) <= 0))}
+                        className="text-xs text-muted-foreground h-auto py-0.5 px-1.5"
+                        onClick={() => {
+                          setEmbeddedClientSecret('');
+                          handleTakePayment(true);
+                        }}
+                        disabled={stripeLoading}
                       >
                         <Link2 className="h-3 w-3 mr-1" />
-                        Share link instead
-                      </Button>
-                      <Button type="button" variant="outline" size="sm" onClick={onClose}>
-                        Cancel
+                        Share link
                       </Button>
                     </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {/* Full Balance button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (stripePaymentType === 'full') return;
+                          setStripePaymentType('full');
+                          setSelectedMilestoneId('');
+                          setCustomAmount('');
+                          setEmbeddedClientSecret('');
+                          setPendingTypeChange(true);
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                          stripePaymentType === 'full'
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-input hover:border-primary/50'
+                        }`}
+                      >
+                        Full {formatCurrency(balanceRemaining)}
+                      </button>
+                      {/* Deposit button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (stripePaymentType === 'deposit') return;
+                          setStripePaymentType('deposit');
+                          setSelectedMilestoneId('');
+                          setCustomAmount('');
+                          setEmbeddedClientSecret('');
+                          setPendingTypeChange(true);
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                          stripePaymentType === 'deposit'
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-input hover:border-primary/50'
+                        }`}
+                      >
+                        {depositLabel} {formatCurrency(depositAmount)}
+                      </button>
+                      {/* Milestone button - only if pending milestones exist */}
+                      {pendingMilestones.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (stripePaymentType === 'milestone') return;
+                            setStripePaymentType('milestone');
+                            setCustomAmount('');
+                            setEmbeddedClientSecret('');
+                          }}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                            stripePaymentType === 'milestone'
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-background text-foreground border-input hover:border-primary/50'
+                          }`}
+                        >
+                          Milestone
+                        </button>
+                      )}
+                      {/* Custom button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (stripePaymentType === 'custom') return;
+                          setStripePaymentType('custom');
+                          setSelectedMilestoneId('');
+                          setEmbeddedClientSecret('');
+                        }}
+                        className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                          stripePaymentType === 'custom'
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-background text-foreground border-input hover:border-primary/50'
+                        }`}
+                      >
+                        Custom
+                      </button>
+                    </div>
+
+                    {/* Milestone selector - inline */}
+                    {stripePaymentType === 'milestone' && pendingMilestones.length > 0 && (
+                      <div className="pt-1">
+                        <Select value={selectedMilestoneId} onValueChange={(v) => {
+                          setSelectedMilestoneId(v);
+                          setEmbeddedClientSecret('');
+                          setPendingTypeChange(true);
+                        }}>
+                          <SelectTrigger className="h-8 text-xs">
+                            <SelectValue placeholder="Choose milestone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {pendingMilestones.map(m => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.milestone_type} — {formatCurrency(m.amount_cents)} ({m.percentage}%)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {/* Custom amount input - inline */}
+                    {stripePaymentType === 'custom' && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <div className="relative flex-1">
+                          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            value={customAmount}
+                            onChange={(e) => setCustomAmount(e.target.value)}
+                            className="pl-6 h-8 text-xs"
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <Button
+                          size="sm"
+                          className="h-8 text-xs px-3"
+                          disabled={!customAmount || parseFloat(customAmount) <= 0 || stripeLoading}
+                          onClick={() => {
+                            setEmbeddedClientSecret('');
+                            setPendingTypeChange(true);
+                          }}
+                        >
+                          {stripeLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Apply'}
+                        </Button>
+                        {getStripeAmount() > balanceRemaining && balanceRemaining > 0 && (
+                          <p className="text-xs text-amber-600 flex items-center gap-1">
+                            <AlertCircle className="h-3 w-3" />
+                            Exceeds balance
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </>
-              ) : (
-                /* ===== Default: Auto-loaded Embedded Checkout ===== */
-                <div className="space-y-3">
+
+                  {/* Embedded Checkout or Loading */}
                   {embeddedClientSecret ? (
-                    <>
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">
-                          Charging {stripePaymentType === 'full' ? 'full balance' : stripePaymentType === 'deposit' ? depositLabel : 'custom amount'}: <span className="font-medium text-foreground">{formatCurrency(getStripeAmount())}</span>
-                        </p>
-                      </div>
-                      <EmbeddedCheckout
-                        clientSecret={embeddedClientSecret}
-                        onComplete={handleEmbeddedComplete}
-                      />
-                      <div className="flex items-center justify-between pt-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-muted-foreground"
-                          onClick={() => {
-                            setEmbeddedClientSecret('');
-                            setShowAmountPicker(true);
-                          }}
-                        >
-                          <Settings2 className="h-3 w-3 mr-1" />
-                          Change amount
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-muted-foreground"
-                          onClick={() => {
-                            setEmbeddedClientSecret('');
-                            handleTakePayment(true);
-                          }}
-                        >
-                          <Link2 className="h-3 w-3 mr-1" />
-                          Share link instead
-                        </Button>
-                      </div>
-                    </>
+                    <EmbeddedCheckout
+                      clientSecret={embeddedClientSecret}
+                      onComplete={handleEmbeddedComplete}
+                    />
                   ) : (
-                    /* Loading state while auto-triggering */
                     <div className="flex flex-col items-center justify-center py-10 space-y-3">
                       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                       <p className="text-sm text-muted-foreground">Loading card form…</p>
-                      <p className="text-xs text-muted-foreground">
-                        Full balance: {formatCurrency(balanceRemaining)}
-                      </p>
                     </div>
                   )}
                 </div>
