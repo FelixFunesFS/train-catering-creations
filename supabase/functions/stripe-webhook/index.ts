@@ -258,7 +258,7 @@ serve(async (req) => {
                   type: 'payment_confirmation',
                   metadata: {
                     amount: session.amount_total,
-                    payment_type: 'deposit',
+                    payment_type: session.metadata?.payment_type || 'deposit',
                     is_full_payment: false
                   }
                 }
@@ -276,7 +276,7 @@ serve(async (req) => {
                   notificationType: 'payment_received',
                   metadata: {
                     amount: session.amount_total,
-                    payment_type: 'deposit',
+                    payment_type: session.metadata?.payment_type || 'deposit',
                     full_payment: false
                   }
                 }

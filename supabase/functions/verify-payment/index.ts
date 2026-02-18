@@ -147,6 +147,10 @@ const handler = async (req: Request): Promise<Response> => {
         transaction_id: transaction.id,
         invoice_id: transaction.invoice_id,
         amount_total: session.amount_total,
+        payment_type: transaction.payment_type,
+        is_fully_paid: isFullyPaid ?? false,
+        total_paid: totalPaid ?? 0,
+        invoice_total: invoiceData?.total_amount ?? 0,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
