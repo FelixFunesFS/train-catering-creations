@@ -1,151 +1,127 @@
 
 
-## Label Consolidation and Remaining Gaps -- Safe Implementation Plan
+## Complete Milestone Display Fix -- Every Remaining Gap
 
-### Current State: Complete Audit of All 7 Label Maps
+### Summary of What's Already Fixed vs What's Still Broken
 
-| # | Location | File | FINAL | COMBINED | Has Waterfall? |
-|---|----------|------|-------|----------|----------------|
-| 1 | Canonical (frontend) | `paymentFormatters.ts:33` | "Full Payment (Net 30)" | "Booking Deposit" | N/A (source) |
-| 2 | Admin desktop | `PaymentScheduleSection.tsx:48` | "Final Payment" | "Combined Payment" | Yes (waterfall working) |
-| 3 | Admin mobile | `MobileEstimateView.tsx:769` | "Full Payment (Net 30)" | "Booking Deposit" | **NO -- shows raw amount_cents** |
-| 4 | Billing list | `PaymentList.tsx:259` | "Full Payment (Net 30)" | "Booking Deposit" | **NO -- shows raw amount_cents** |
-| 5 | Email (schedule display) | `emailTemplates.ts:89` | "Final Balance" | "Booking Deposit" | No (server-side, OK) |
-| 6 | Email (paid receipt) | `emailTemplates.ts:1986` | "Final Payment" | "Combined Deposit" | No (server-side, OK) |
-| 7 | PDF generator | `generate-invoice-pdf/index.ts:162` | "Final Balance" | "Booking Deposit" | No (server-side, OK) |
+**Already using waterfall (correct):**
+- Customer portal (`PaymentCard.tsx`) -- shows remainingCents
+- Admin desktop (`PaymentScheduleSection.tsx`) -- shows remainingCents
+- Print view (`EstimatePrintView.tsx`) -- shows remainingCents
 
-### What Needs Fixing (4 categories)
+**Still showing raw amount_cents (broken):**
 
----
+| # | Surface | File | Line | Shows | Should Show |
+|---|---------|------|------|-------|-------------|
+| 1 | Billing list | `PaymentList.tsx` | 262 | `$161.32` | `$151.32 remaining` |
+| 2 | Admin mobile | `MobileEstimateView.tsx` | 783 | `$161.32` | `$151.32 remaining` |
 
-**Category A: Fix the canonical label (1 line)**
+**Label gaps remaining:**
 
-`paymentFormatters.ts` line 39: `final: 'Full Payment (Net 30)'` should be `final: 'Final Balance'`
+| # | File | Issue |
+|---|------|-------|
+| 3 | `emailTemplates.ts:1986` | `getPaidMilestoneLabel` missing `'final': 'Final Balance'` key (has `final_payment` but DB stores `FINAL`) |
 
-This is the single source of truth for all frontend components. Once fixed, every frontend file that imports `getMilestoneLabel` automatically gets the correct label.
-
-**Risk: None.** Pure label text change. No logic affected.
+Emails and PDFs are point-in-time snapshots generated at send/download time, so their amounts are correct at that moment. The two admin surfaces (billing list, mobile) are live views that need the waterfall.
 
 ---
 
-**Category B: Replace duplicate frontend maps with canonical import (2 files)**
+### Fix 1: PaymentList.tsx -- Apply Waterfall to Next Milestone Amount
 
-**File 1: `PaymentScheduleSection.tsx`**
-- Delete `formatMilestoneType` function (lines 48-58)
-- Import `getMilestoneLabel` from `@/utils/paymentFormatters`
-- Replace `formatMilestoneType(milestone.milestone_type)` on line 238 with `getMilestoneLabel(milestone.milestone_type)`
-
-**Risk: None.** The canonical `getMilestoneLabel` handles case-insensitive lookup via `.toLowerCase()`. The local `formatMilestoneType` uses uppercase keys (`'DEPOSIT'`, `'MILESTONE'`). Since `getMilestoneLabel` lowercases the input before lookup, it handles both `'DEPOSIT'` and `'deposit'` correctly. No behavior change.
-
-**File 2: `MobileEstimateView.tsx`**
-- Delete inline `getMilestoneLabel` function (lines 769-780) defined inside `.map()` callback
-- Import `getMilestoneLabel` from `@/utils/paymentFormatters` at top of file
-- The call on line 787 already uses `getMilestoneLabel(milestone.milestone_type)` -- no change needed
-
-**Risk: Low.** Same case-insensitive handling applies. One subtle difference: the local version uses a `switch` statement, the canonical uses an object lookup. Both produce identical results for all known milestone types. The fallback is slightly different (local: `type.replace('_', ' ')`, canonical: `type.replace('_', ' ')`) -- identical.
-
----
-
-**Category C: Fix the billing list label map (1 file)**
-
-**`PaymentList.tsx` lines 258-265**: Replace the inline IIFE `typeMap` with imported `getMilestoneLabel`.
-
-Current code:
-```typescript
-const typeMap: Record<string, string> = {
-  DEPOSIT: 'Booking Deposit', COMBINED: 'Booking Deposit',
-  MILESTONE: 'Milestone Payment', BALANCE: 'Final Balance',
-  FULL: 'Full Payment', FINAL: 'Full Payment (Net 30)',
-};
-return typeMap[nextMilestone.milestone_type?.toUpperCase()] || ...
+**Current code (line 262):**
+```
+{formatCurrency(nextMilestone.amount_cents || 0)}
 ```
 
-Replace with: `getMilestoneLabel(nextMilestone.milestone_type)`
-
-**Risk: None.** Same labels, same fallback behavior. The canonical map handles case via `.toLowerCase()`.
-
----
-
-**Category D: Fix the email paid-receipt label map (1 file, edge function)**
-
-`emailTemplates.ts` lines 1986-1995 (`getPaidMilestoneLabel`):
-- Line 1989: `'combined': 'Combined Deposit'` should be `'combined': 'Booking Deposit'`
-- Line 1992: `'balance': 'Final Payment'` should be `'balance': 'Final Balance'`
-- Line 1993: `'final_payment': 'Final Payment'` should be `'final_payment': 'Final Balance'`
-
-**Risk: Low.** Only affects the label shown in payment confirmation emails (e.g., "Booking Deposit Received" instead of "Combined Deposit Received"). No logic or workflow changes.
-
----
-
-### Category E: MobileEstimateView Missing Waterfall (Gap Found)
-
-`MobileEstimateView.tsx` line 794 shows `milestone.amount_cents` -- the raw scheduled amount, not the remaining balance after partial payments. This is the same bug that was fixed in `PaymentScheduleSection.tsx` and `PaymentCard.tsx` but was missed in the mobile admin view.
+**Problem:** `nextMilestone` comes from `invoice.milestones` (the `invoice_payment_summary` view JSON). It's the raw scheduled amount. `invoice.total_paid` is available on the same object.
 
 **Fix:**
 - Import `calculateMilestoneBalances` from `@/utils/paymentFormatters`
-- Apply waterfall to milestones using the transaction-based totalPaid
-- Display `remainingCents` alongside `amount_cents` when they differ
+- After getting `nextMilestone`, run the full milestones array through `calculateMilestoneBalances(milestones, totalPaid)` 
+- Find the matching enriched milestone and display its `remainingCents`
+- Show "of $X scheduled" when remaining differs from scheduled
 
-**Risk: Low.** The mobile view currently shows raw amounts. After the fix, it shows remaining amounts (same as the desktop admin view). The waterfall calculator is pure math -- no side effects.
-
-**Workflow concern:** The mobile view doesn't currently fetch `payment_transactions` separately. It uses the `milestones` array passed from the parent. Need to check if `totalPaid` is available in the parent scope.
+**Data available:** `invoice.milestones` (JSON array), `invoice.total_paid` (number) -- both from the `invoice_payment_summary` view. Everything needed is already present, no new queries required.
 
 ---
 
-### Category F: Print View Uses Milestone-Based totalPaid (Gap Found)
+### Fix 2: MobileEstimateView.tsx -- Apply Waterfall to Milestone List
 
-`EstimatePrintView.tsx` line 339 calculates totalPaid by summing milestones with `status === 'paid'`:
-```typescript
-milestones.filter(m => m.status === 'paid').reduce((s, m) => s + m.amount_cents, 0)
+**Current code (line 783):**
+```
+<p className="font-medium">{formatCurrency(milestone.amount_cents)}</p>
 ```
 
-This misses custom/overflow payments. For the Super Bowl Test: deposit ($40.33) is "paid" so totalPaid = $40.33, but actual totalPaid from transactions is $50.33. The remaining balances shown in the print view will be wrong.
+**Problem:** Shows raw scheduled amount for every milestone, ignoring overflow payments.
 
-**Fix:** Fetch `payment_transactions` for the invoice and use the sum of completed transactions. Fall back to the milestone-based calculation if no transactions are found (for admin RLS access scenarios).
+**Fix:**
+- Import `calculateMilestoneBalances` from `@/utils/paymentFormatters`
+- The component has access to `paymentSummary` (which contains `totalPaid` from transactions) via the parent data
+- Before the `.map()` at line 769, run `calculateMilestoneBalances(milestones, totalPaid)` to get enriched milestones
+- Display `remainingCents` for unpaid milestones, show "X applied" when partial payment exists
 
-**Risk: Low.** Adds one additional Supabase query to the print view page load. The print view already makes multiple queries. The RLS policy on `payment_transactions` allows admin access (ALL policy with `is_admin()`) so this will work for admin users. For customer-accessed print views (if any), the fallback to milestone-based totalPaid ensures no breakage.
+**Data check:** Need to verify `paymentSummary.totalPaid` is available in scope. The component receives `milestones` and `paymentSummary` from the parent `MobileEstimateView` props/state.
 
 ---
 
-### Workflow Impact Assessment
+### Fix 3: emailTemplates.ts getPaidMilestoneLabel -- Missing 'final' Key
 
-| Workflow | Impact | Safe? |
-|----------|--------|-------|
-| Customer pays via Stripe | No change -- PaymentCard already sends `remainingCents` as custom amount | Yes |
-| Admin records manual payment | No change -- PaymentRecorder uses its own amount input | Yes |
-| Milestone regeneration | No change -- only label display affected | Yes |
-| Payment confirmation email | Label text changes ("Combined Deposit" becomes "Booking Deposit") | Yes |
-| Overdue detection in PaymentList | No change -- uses `milestone_type` for grace period check, which checks for "deposit"/"booking" in lowercase. `getMilestoneLabel` is only used for display | Yes |
-| Government toggle / NET 30 | No change -- schedule tier logic untouched | Yes |
-| Stripe webhook processing | No change -- server-side, doesn't use frontend labels | Yes |
-| PDF generation | No change -- already has correct labels | Yes |
+**Current code (line 1986-1996):**
+The label map has `'final_payment': 'Final Balance'` but NOT `'final': 'Final Balance'`. The database stores milestone types as `FINAL` (not `final_payment`). So when a FINAL milestone is paid and the confirmation email is sent, `getPaidMilestoneLabel` looks up `'final'` in the map, finds nothing, and falls back to the generic "Payment" label.
 
-### Files to Change (Summary)
+**Fix:** Add `'final': 'Final Balance'` to the labels map in `getPaidMilestoneLabel`.
 
-| File | Change | Risk |
-|------|--------|------|
-| `src/utils/paymentFormatters.ts` | Fix `final` label to "Final Balance" | None |
-| `src/components/admin/events/PaymentScheduleSection.tsx` | Delete local map, import canonical | None |
-| `src/components/admin/mobile/MobileEstimateView.tsx` | Delete local map, import canonical, add waterfall display | Low |
-| `src/components/admin/billing/PaymentList.tsx` | Replace inline map with canonical import | None |
-| `src/pages/EstimatePrintView.tsx` | Fetch transactions for accurate totalPaid | Low |
-| `supabase/functions/_shared/emailTemplates.ts` | Fix 3 labels in `getPaidMilestoneLabel` | Low |
+---
 
-### What Does NOT Change
+### What Does NOT Need Fixing
 
-- Database schema, RPC functions, triggers
-- Stripe checkout/webhook flow
-- Payment waterfall edge function
-- Customer portal PaymentCard (already correct)
-- Query key fixes (already applied in previous session)
-- `formatMilestoneLabel` in emailTemplates.ts line 89 (already correct)
-- PDF generator label map (already correct)
+- **Email schedule table** (`emailTemplates.ts:2125`): Shows `m.amount_cents` -- this is correct because emails are point-in-time snapshots sent when the schedule is generated. At generation time, no overflow payments have occurred yet.
+- **PDF milestone table** (`generate-invoice-pdf/index.ts:572`): Same reasoning -- PDFs are generated at a specific moment.
+- **PDF label map** (`generate-invoice-pdf/index.ts:162`): Already has correct values matching the canonical map.
+- **Email `formatMilestoneLabel`** (`emailTemplates.ts:89`): Already has correct values.
+- **Customer portal**: Already fully fixed with waterfall.
+- **Admin desktop PaymentScheduleSection**: Already fully fixed with waterfall.
+- **Print view**: Already fully fixed with waterfall.
+
+---
+
+### Changes by File
+
+**1. `src/components/admin/billing/PaymentList.tsx`**
+- Import `calculateMilestoneBalances` from `@/utils/paymentFormatters`
+- After `getNextMilestone()` call (~line 189), apply waterfall:
+  - Parse milestones array, run through `calculateMilestoneBalances(parsedMilestones, totalPaid)`
+  - Find the enriched version of `nextMilestone` by matching `id`
+  - On line 262, display `enrichedNext.remainingCents` instead of `nextMilestone.amount_cents`
+  - When remaining differs from scheduled, append context text
+
+**2. `src/components/admin/mobile/MobileEstimateView.tsx`**
+- Import `calculateMilestoneBalances` from `@/utils/paymentFormatters`
+- Before the milestones `.map()` at line 769, compute enriched milestones using `calculateMilestoneBalances(milestones, paymentSummary.totalPaid)`
+- In the map callback, use enriched milestone data:
+  - Show `remainingCents` for unpaid milestones
+  - Show "X applied" annotation when partial payment exists
+  - Keep showing `amount_cents` for paid milestones (they're fully settled)
+
+**3. `supabase/functions/_shared/emailTemplates.ts`**
+- Line 1986-1996: Add `'final': 'Final Balance'` to the `getPaidMilestoneLabel` labels map (between existing `'combined'` and `'milestone'` entries)
+
+---
+
+### Risk Assessment
+
+| Change | Risk | Reason |
+|--------|------|--------|
+| PaymentList waterfall | None | Pure display math, data already available, no new queries |
+| MobileEstimateView waterfall | Low | Need to confirm `totalPaid` is available in scope; fallback to 0 if not |
+| emailTemplates missing key | None | Adding one key-value pair to a lookup map |
+
+### Workflow Impact: None
+
+All three changes are display-only. No payment flows, Stripe integrations, database writes, or business logic are affected. The waterfall calculator is a pure function that takes milestones + totalPaid and returns enriched objects -- no side effects.
 
 ### Deploy Order
 
-1. Fix `paymentFormatters.ts` (canonical source -- 1 line)
-2. Update `PaymentScheduleSection.tsx`, `MobileEstimateView.tsx`, `PaymentList.tsx` (remove duplicates, add waterfall to mobile)
-3. Fix `EstimatePrintView.tsx` (add transaction fetch)
-4. Fix `emailTemplates.ts` (3 label corrections)
-5. Deploy affected edge functions
-
+1. Fix `PaymentList.tsx` and `MobileEstimateView.tsx` (frontend, instant)
+2. Fix `emailTemplates.ts` (edge function shared code)
+3. Deploy edge functions that use the updated email templates
