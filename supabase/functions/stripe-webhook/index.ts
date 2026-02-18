@@ -125,12 +125,10 @@ serve(async (req) => {
                   type: exactMatch.milestone_type 
                 });
               } else {
-                // Fall back to first pending milestone if no exact match
-                actualMilestoneId = milestones[0].id;
-                logStep("No exact match, marking first pending milestone", { 
-                  milestoneId: actualMilestoneId,
-                  milestoneAmount: milestones[0].amount_cents,
-                  paymentAmount: session.amount_total 
+                // Do NOT fall back to first pending milestone -- prevents marking wrong milestones as paid
+                logStep("No exact milestone match, skipping direct marking", { 
+                  paymentAmount: session.amount_total,
+                  pendingMilestones: milestones.map(m => ({ id: m.id, amount: m.amount_cents }))
                 });
               }
             }

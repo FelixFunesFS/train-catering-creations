@@ -59,6 +59,11 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('Failed to update payment record');
     }
 
+    // Hoist variables so they're accessible in the response
+    let isFullyPaid = false;
+    let totalPaid = 0;
+    let invoiceTotal = 0;
+
     // If payment was successful, update invoice and milestone status
     if (session.payment_status === 'paid' && transaction) {
       // Calculate total paid for this invoice
@@ -74,10 +79,11 @@ const handler = async (req: Request): Promise<Response> => {
         .eq('id', transaction.invoice_id)
         .single();
       
-      const totalPaid = (allTxs || []).reduce((sum, t) => sum + t.amount, 0);
-      const isFullyPaid = invoiceData && totalPaid >= invoiceData.total_amount;
+      totalPaid = (allTxs || []).reduce((sum, t) => sum + t.amount, 0);
+      invoiceTotal = invoiceData?.total_amount ?? 0;
+      isFullyPaid = invoiceData ? totalPaid >= invoiceData.total_amount : false;
       
-      console.log('Payment verification:', { totalPaid, invoiceTotal: invoiceData?.total_amount, isFullyPaid });
+      console.log('Payment verification:', { totalPaid, invoiceTotal, isFullyPaid });
       
       // Update invoice workflow_status based on payment progress
       const { error: invoiceUpdateError } = await supabase
@@ -94,26 +100,34 @@ const handler = async (req: Request): Promise<Response> => {
         console.log(`Invoice marked as ${isFullyPaid ? 'paid' : 'partially_paid'}`);
       }
 
-      // Update the matching milestone to paid
-      const { data: milestones } = await supabase
-        .from('payment_milestones')
-        .select('id, amount_cents')
-        .eq('invoice_id', transaction.invoice_id)
-        .eq('status', 'pending')
-        .order('due_date', { ascending: true });
-      
-      if (milestones?.length) {
-        const match = milestones.find(m => m.amount_cents === transaction.amount) || milestones[0];
-        const { error: milestoneError } = await supabase
+      // Update the matching milestone to paid -- only for non-custom payments with exact match
+      if (transaction.payment_type !== 'custom') {
+        const { data: milestones } = await supabase
           .from('payment_milestones')
-          .update({ status: 'paid' })
-          .eq('id', match.id);
+          .select('id, amount_cents')
+          .eq('invoice_id', transaction.invoice_id)
+          .eq('status', 'pending')
+          .order('due_date', { ascending: true });
         
-        if (milestoneError) {
-          console.error('Error updating milestone:', milestoneError.message);
-        } else {
-          console.log('Milestone marked as paid:', match.id);
+        if (milestones?.length) {
+          const exactMatch = milestones.find(m => m.amount_cents === transaction.amount);
+          if (exactMatch) {
+            const { error: milestoneError } = await supabase
+              .from('payment_milestones')
+              .update({ status: 'paid' })
+              .eq('id', exactMatch.id);
+            
+            if (milestoneError) {
+              console.error('Error updating milestone:', milestoneError.message);
+            } else {
+              console.log('Milestone marked as paid:', exactMatch.id);
+            }
+          } else {
+            console.log('No exact milestone match, skipping direct marking');
+          }
         }
+      } else {
+        console.log('Custom payment -- skipping milestone marking');
       }
 
       // Add payment to history (check if not already exists)
@@ -148,9 +162,9 @@ const handler = async (req: Request): Promise<Response> => {
         invoice_id: transaction.invoice_id,
         amount_total: session.amount_total,
         payment_type: transaction.payment_type,
-        is_fully_paid: isFullyPaid ?? false,
-        total_paid: totalPaid ?? 0,
-        invoice_total: invoiceData?.total_amount ?? 0,
+        is_fully_paid: isFullyPaid,
+        total_paid: totalPaid,
+        invoice_total: invoiceTotal,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
