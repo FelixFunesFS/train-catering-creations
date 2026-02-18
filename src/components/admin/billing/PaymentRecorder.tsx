@@ -534,6 +534,14 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     )}
                   </div>
 
+                  {/* Amount being charged indicator */}
+                  <div className="flex items-center justify-between bg-primary/5 border border-primary/20 rounded-lg px-3 py-2">
+                    <span className="text-xs text-muted-foreground">Charging</span>
+                    <span className="text-sm font-semibold text-primary">
+                      {formatCurrency(getStripeAmount())}
+                    </span>
+                  </div>
+
                   {/* Embedded Checkout or Loading */}
                   {embeddedClientSecret ? (
                     <EmbeddedCheckout
