@@ -189,7 +189,7 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}${milestone_id ? `&milestone_id=${milestone_id}` : ''}`,
+      success_url: `${siteUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}&invoice_id=${invoiceData.id}${milestone_id ? `&milestone_id=${milestone_id}` : ''}&type=${metadata.payment_type || (milestone ? milestone.milestone_type : 'payment')}`,
       cancel_url: `${siteUrl}/payment-canceled${milestone_id ? `?milestone_id=${milestone_id}` : ''}`,
       metadata: sessionMetadata,
       payment_intent_data: {

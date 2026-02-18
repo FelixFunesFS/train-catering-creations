@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle2, Download, ArrowLeft, Loader2, FileText, Calendar, CreditCard, Users } from 'lucide-react';
+import { CheckCircle2, ArrowLeft, Loader2, FileText, Calendar, CreditCard, Users } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface PaymentDetails {
@@ -13,6 +13,10 @@ interface PaymentDetails {
   transaction_id: string;
   invoice_id: string;
   amount_total: number;
+  payment_type?: string;
+  is_fully_paid?: boolean;
+  total_paid?: number;
+  invoice_total?: number;
 }
 
 export default function PaymentSuccess() {
@@ -24,13 +28,12 @@ export default function PaymentSuccess() {
 
   const sessionId = searchParams.get('session_id');
   const invoiceId = searchParams.get('invoice_id');
-  const paymentType = searchParams.get('type') || 'deposit';
+  const urlPaymentType = searchParams.get('type') || 'deposit';
 
   useEffect(() => {
     if (sessionId) {
       verifyPayment();
     } else {
-      // If no session_id, assume successful direct payment
       setLoading(false);
     }
   }, [sessionId]);
@@ -54,7 +57,6 @@ export default function PaymentSuccess() {
   };
 
   const handleViewInvoice = () => {
-    // Get token from session storage or URL param
     const token = sessionStorage.getItem('customerAccessToken') || new URLSearchParams(window.location.search).get('token');
     if (token) {
       navigate(`/estimate?token=${token}`);
@@ -94,7 +96,14 @@ export default function PaymentSuccess() {
     );
   }
 
-  const isPaymentSuccessful = paymentDetails ? paymentDetails.payment_status === 'paid' : true;
+  // Derive display state from backend data, falling back to URL params
+  const isFullyPaid = paymentDetails?.is_fully_paid ?? false;
+  const effectivePaymentType = paymentDetails?.payment_type || urlPaymentType;
+  const isDeposit = effectivePaymentType === 'deposit' && !isFullyPaid;
+  const isMilestoneOrOther = !isFullyPaid && !isDeposit;
+  const remainingBalance = paymentDetails
+    ? (paymentDetails.invoice_total ?? 0) - (paymentDetails.total_paid ?? 0)
+    : null;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -121,6 +130,14 @@ export default function PaymentSuccess() {
                     {paymentDetails.payment_status}
                   </Badge>
                 </div>
+                {remainingBalance !== null && remainingBalance > 0 && !isFullyPaid && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Remaining Balance:</span>
+                    <span className="font-medium text-orange-600">
+                      {formatCurrency(remainingBalance / 100)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Transaction ID:</span>
                   <span className="text-xs font-mono text-muted-foreground">
@@ -132,19 +149,35 @@ export default function PaymentSuccess() {
           )}
 
           <div className="text-center">
-            <p className="text-lg text-muted-foreground mb-4">
-              Thank you! Your {paymentType === 'deposit' ? 'deposit' : 'payment'} has been processed successfully.
-            </p>
-            
-            {paymentType === 'deposit' && (
-              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-6">
-                <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                  🎉 Your Event Date is Now Secured!
-                </h3>
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  You'll receive a service agreement via email within 24 hours for your digital signature.
+            {/* Tier 1: Fully Paid */}
+            {isFullyPaid && (
+              <p className="text-lg text-muted-foreground mb-4">
+                Thank you! Your event is fully paid and confirmed.
+              </p>
+            )}
+
+            {/* Tier 2: Deposit */}
+            {isDeposit && (
+              <>
+                <p className="text-lg text-muted-foreground mb-4">
+                  Thank you! Your deposit has been processed successfully.
                 </p>
-              </div>
+                <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg mb-6">
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                    🎉 Your Event Date is Now Secured!
+                  </h3>
+                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                    You'll receive a service agreement via email within 24 hours for your digital signature.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* Tier 3: Milestone / Custom / Other partial */}
+            {isMilestoneOrOther && (
+              <p className="text-lg text-muted-foreground mb-4">
+                Thank you! Your payment has been received.
+              </p>
             )}
 
             <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg mb-6">
@@ -152,22 +185,7 @@ export default function PaymentSuccess() {
                 What happens next?
               </h3>
               <div className="space-y-2 text-sm text-green-700 dark:text-green-300">
-                {paymentType === 'deposit' ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      <span>Service agreement sent for signature</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      <span>Final details confirmation 1 week before event</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" />
-                      <span>Remaining balance due 2 weeks prior to event</span>
-                    </div>
-                  </>
-                ) : (
+                {isFullyPaid ? (
                   <>
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-4 w-4" />
@@ -182,11 +200,41 @@ export default function PaymentSuccess() {
                       <span>Menu and guest count finalization</span>
                     </div>
                   </>
+                ) : isDeposit ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Service agreement sent for signature</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Remaining balance schedule available in your portal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>Final details confirmation 1 week before event</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Updated payment schedule available in your portal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>Final details confirmation 1 week before event</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>Full confirmation once final balance is received</span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+            <div className="bg-muted/50 p-4 rounded-lg">
               <h3 className="font-semibold mb-2">Need Help?</h3>
               <p className="text-sm text-muted-foreground mb-3">
                 Our team is here to help with any questions about your event.

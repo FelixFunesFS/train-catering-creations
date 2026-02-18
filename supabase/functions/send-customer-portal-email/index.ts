@@ -204,7 +204,9 @@ const handler = async (req: Request): Promise<Response> => {
       'payment_reminder': `Payment Due - ${invoice.invoice_number || 'Invoice'} - ${quote.event_name}`,
       'payment_received': is_full_payment
         ? `[CONFIRMED] Payment Received - Your Event is Secured!`
-        : `[PAYMENT] Deposit Received - ${quote.event_name}`,
+        : metadata?.payment_type === 'deposit'
+          ? `[PAYMENT] Deposit Received - ${quote.event_name}`
+          : `[PAYMENT] Payment Received - ${quote.event_name}`,
       'approval_confirmation': `[APPROVED] Estimate Approved - Next Steps for ${quote.event_name}`,
     };
     const subject = subjectMap[emailType] || variantConfig.heroSection.title;

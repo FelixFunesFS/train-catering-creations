@@ -187,7 +187,15 @@ function buildAdminNotificationEmail(
     case 'payment_received':
       const paymentAmount = metadata.amount || 0;
       const isFullPayment = metadata.full_payment || false;
-      const paymentType = metadata.payment_type === 'full' ? 'Full Payment' : '50% Deposit';
+      const invoiceTotal = invoice?.total_amount || 1;
+      const paidPercent = Math.round((paymentAmount / invoiceTotal) * 100);
+      const paymentType = isFullPayment
+        ? 'Full Payment'
+        : metadata.payment_type === 'deposit'
+          ? `${paidPercent}% Deposit`
+          : metadata.payment_type === 'custom'
+            ? 'Custom Payment'
+            : `${paidPercent}% Payment`;
 
       subject = `[PAYMENT] ${eventName}`;
       preheaderText = `${formatCurrency(paymentAmount)} received from ${contactName}`;
