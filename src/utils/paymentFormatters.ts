@@ -36,7 +36,7 @@ export const getMilestoneLabel = (type: string): string => {
     milestone: 'Milestone Payment',
     balance: 'Final Balance',
     full: 'Full Payment',
-    final: 'Full Payment (Net 30)',
+    final: 'Final Balance',
   };
   return labels[type.toLowerCase()] || type.replace('_', ' ');
 };

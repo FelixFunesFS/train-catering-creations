@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getMilestoneLabel } from '@/utils/paymentFormatters';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
@@ -255,14 +256,7 @@ export function PaymentList() {
                     )}
                     <div className="flex-1 text-sm">
                       <span className="font-medium">
-                       {(() => {
-                         const typeMap: Record<string, string> = {
-                           DEPOSIT: 'Booking Deposit', COMBINED: 'Booking Deposit',
-                           MILESTONE: 'Milestone Payment', BALANCE: 'Final Balance',
-                           FULL: 'Full Payment', FINAL: 'Full Payment (Net 30)',
-                         };
-                         return typeMap[nextMilestone.milestone_type?.toUpperCase()] || nextMilestone.milestone_type?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-                       })()}:
+                       {getMilestoneLabel(nextMilestone.milestone_type || '')}:
                       </span>{' '}
                       <span className={milestoneOverdue ? 'text-destructive font-medium' : milestoneDueToday ? 'text-amber-600 font-medium' : ''}>
                         {formatCurrency(nextMilestone.amount_cents || 0)}
