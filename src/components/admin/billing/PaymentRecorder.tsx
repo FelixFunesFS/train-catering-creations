@@ -364,7 +364,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     <CheckCircle2 className="h-8 w-8 text-emerald-600 mx-auto" />
                     <p className="font-medium text-emerald-800">Payment Link Ready</p>
                     <p className="text-xs text-emerald-600">
-                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? '50% Deposit' : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
+                      {formatCurrency(getStripeAmount())} • {stripePaymentType === 'deposit' ? depositLabel : stripePaymentType === 'milestone' ? 'Milestone Payment' : 'Full Balance'}
                     </p>
                   </div>
 
