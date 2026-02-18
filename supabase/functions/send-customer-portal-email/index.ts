@@ -201,7 +201,7 @@ const handler = async (req: Request): Promise<Response> => {
     const subjectMap: Record<string, string> = {
       'quote_confirmation': `Welcome to Soul Train's Eatery - Access Your Event Details`,
       'estimate_ready': `Your Catering Estimate is Ready - ${quote.event_name}`,
-      'payment_reminder': `Payment Reminder - ${quote.event_name}`,
+      'payment_reminder': `Payment Due - ${invoice.invoice_number || 'Invoice'} - ${quote.event_name}`,
       'payment_received': is_full_payment
         ? `[CONFIRMED] Payment Received - Your Event is Secured!`
         : `[PAYMENT] Deposit Received - ${quote.event_name}`,

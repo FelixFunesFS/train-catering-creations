@@ -2143,6 +2143,7 @@ export function getEmailContentBlocks(
       }
 
       contentBlocks = [
+        { type: 'custom_html', data: { html: `<!-- ref: payment_reminder-${Date.now()} -->` }},
         { type: 'text', data: { html: greetingHtml }},
         { type: 'custom_html', data: { html: paymentSummaryHtml }},
         { type: 'custom_html', data: { html: milestoneScheduleHtml }},
