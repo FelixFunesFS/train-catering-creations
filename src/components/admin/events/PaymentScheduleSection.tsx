@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RefreshCw, CheckCircle2, Clock, AlertCircle, DollarSign } from 'lucide-react';
 import { usePaymentTransactions } from '@/hooks/useInvoices';
+import { calculateMilestoneBalances } from '@/utils/paymentFormatters';
 
 interface PaymentMilestone {
   id: string;
@@ -98,6 +99,22 @@ export function PaymentScheduleSection({
     
     return { totalPaid, totalDue, balance, percentPaid, transactionCount: completedTransactions.length };
   }, [milestones, transactions]);
+
+  // Calculate per-milestone remaining balances using waterfall
+  const enrichedMilestones = useMemo(() => {
+    return calculateMilestoneBalances(
+      milestones.map(m => ({
+        id: m.id,
+        milestone_type: m.milestone_type,
+        amount_cents: m.amount_cents,
+        percentage: m.percentage,
+        status: m.status,
+        due_date: m.due_date,
+        is_due_now: m.is_due_now,
+      })),
+      paymentSummary.totalPaid
+    );
+  }, [milestones, paymentSummary.totalPaid]);
 
   // Group transactions by milestone
   const transactionsByMilestone = useMemo(() => {
@@ -195,11 +212,12 @@ export function PaymentScheduleSection({
         </p>
       ) : (
         <div className="space-y-3">
-          {milestones.map((milestone) => {
+          {enrichedMilestones.map((milestone) => {
             const isPaid = milestone.status === 'paid';
             const isDue = milestone.status === 'pending' && 
               milestone.due_date && new Date(milestone.due_date) <= new Date();
             const milestoneTransactions = transactionsByMilestone.get(milestone.id) || [];
+            const hasPartialPayment = !isPaid && milestone.appliedCents > 0;
             
             return (
               <div 
@@ -215,7 +233,7 @@ export function PaymentScheduleSection({
                 {/* Milestone Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {getMilestoneIcon(milestone.status, isDue)}
+                    {getMilestoneIcon(milestone.status, !!isDue)}
                     <span className="font-medium text-sm">
                       {formatMilestoneType(milestone.milestone_type)}
                     </span>
@@ -223,15 +241,28 @@ export function PaymentScheduleSection({
                       ({milestone.percentage}%)
                     </span>
                   </div>
-                  <span className="font-semibold">
-                    {formatCurrency(milestone.amount_cents)}
-                  </span>
+                  <div className="text-right">
+                    {hasPartialPayment ? (
+                      <>
+                        <span className="font-semibold">
+                          {formatCurrency(milestone.remainingCents)}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          of {formatCurrency(milestone.amount_cents)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="font-semibold">
+                        {formatCurrency(milestone.amount_cents)}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Milestone Details */}
                 <div className="mt-2 flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">
-                    {milestone.description}
+                    {milestones.find(m => m.id === milestone.id)?.description}
                   </span>
                   {isPaid ? (
                     <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
