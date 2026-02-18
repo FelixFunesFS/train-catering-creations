@@ -159,11 +159,24 @@ export function useEstimateActions({
       if (error) throw error;
 
       if (!isResendMode && invoiceId) {
-        await supabase.from('invoices').update({
-          workflow_status: 'sent',
-          sent_at: new Date().toISOString(),
-          is_draft: false,
-        }).eq('id', invoiceId);
+        // Safety guard: only mark as 'sent' if invoice hasn't progressed beyond draft/pending_review
+        const { data: freshInvoice } = await supabase
+          .from('invoices')
+          .select('workflow_status')
+          .eq('id', invoiceId)
+          .single();
+        
+        const safeToMarkSent = ['draft', 'pending_review'].includes(
+          freshInvoice?.workflow_status || ''
+        );
+        
+        if (safeToMarkSent) {
+          await supabase.from('invoices').update({
+            workflow_status: 'sent',
+            sent_at: new Date().toISOString(),
+            is_draft: false,
+          }).eq('id', invoiceId);
+        }
       }
 
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
