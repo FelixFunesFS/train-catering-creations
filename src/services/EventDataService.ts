@@ -311,7 +311,7 @@ export class EventDataService {
     ).length;
 
     const eventsThisWeek = events.filter(e => {
-      const eventDate = new Date(e.event_date);
+      const eventDate = parseDateFromLocalString(e.event_date);
       return eventDate >= today && eventDate <= weekFromNow;
     }).length;
 

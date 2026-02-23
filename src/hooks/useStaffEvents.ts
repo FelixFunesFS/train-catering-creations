@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { differenceInDays, parseISO, startOfDay, addDays } from 'date-fns';
+import { differenceInDays, startOfDay, addDays } from 'date-fns';
+import { parseDateFromLocalString, formatDateToLocalString } from '@/utils/dateHelpers';
 
 // Staff assignment type from database
 export interface StaffAssignment {
@@ -156,7 +157,7 @@ function transformToStaffEvent(
   adminNotes: StaffAdminNote[]
 ): StaffEvent {
   const today = startOfDay(new Date());
-  const eventDate = parseISO(row.event_date as string);
+  const eventDate = parseDateFromLocalString(row.event_date as string);
   const daysUntil = differenceInDays(eventDate, today);
   
   return {
@@ -291,8 +292,8 @@ async function fetchAdminNotesForEvents(eventIds: string[]): Promise<Record<stri
 // Fetch staff events with optional filter
 async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]> {
   const today = startOfDay(new Date());
-  const todayStr = today.toISOString().split('T')[0];
-  const weekEndStr = addDays(today, 7).toISOString().split('T')[0];
+  const todayStr = formatDateToLocalString(today);
+  const weekEndStr = formatDateToLocalString(addDays(today, 7));
   
   let query = supabase
     .from('quote_requests')

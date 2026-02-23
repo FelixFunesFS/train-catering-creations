@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useQuery } from '@tanstack/react-query';
@@ -222,7 +222,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           comparison = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
           break;
         case 'date':
-          comparison = parseISO(a.event_date).getTime() - parseISO(b.event_date).getTime();
+          comparison = parseDateFromLocalString(a.event_date).getTime() - parseDateFromLocalString(b.event_date).getTime();
           break;
         case 'name':
           comparison = a.contact_name.localeCompare(b.contact_name);

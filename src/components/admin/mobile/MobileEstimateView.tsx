@@ -50,6 +50,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { format } from 'date-fns';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { formatTime, formatServiceType, formatEventType, formatReferralSource } from '@/utils/formatters';
 import { useRegenerateLineItems } from '@/hooks/useRegenerateLineItems';
 import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
@@ -271,10 +272,9 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
           {/* Show completed badge or mark complete button */}
           {(() => {
             const isCompleted = quote?.workflow_status === 'completed';
-            const isEventDayOrLater = (() => {
+              const isEventDayOrLater = (() => {
               if (!quote?.event_date) return false;
-              const eventDate = new Date(quote.event_date);
-              eventDate.setHours(0, 0, 0, 0);
+              const eventDate = parseDateFromLocalString(quote.event_date);
               const today = new Date();
               today.setHours(0, 0, 0, 0);
               return today >= eventDate;
@@ -355,7 +355,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       <div>
                         <p className="text-muted-foreground text-xs">Date</p>
                         <p className="font-medium">
-                          {quote?.event_date ? format(new Date(quote.event_date), 'MMM d, yyyy') : 'TBD'}
+                          {quote?.event_date ? format(parseDateFromLocalString(quote.event_date), 'MMM d, yyyy') : 'TBD'}
                         </p>
                       </div>
                     </div>

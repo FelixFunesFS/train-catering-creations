@@ -9,7 +9,7 @@ import {
   isSameDay, 
   isSameMonth, 
   isToday,
-  parseISO 
+  
 } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Database } from '@/integrations/supabase/types';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
@@ -80,7 +81,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
     const grouped: Record<string, EventWithInvoice[]> = {};
     
     events.forEach(event => {
-      const dateKey = format(parseISO(event.event_date), 'yyyy-MM-dd');
+      const dateKey = format(parseDateFromLocalString(event.event_date), 'yyyy-MM-dd');
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
       }

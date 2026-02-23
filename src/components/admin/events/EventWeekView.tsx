@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { format, startOfWeek, addDays, isSameDay, isToday, parseISO } from 'date-fns';
+import { format, startOfWeek, addDays, isSameDay, isToday } from 'date-fns';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -118,7 +119,7 @@ export function EventWeekView({ events, currentDate, onEventClick }: EventWeekVi
     weekDays.forEach(day => {
       const dateKey = format(day, 'yyyy-MM-dd');
       grouped[dateKey] = events.filter(event => 
-        isSameDay(parseISO(event.event_date), day)
+        isSameDay(parseDateFromLocalString(event.event_date), day)
       );
     });
     
