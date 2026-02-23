@@ -1,4 +1,5 @@
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { MapPin, Users, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +30,7 @@ function getCountdownBadge(daysUntil: number, eventDate: string): { text: string
   if (daysUntil === 0) return { text: 'TODAY', className: 'bg-destructive text-destructive-foreground' };
   if (daysUntil === 1) return { text: 'TOMORROW', className: 'bg-amber-500 text-white' };
   if (daysUntil <= 7) return { text: `IN ${daysUntil} DAYS`, className: 'bg-blue-500 text-white' };
-  return { text: format(parseISO(eventDate), 'MMM d'), className: 'bg-muted text-muted-foreground' };
+  return { text: format(parseDateFromLocalString(eventDate), 'MMM d'), className: 'bg-muted text-muted-foreground' };
 }
 
 // Format time for display
@@ -89,7 +90,7 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="h-4 w-4 shrink-0" />
           <span>
-            {format(parseISO(event.event_date), 'EEE, MMM d')} • {formatTime(event.start_time)}
+            {format(parseDateFromLocalString(event.event_date), 'EEE, MMM d')} • {formatTime(event.start_time)}
           </span>
         </div>
 

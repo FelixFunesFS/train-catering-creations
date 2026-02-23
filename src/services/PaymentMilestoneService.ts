@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { buildPaymentSchedule, determineCustomerType, calculatePaymentAmounts } from '@/utils/paymentScheduling';
+import { parseDateFromLocalString, formatDateToLocalString } from '@/utils/dateHelpers';
 
 export class PaymentMilestoneService {
   /**
@@ -44,7 +45,7 @@ export class PaymentMilestoneService {
 
       // Build payment schedule
       const schedule = buildPaymentSchedule(
-        new Date(quote.event_date),
+        parseDateFromLocalString(quote.event_date),
         customerType,
         new Date(),
         invoice.total_amount
@@ -53,13 +54,7 @@ export class PaymentMilestoneService {
       // Calculate amounts for each rule
       const payments = calculatePaymentAmounts(schedule);
 
-      // Helper to format date to YYYY-MM-DD using local timezone
-      const formatDateLocal = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
+      // Use shared date helper for consistent formatting
 
       // Insert milestones
       const milestones = payments.map(payment => ({
@@ -68,7 +63,7 @@ export class PaymentMilestoneService {
         description: payment.rule.description,
         percentage: payment.rule.percentage,
         amount_cents: payment.amount_cents,
-        due_date: typeof payment.due_date === 'string' ? null : formatDateLocal(payment.due_date),
+        due_date: typeof payment.due_date === 'string' ? null : formatDateToLocalString(payment.due_date),
         is_due_now: payment.due_date === 'NOW',
         is_net30: payment.due_date === 'NET_30_AFTER_EVENT',
         status: 'pending'

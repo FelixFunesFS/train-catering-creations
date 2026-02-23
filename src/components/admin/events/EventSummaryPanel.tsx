@@ -1,4 +1,5 @@
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -175,7 +176,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{format(parseISO(event.event_date), 'MMM d, yyyy')}</span>
+                <span>{format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />

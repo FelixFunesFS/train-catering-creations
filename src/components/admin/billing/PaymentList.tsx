@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
-import { format, parseISO, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
+import { format, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,7 +85,7 @@ export function PaymentList() {
   const isMilestoneOverdue = (dueDate: string | null, milestoneType: string | null) => {
     if (!dueDate) return false;
     const today = startOfDay(new Date());
-    const due = startOfDay(parseISO(dueDate));
+    const due = startOfDay(parseDateFromLocalString(dueDate));
     
     // 7-day grace period for deposit milestones
     const isDeposit = milestoneType?.toLowerCase().includes('deposit') || 
@@ -100,7 +100,7 @@ export function PaymentList() {
   const isMilestoneDueToday = (dueDate: string | null) => {
     if (!dueDate) return false;
     const today = startOfDay(new Date());
-    const due = startOfDay(parseISO(dueDate));
+    const due = startOfDay(parseDateFromLocalString(dueDate));
     return isEqual(today, due);
   };
 
@@ -286,7 +286,7 @@ export function PaymentList() {
                       </span>
                       {nextMilestone.due_date && (
                         <span className={milestoneDueToday ? 'text-amber-600' : 'text-muted-foreground'}>
-                          {' '}• {milestoneOverdue ? 'Overdue since' : milestoneDueToday ? 'Due today' : 'Due'} {!milestoneDueToday && format(parseISO(nextMilestone.due_date), 'MMM d, yyyy')}
+                          {' '}• {milestoneOverdue ? 'Overdue since' : milestoneDueToday ? 'Due today' : 'Due'} {!milestoneDueToday && format(parseDateFromLocalString(nextMilestone.due_date), 'MMM d, yyyy')}
                         </span>
                       )}
                     </div>
