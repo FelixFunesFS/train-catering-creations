@@ -1,56 +1,100 @@
 
 
-# Fix Date Parsing Inconsistencies Across All Views
+## Staff BEO: Single Source of Truth (Revised)
 
-## Problem
+### Problem Summary
 
-The project has a well-documented `dateHelpers.ts` utility that prevents timezone-related off-by-one day bugs. However, **11 files** still use unsafe date parsing (`parseISO()` or `new Date(dateString)`), which can shift dates by one day depending on the user's timezone.
+When an admin modifies the estimate (adds/removes items, changes services), those changes update `invoice_line_items` but NOT the raw boolean/array fields on `quote_requests`. The staff view currently reads equipment and service details from those stale raw fields, creating a data mismatch.
 
-## Affected Files (Grouped by Risk)
+Conversely, if an admin edits quote-level fields (location, guest count, contact info, event date), those update immediately since the hook reads directly from `quote_requests`.
 
-### High Priority -- User-Facing Display Bugs
-These show wrong dates to users on mobile and desktop:
+### Data Flow After Fix
 
-| File | Current (Buggy) | Fix |
-|------|-----------------|-----|
-| `src/hooks/useStaffEvents.ts` | `parseISO(row.event_date)` | `parseDateFromLocalString(row.event_date)` |
-| `src/components/staff/StaffEventCard.tsx` | `parseISO(event.event_date)` (2 places) | `parseDateFromLocalString()` + `format()` |
-| `src/components/staff/StaffEventDetails.tsx` | `parseISO(event.event_date)` (2 places) | `parseDateFromLocalString()` + `format()` |
-| `src/components/admin/events/EventWeekView.tsx` | `parseISO(event.event_date)` | `parseDateFromLocalString()` |
-| `src/components/admin/events/EventMonthView.tsx` | `parseISO(event.event_date)` | `parseDateFromLocalString()` |
-| `src/components/admin/events/EventSummaryPanel.tsx` | `parseISO(event.event_date)` | `parseDateFromLocalString()` |
-| `src/components/admin/events/EventList.tsx` | `parseISO(...)` | `parseDateFromLocalString()` |
+```text
+Admin changes estimate line items
+       |
+       v
+invoice_line_items updated (DB trigger recalculates totals)
+       |
+       v
+Staff view reads line_items --> renders ALL operational sections from them
+       |
+       v
+Raw quote_requests fields used ONLY as fallback (pre-estimate events)
+       + ALWAYS used for: location, date, guest count, contact info,
+         theme colors, military org, dietary_restrictions array,
+         special_requests, ceremony_included, custom_menu_requests
+```
 
-### Medium Priority -- Logic Bugs (wrong overdue/comparison calculations)
-| File | Current (Buggy) | Fix |
-|------|-----------------|-----|
-| `src/components/admin/billing/PaymentList.tsx` | `parseISO(dueDate)` for overdue checks (lines 88, 103) | `parseDateFromLocalString(dueDate)` |
-| `src/components/admin/mobile/MobileEstimateView.tsx` | `new Date(quote.event_date)` (2 places) | `parseDateFromLocalString()` |
-| `src/services/EventDataService.ts` | `new Date(e.event_date)` for "events this week" KPI | `parseDateFromLocalString()` |
-| `src/services/PaymentMilestoneService.ts` | `new Date(quote.event_date)` for schedule building | `parseDateFromLocalString()` |
+### What Changes
 
-### Low Priority -- Edge Functions (run in UTC, less affected)
-These edge functions use `new Date(event_date)` but run server-side in UTC. They have a shared `dateHelpers.ts` already available but don't use it consistently. These will NOT be changed in this plan to avoid risk -- they can be addressed in a separate pass.
+#### 1. Data Layer: `src/hooks/useStaffEvents.ts`
 
-## Technical Approach
+- Add 4 missing fields to `QUOTE_FIELDS`: `custom_menu_requests`, `utensils`, `extras`, `ceremony_included`
+- Add matching properties to `StaffEvent` interface
+- Update `transformToStaffEvent` to parse them (JSON arrays + boolean)
+- Add computed flag `has_approved_line_items: boolean` (true when `line_items.length > 0`)
+- Reduce `staleTime` from 5 minutes to 2 minutes for fresher data
 
-For each file:
-1. Replace `parseISO` import from `date-fns` with `parseDateFromLocalString` from `@/utils/dateHelpers`
-2. Replace `new Date(dateString)` calls with `parseDateFromLocalString(dateString)`
-3. Keep `format()` from `date-fns` for display formatting (it works fine with correct Date objects)
-4. Remove unused `parseISO` imports to keep code clean
+#### 2. Display Logic: `src/components/staff/StaffEventDetails.tsx`
 
-## What Does NOT Change
-- No database schema changes
-- No API or edge function changes (deferred to separate pass)
-- No RLS or security changes
-- `date-fns` `format()` is still used for display formatting -- only the parsing step changes
-- All existing `parseDateFromLocalString` usages remain untouched
-- Time strings ("HH:MM") are exempt -- they don't go through Date objects
+**Line-item-first rendering (when `has_approved_line_items` is true):**
 
-## Why This Is Safe
-- `parseDateFromLocalString` is already battle-tested in 10+ files across the project
-- It produces the exact same Date object as `parseISO` would in UTC+0, but correct in all timezones
-- `format()` from `date-fns` accepts any valid Date, so display formatting is unaffected
-- `isSameDay()`, `isAfter()`, `isEqual()`, `differenceInDays()` all work identically with either parsing method
+- "Event Requirements" section: Already renders from `LineItemsByCategory` -- no change needed
+- "Equipment/Supplies" section: Derive from line items with category `supplies` instead of raw boolean flags (`chafers_requested`, `plates_requested`, etc.)
+- "Service Details" section: Derive from line items with category `service` or `service_addon` instead of raw boolean flags (`wait_staff_requested`, `bussing_tables_needed`, etc.)
+- This ensures that if the admin removed "Wait Staff" from the estimate, it disappears from the staff BEO
+
+**Fallback rendering (when no line items exist):**
+
+- Keep current behavior reading from raw quote fields -- these are pre-estimate events where the original submission is the only data available
+
+**Always shown regardless of line item status (event-level fields that admins edit on `quote_requests` directly):**
+
+- Location, date, time, guest count, contact info -- already correct
+- `special_requests` -- operational context
+- `dietary_restrictions` array + `guest_count_with_restrictions` -- safety-critical
+- `theme_colors`, `military_organization` -- event context
+- `ceremony_included` -- new, shown as badge for wedding events
+
+**New "Customer Notes" section:**
+
+- `custom_menu_requests` -- free-text food notes from the customer
+- `extras` -- additional items requested (JSON array, rendered as bullet list)
+- `utensils` -- utensil preferences (JSON array)
+- Only shown when at least one of these has content
+- Rendered with a distinct visual style (info callout) so staff knows these are original customer notes vs. approved scope
+
+**Data provenance indicator:**
+
+- Small text label: "Based on approved estimate" or "Based on quote submission" so staff knows the data source
+
+**Refresh button:**
+
+- Manual refresh icon button in the detail header to force re-fetch
+
+#### 3. Desktop Empty States: `src/pages/StaffSchedule.tsx`
+
+- Update desktop empty state to match mobile's filter-aware messages:
+  - "today" filter: "No events scheduled for today"
+  - "week" filter: "No events scheduled this week"
+  - "all" filter: "No upcoming events found"
+
+### Why This Is Safe
+
+- **Admin edits to quote-level fields** (location, date, guest count, contact): The hook reads these directly from `quote_requests` on every fetch -- changes appear immediately on next query refresh
+- **Admin edits to line items** (add/remove food, services, equipment): The hook reads these from `invoice_line_items` on every fetch -- changes appear immediately on next query refresh
+- **Admin edits to admin notes**: Fetched directly from `admin_notes` table -- changes appear immediately
+- **Admin edits to staff assignments**: Fetched directly from `staff_assignments` table -- changes appear immediately
+- **No caching staleness beyond 2 minutes** with the reduced staleTime, plus manual refresh option
+
+### Files Modified
+
+1. `src/hooks/useStaffEvents.ts` -- Add 4 fields, computed flag, reduce staleTime
+2. `src/components/staff/StaffEventDetails.tsx` -- Line-item-first rendering for equipment/service sections, add customer notes section, ceremony badge, provenance indicator, refresh button
+3. `src/pages/StaffSchedule.tsx` -- Align desktop empty states with mobile
+
+### No Database Changes Required
+
+All data already exists. This is purely a frontend rendering logic change to ensure the staff BEO always reflects the admin's latest approved scope.
 
