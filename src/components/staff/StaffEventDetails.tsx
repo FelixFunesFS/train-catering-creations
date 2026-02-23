@@ -3,7 +3,7 @@ import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { 
   MapPin, Users, Clock, ChefHat, Utensils, CheckCircle2, 
   AlertTriangle, ChevronDown, User, Phone, Shield, Palette,
-  MessageSquare, StickyNote, Package
+  MessageSquare, StickyNote, Package, RefreshCw, Info, Heart
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import type { StaffEvent, StaffAssignment, StaffLineItem, StaffAdminNote } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
@@ -175,9 +176,15 @@ function StaffAssignmentCard({ assignment }: { assignment: StaffAssignment }) {
   );
 }
 
-// Line items grouped by category
-function LineItemsByCategory({ lineItems }: { lineItems: StaffLineItem[] }) {
-  const grouped = lineItems.reduce((acc, item) => {
+// Line items grouped by category (excludes service & supplies when rendered separately)
+function LineItemsByCategory({ lineItems, excludeCategories }: { lineItems: StaffLineItem[]; excludeCategories?: string[] }) {
+  const filtered = excludeCategories 
+    ? lineItems.filter(item => !excludeCategories.includes(item.category || 'other'))
+    : lineItems;
+
+  if (filtered.length === 0) return null;
+
+  const grouped = filtered.reduce((acc, item) => {
     const cat = item.category || 'other';
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(item);
@@ -230,6 +237,26 @@ function LineItemsByCategory({ lineItems }: { lineItems: StaffLineItem[] }) {
   );
 }
 
+// Line items filtered by categories
+function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLineItem[]; categories: string[] }) {
+  const filtered = lineItems.filter(item => categories.includes(item.category || ''));
+  if (filtered.length === 0) return null;
+  
+  return (
+    <ul className="space-y-2">
+      {filtered.map(item => (
+        <li key={item.id} className="text-sm flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <span>{item.title}</span>
+          {item.quantity > 1 && (
+            <span className="text-muted-foreground">×{item.quantity}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // Admin notes display
 function AdminNotesBlock({ notes }: { notes: StaffAdminNote[] }) {
   if (notes.length === 0) return null;
@@ -263,26 +290,102 @@ function AdminNotesBlock({ notes }: { notes: StaffAdminNote[] }) {
   );
 }
 
+// Customer Notes section
+function CustomerNotesSection({ event }: { event: StaffEvent }) {
+  const hasCustomMenuRequests = !!event.custom_menu_requests;
+  const hasExtras = event.extras.length > 0;
+  const hasUtensils = event.utensils.length > 0;
+  
+  if (!hasCustomMenuRequests && !hasExtras && !hasUtensils) return null;
+  
+  return (
+    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-medium text-sm mb-3">
+        <Info className="h-4 w-4" />
+        Customer Notes & Preferences
+      </div>
+      <div className="space-y-3">
+        {hasCustomMenuRequests && (
+          <div>
+            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Menu Notes</h5>
+            <p className="text-sm text-blue-900 dark:text-blue-200">{event.custom_menu_requests}</p>
+          </div>
+        )}
+        {hasExtras && (
+          <div>
+            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Additional Requests</h5>
+            <ul className="space-y-1">
+              {event.extras.map((extra, i) => (
+                <li key={i} className="text-sm text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  {convertMenuIdToReadableText(extra)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {hasUtensils && (
+          <div>
+            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Utensil Preferences</h5>
+            <ul className="space-y-1">
+              {event.utensils.map((utensil, i) => (
+                <li key={i} className="text-sm text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                  {convertMenuIdToReadableText(utensil)}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
+  const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const countdown = getCountdownBadge(event.days_until, event.event_date);
   const confirmation = getConfirmationBadge(event.workflow_status);
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
 
-  const hasLineItems = event.line_items.length > 0;
+  const hasLineItems = event.has_approved_line_items;
+
+  // Check if line items contain specific categories
+  const hasSuppliesLineItems = hasLineItems && event.line_items.some(li => li.category === 'supplies');
+  const hasServiceLineItems = hasLineItems && event.line_items.some(li => ['service', 'service_addon'].includes(li.category || ''));
 
   // Fallback: raw menu data if no line items
   const hasMenuItems = event.proteins.length > 0 || event.sides.length > 0 || 
     event.appetizers.length > 0 || event.desserts.length > 0 || 
     event.drinks.length > 0 || event.vegetarian_entrees.length > 0;
 
-  const hasEquipment = event.chafers_requested || event.plates_requested || 
+  // Equipment from raw fields (fallback only)
+  const hasEquipmentFallback = !hasLineItems && (
+    event.chafers_requested || event.plates_requested || 
     event.cups_requested || event.napkins_requested || 
-    event.serving_utensils_requested || event.ice_requested;
+    event.serving_utensils_requested || event.ice_requested
+  );
 
-  const hasServiceDetails = event.wait_staff_requested || event.bussing_tables_needed || 
-    event.cocktail_hour || event.special_requests ||
-    event.serving_setup_area || event.separate_serving_area ||
-    event.wait_staff_requirements || event.wait_staff_setup_areas;
+  // Service from raw fields (fallback only)
+  const hasServiceFallback = !hasLineItems && (
+    event.wait_staff_requested || event.bussing_tables_needed || 
+    event.cocktail_hour || event.serving_setup_area || 
+    event.separate_serving_area || event.wait_staff_requirements || 
+    event.wait_staff_setup_areas
+  );
+
+  // Combined checks for showing sections
+  const showEquipmentSection = hasSuppliesLineItems || hasEquipmentFallback;
+  const showServiceSection = hasServiceLineItems || hasServiceFallback || event.special_requests ||
+    (hasLineItems && (event.serving_setup_area || event.separate_serving_area || event.wait_staff_requirements || event.wait_staff_setup_areas));
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['staff-event', event.id] });
+    await queryClient.invalidateQueries({ queryKey: ['staff-events'] });
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   return (
     <div className="space-y-4">
@@ -290,14 +393,38 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
-            <Badge className={cn("text-xs font-semibold", countdown.className)}>
-              {countdown.text}
-            </Badge>
-            <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>
-              {confirmation.text}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className={cn("text-xs font-semibold", countdown.className)}>
+                {countdown.text}
+              </Badge>
+              {event.ceremony_included && event.event_type === 'wedding' && (
+                <Badge variant="outline" className="bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20 text-xs">
+                  <Heart className="h-3 w-3 mr-1" />
+                  Ceremony
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleRefresh}
+                className="h-8 w-8"
+                title="Refresh event data"
+              >
+                <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+              </Button>
+              <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>
+                {confirmation.text}
+              </Badge>
+            </div>
           </div>
           <CardTitle className="text-xl leading-tight">{event.event_name}</CardTitle>
+          
+          {/* Data provenance indicator */}
+          <p className="text-xs text-muted-foreground/70 italic">
+            {hasLineItems ? '📋 Based on approved estimate' : '📝 Based on quote submission'}
+          </p>
           
           {/* Date and time */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
@@ -385,7 +512,8 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
             <CollapsibleSection title="Event Requirements" icon={ChefHat} defaultOpen>
               {hasLineItems ? (
                 <div className="space-y-4">
-                  <LineItemsByCategory lineItems={event.line_items} />
+                  {/* Show all line items except supplies/service (those get their own sections) */}
+                  <LineItemsByCategory lineItems={event.line_items} excludeCategories={['supplies', 'service', 'service_addon']} />
                   
                   {/* Dietary restrictions alert */}
                   {event.dietary_restrictions.length > 0 && (
@@ -455,7 +583,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                   )}
 
                   {/* Equipment in fallback mode */}
-                  {hasEquipment && (
+                  {hasEquipmentFallback && (
                     <div className="pt-2 border-t">
                       <h4 className="text-sm font-medium text-muted-foreground mb-2">Equipment</h4>
                       <SelectedItemsList 
@@ -477,18 +605,36 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           </>
         )}
 
+        {/* Equipment/Supplies from line items */}
+        {hasSuppliesLineItems && (
+          <>
+            <CollapsibleSection title="Equipment & Supplies" icon={Utensils} defaultOpen>
+              <LineItemsForCategories lineItems={event.line_items} categories={['supplies']} />
+            </CollapsibleSection>
+            <Separator />
+          </>
+        )}
+
         {/* Service Details */}
-        {hasServiceDetails && (
+        {showServiceSection && (
           <>
             <CollapsibleSection title="Service Details" icon={Package} defaultOpen>
               <div className="space-y-3">
-                <SelectedItemsList 
-                  items={[
-                    event.wait_staff_requested && 'Wait Staff',
-                    event.bussing_tables_needed && 'Bussing Tables',
-                    event.cocktail_hour && 'Cocktail Hour',
-                  ].filter(Boolean) as string[]}
-                />
+                {/* Service line items (when available) */}
+                {hasServiceLineItems ? (
+                  <LineItemsForCategories lineItems={event.line_items} categories={['service', 'service_addon']} />
+                ) : (
+                  /* Fallback: raw service booleans */
+                  hasServiceFallback && (
+                    <SelectedItemsList 
+                      items={[
+                        event.wait_staff_requested && 'Wait Staff',
+                        event.bussing_tables_needed && 'Bussing Tables',
+                        event.cocktail_hour && 'Cocktail Hour',
+                      ].filter(Boolean) as string[]}
+                    />
+                  )
+                )}
 
                 {event.serving_setup_area && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -523,25 +669,18 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                     <p className="text-sm text-muted-foreground">{event.special_requests}</p>
                   </div>
                 )}
-
-                {/* Admin Notes */}
-                {event.admin_notes.length > 0 && (
-                  <div className="pt-2 border-t">
-                    <h4 className="text-sm font-medium mb-2 flex items-center gap-1">
-                      <StickyNote className="h-4 w-4" />
-                      Admin Notes
-                    </h4>
-                    <AdminNotesBlock notes={event.admin_notes} />
-                  </div>
-                )}
               </div>
             </CollapsibleSection>
             <Separator />
           </>
         )}
 
-        {/* Admin Notes standalone (if no service details section) */}
-        {!hasServiceDetails && event.admin_notes.length > 0 && (
+        {/* Customer Notes & Preferences */}
+        <CustomerNotesSection event={event} />
+        {(event.custom_menu_requests || event.extras.length > 0 || event.utensils.length > 0) && <Separator />}
+
+        {/* Admin Notes */}
+        {event.admin_notes.length > 0 && (
           <>
             <CollapsibleSection title="Admin Notes" icon={StickyNote} defaultOpen>
               <AdminNotesBlock notes={event.admin_notes} />

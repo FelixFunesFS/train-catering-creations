@@ -81,8 +81,15 @@ export interface StaffEvent {
   // Wedding/Event specific
   theme_colors: string | null;
   military_organization: string | null;
+  ceremony_included: boolean;
+  
+  // Customer notes (original submission context)
+  custom_menu_requests: string | null;
+  utensils: string[];
+  extras: string[];
   
   // Computed
+  has_approved_line_items: boolean;
   days_until: number;
   is_today: boolean;
   is_this_week: boolean;
@@ -134,7 +141,11 @@ const QUOTE_FIELDS = `
   wait_staff_requirements,
   wait_staff_setup_areas,
   theme_colors,
-  military_organization
+  military_organization,
+  ceremony_included,
+  custom_menu_requests,
+  utensils,
+  extras
 `;
 
 // Parse JSON array safely
@@ -208,8 +219,15 @@ function transformToStaffEvent(
     // Event specific
     theme_colors: row.theme_colors as string | null,
     military_organization: row.military_organization as string | null,
+    ceremony_included: Boolean(row.ceremony_included),
+    
+    // Customer notes
+    custom_menu_requests: row.custom_menu_requests as string | null,
+    utensils: parseJsonArray(row.utensils),
+    extras: parseJsonArray(row.extras),
     
     // Computed
+    has_approved_line_items: lineItems.length > 0,
     days_until: daysUntil,
     is_today: daysUntil === 0,
     is_this_week: daysUntil >= 0 && daysUntil <= 7,
@@ -396,7 +414,7 @@ export function useStaffEvents(filter: StaffEventFilter = 'all') {
   return useQuery({
     queryKey: ['staff-events', filter],
     queryFn: () => fetchStaffEvents(filter),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
   });
 }
 
@@ -406,6 +424,6 @@ export function useStaffEvent(eventId: string | null) {
     queryKey: ['staff-event', eventId],
     queryFn: () => eventId ? fetchStaffEvent(eventId) : null,
     enabled: !!eventId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 2,
   });
 }
