@@ -161,9 +161,13 @@ export default function StaffSchedule() {
                   />
                 ))
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">No upcoming events</p>
+                  <p className="text-muted-foreground">
+                    {filter === 'today' && 'No events scheduled for today'}
+                    {filter === 'week' && 'No events scheduled this week'}
+                    {filter === 'all' && 'No upcoming events found'}
+                  </p>
                 </div>
               )}
             </div>
