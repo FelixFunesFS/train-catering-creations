@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { TaxCalculationService } from '@/services/TaxCalculationService';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useInvoice, useInvoiceWithMilestones } from '@/hooks/useInvoices';
+import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { useLineItems, useDeleteLineItem } from '@/hooks/useLineItems';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { useEditableInvoice } from '@/hooks/useEditableInvoice';
@@ -68,6 +69,24 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   } = useEditableInvoice(invoice?.id, lineItems || [], currentInvoice?.notes);
 
   const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
+
+  // Cancel event logic
+  const updateQuoteStatus = useUpdateQuoteStatus();
+  const [isCancelling, setIsCancelling] = useState(false);
+  const handleCancelEvent = useCallback(async () => {
+    if (!quote?.id) return;
+    const confirmed = window.confirm('Are you sure you want to cancel this event? This action can be undone by changing the status later.');
+    if (!confirmed) return;
+    setIsCancelling(true);
+    try {
+      await updateQuoteStatus.mutateAsync({ quoteId: quote.id, status: 'cancelled' });
+      toast({ title: 'Event Cancelled', description: 'The event has been marked as cancelled.' });
+    } catch {
+      toast({ title: 'Failed to cancel event', variant: 'destructive' });
+    } finally {
+      setIsCancelling(false);
+    }
+  }, [quote?.id, updateQuoteStatus, toast]);
 
   // Use shared estimate actions hook
   const {
@@ -297,6 +316,8 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               isMarkingComplete={isMarkingComplete}
               onSendThankYou={handleSendThankYou}
               isSendingThankYou={isSendingThankYou}
+              onCancelEvent={handleCancelEvent}
+              isCancelling={isCancelling}
             />
           </ScrollArea>
         </ResizablePanel>
