@@ -1,57 +1,32 @@
 
 
-## Reports View Implementation Plan
+## Updated Plan: Cancel Event in Collapsible for Safety
 
-### Scope
-Add a 4th admin view (`reports`) to the existing 3-view system. This is purely additive — no existing components, routes, workflows, or database tables are modified.
+### Step 1: Fix destructive button variant (`src/components/ui/button.tsx`)
+- Remove `neumorphic-card-2` from `destructive` variant, replace with `shadow-sm`
 
-### What Changes
+### Step 2: Fix ghost button contrast (`EventDetailsPanelContent.tsx`)
+- Change edit buttons from `variant="ghost"` to `variant="outline"`, size `h-8 w-8`, icons `h-4 w-4`
 
-**1. Update `MobileAdminNav.tsx`** — Add a "Reports" nav item with `BarChart3` icon, pointing to `/admin?view=reports`. Insert it between Billing and Staff in the `adminNavItems` array.
+### Step 3: Move Cancel Event to bottom of desktop panel in a Collapsible (`EventDetailsPanelContent.tsx`)
+- Remove the Cancel Event block from lines 135-153
+- After `<ChangeHistory>` (line 449), add:
+  - Separator
+  - A `Collapsible` wrapper with a `CollapsibleTrigger` labeled "Danger Zone" (muted, small text with a chevron)
+  - Inside `CollapsibleContent`: the destructive Cancel Event button
+- This prevents accidental presses — admin must expand the section first
 
-**2. Update `UnifiedAdminDashboard.tsx`** — Expand `AdminView` type to include `'reports'`. Add `{currentView === 'reports' && <ReportsView />}` conditional render. Import `ReportsView`.
+### Step 4: Add Send Thank You to mobile completed state (`MobileEstimateView.tsx`)
+- Destructure `handleSendThankYou` / `isSendingThankYou` from `useEstimateActions`
+- Add Send Thank You button next to the Completed badge (line 286-292)
 
-**3. Create `src/components/admin/reports/` directory** with these files:
+### Step 5: Add Cancel Event to mobile bottom in a Collapsible (`MobileEstimateView.tsx`)
+- Import `useUpdateQuoteStatus`, `XCircle`, `Collapsible`, `CollapsibleTrigger`, `CollapsibleContent`
+- Add `handleCancelEvent` with `window.confirm`
+- At bottom of ScrollArea content, after the last card: add same Collapsible "Danger Zone" pattern with destructive Cancel button inside
+- Only visible when `workflow_status !== 'cancelled'`
 
-- **`ReportsView.tsx`** — Main container with shared filter state (date range, event type, service type) and 4 tabs: Revenue, Events, Items, Payments. Uses scrollable `TabsList` pattern matching Settings view.
-
-- **`ReportsFilterBar.tsx`** — Date range presets (This Month, Last 30 Days, This Quarter, YTD, Custom) with DatePicker for custom. Event type multi-select checkboxes. Service type dropdown. Stacks vertically on mobile, horizontal on desktop.
-
-- **`RevenueOverview.tsx`** — 4 KPI cards (Total Revenue, Outstanding, Avg Invoice, Total Events) in `grid-cols-2 sm:grid-cols-4`. Revenue over time `AreaChart` from Recharts with `ResponsiveContainer`.
-
-- **`EventAnalytics.tsx`** — Events by type `PieChart`, events by service type `PieChart`, events by status `BarChart`. Grid `grid-cols-1 lg:grid-cols-2`.
-
-- **`ItemsAnalysis.tsx`** — Top items by revenue table with visual bar indicators. Bottom performers. Data from `invoice_line_items` grouped by title/category.
-
-- **`PaymentAnalysis.tsx`** — Payment method distribution `PieChart`. AR aging buckets `BarChart` (reuses `PaymentDataService.getARAgingBuckets()`). Collection rate card.
-
-- **`useReportsData.ts`** — TanStack Query hook wrapping queries to `invoice_payment_summary`, `quote_requests`, `invoice_line_items`, `payment_transactions`. Accepts filter params. Client-side aggregation.
-
-- **`index.ts`** — Barrel export for `ReportsView`.
-
-### What Does NOT Change
-- No database migrations or new tables
-- No changes to existing components (Events, Billing, Settings)
-- No changes to existing services (`PaymentDataService`, `EventDataService`)
-- No changes to RLS policies or database functions
-- No changes to customer-facing routes
-- No changes to existing hooks or workflows
-- All existing nav items remain in same positions
-
-### Technical Details
-
-**Data queries** use existing Supabase tables with admin RLS (`is_admin()`):
-- `invoice_payment_summary` view — revenue, balances, aging (already used by PaymentDataService)
-- `quote_requests` — event type/service type distribution, guest counts
-- `invoice_line_items` — item-level revenue analysis
-- `payment_transactions` — payment method breakdown
-
-**Charts** use Recharts (already installed), exported via `src/components/ui/chart.tsx`. Uses `ResponsiveContainer` for responsive sizing.
-
-**Responsiveness**:
-- KPI cards: `grid-cols-2 sm:grid-cols-4`
-- Charts: `grid-cols-1 lg:grid-cols-2`
-- Filter bar: stacked on mobile, row on desktop
-- Tabs: horizontally scrollable (same pattern as Settings)
-- Tables: `overflow-x-auto` on mobile
+### What stays untouched
+- Mark Complete logic (already working on both views)
+- All other workflows, database, routes
 
