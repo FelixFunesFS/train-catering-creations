@@ -60,7 +60,7 @@ serve(async (req) => {
         break;
 
       case 'create_estimate':
-        updateData.workflow_status = 'estimated';
+        updateData.workflow_status = 'under_review';
         updateData.status = 'quoted';
         responseMessage = 'Estimate created';
         
