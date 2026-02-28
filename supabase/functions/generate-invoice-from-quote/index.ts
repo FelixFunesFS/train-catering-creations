@@ -404,7 +404,7 @@ const handler = async (req: Request): Promise<Response> => {
     await supabase
       .from('quote_requests')
       .update({ 
-        workflow_status: 'estimated',
+        workflow_status: 'under_review',
         estimated_total: 0
       })
       .eq('id', quote_request_id);
