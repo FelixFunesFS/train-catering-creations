@@ -1,33 +1,57 @@
 
 
-## Problem
+## Reports View Implementation Plan
 
-The current plan only changed `EventDetail.tsx`, which is the **mobile-only** modal. On desktop (your current view at `/admin?view=events`), clicking an event row navigates to `/admin/event/:id`, which renders `EventEstimateFullView` → `EventDetailsPanelContent`. This component has **zero cancel functionality** — no prop, no button, no hook. That's why you don't see it.
+### Scope
+Add a 4th admin view (`reports`) to the existing 3-view system. This is purely additive — no existing components, routes, workflows, or database tables are modified.
 
-## Revised Plan
+### What Changes
 
-### 1. Add cancel props to `EventDetailsPanelContent.tsx`
+**1. Update `MobileAdminNav.tsx`** — Add a "Reports" nav item with `BarChart3` icon, pointing to `/admin?view=reports`. Insert it between Billing and Staff in the `adminNavItems` array.
 
-Add two optional props to the interface:
-- `onCancelEvent?: () => void`
-- `isCancelling?: boolean`
+**2. Update `UnifiedAdminDashboard.tsx`** — Expand `AdminView` type to include `'reports'`. Add `{currentView === 'reports' && <ReportsView />}` conditional render. Import `ReportsView`.
 
-Render a "Cancel Event" button (destructive variant) in the existing status actions area, visible when `quote.workflow_status !== 'cancelled'`.
+**3. Create `src/components/admin/reports/` directory** with these files:
 
-### 2. Wire cancel logic in `EventEstimateFullView.tsx`
+- **`ReportsView.tsx`** — Main container with shared filter state (date range, event type, service type) and 4 tabs: Revenue, Events, Items, Payments. Uses scrollable `TabsList` pattern matching Settings view.
 
-- Import `useUpdateQuoteStatus` hook (same one used in `EventDetail.tsx`)
-- Create a `handleCancelEvent` callback that calls `updateStatus('cancelled')`
-- Pass `onCancelEvent` and `isCancelling` props down to `EventDetailsPanelContent`
+- **`ReportsFilterBar.tsx`** — Date range presets (This Month, Last 30 Days, This Quarter, YTD, Custom) with DatePicker for custom. Event type multi-select checkboxes. Service type dropdown. Stacks vertically on mobile, horizontal on desktop.
 
-### 3. Keep `EventDetail.tsx` change as-is
+- **`RevenueOverview.tsx`** — 4 KPI cards (Total Revenue, Outstanding, Avg Invoice, Total Events) in `grid-cols-2 sm:grid-cols-4`. Revenue over time `AreaChart` from Recharts with `ResponsiveContainer`.
 
-The previous fix remains valid for the mobile modal flow — no rollback needed.
+- **`EventAnalytics.tsx`** — Events by type `PieChart`, events by service type `PieChart`, events by status `BarChart`. Grid `grid-cols-1 lg:grid-cols-2`.
 
-### What does NOT change
+- **`ItemsAnalysis.tsx`** — Top items by revenue table with visual bar indicators. Bottom performers. Data from `invoice_line_items` grouped by title/category.
 
-- No new database changes, no new statuses
-- All other workflow buttons (Mark In Progress, Mark Completed, Send Thank You) stay unchanged
-- Admin-only scope: `EventDetailsPanelContent` and `EventEstimateFullView` are only used under `/admin/*` routes behind `ProtectedRoute`
-- Customer views are completely unaffected
+- **`PaymentAnalysis.tsx`** — Payment method distribution `PieChart`. AR aging buckets `BarChart` (reuses `PaymentDataService.getARAgingBuckets()`). Collection rate card.
+
+- **`useReportsData.ts`** — TanStack Query hook wrapping queries to `invoice_payment_summary`, `quote_requests`, `invoice_line_items`, `payment_transactions`. Accepts filter params. Client-side aggregation.
+
+- **`index.ts`** — Barrel export for `ReportsView`.
+
+### What Does NOT Change
+- No database migrations or new tables
+- No changes to existing components (Events, Billing, Settings)
+- No changes to existing services (`PaymentDataService`, `EventDataService`)
+- No changes to RLS policies or database functions
+- No changes to customer-facing routes
+- No changes to existing hooks or workflows
+- All existing nav items remain in same positions
+
+### Technical Details
+
+**Data queries** use existing Supabase tables with admin RLS (`is_admin()`):
+- `invoice_payment_summary` view — revenue, balances, aging (already used by PaymentDataService)
+- `quote_requests` — event type/service type distribution, guest counts
+- `invoice_line_items` — item-level revenue analysis
+- `payment_transactions` — payment method breakdown
+
+**Charts** use Recharts (already installed), exported via `src/components/ui/chart.tsx`. Uses `ResponsiveContainer` for responsive sizing.
+
+**Responsiveness**:
+- KPI cards: `grid-cols-2 sm:grid-cols-4`
+- Charts: `grid-cols-1 lg:grid-cols-2`
+- Filter bar: stacked on mobile, row on desktop
+- Tabs: horizontally scrollable (same pattern as Settings)
+- Tables: `overflow-x-auto` on mobile
 
