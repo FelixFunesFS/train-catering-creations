@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail, AlertTriangle
+  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail, AlertTriangle, XCircle
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
@@ -29,6 +29,8 @@ interface EventDetailsPanelContentProps {
   isMarkingComplete?: boolean;
   onSendThankYou?: () => void;
   isSendingThankYou?: boolean;
+  onCancelEvent?: () => void;
+  isCancelling?: boolean;
 }
 
 export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
@@ -46,6 +48,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   isMarkingComplete,
   onSendThankYou,
   isSendingThankYou,
+  onCancelEvent,
+  isCancelling,
 }: EventDetailsPanelContentProps) {
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
@@ -127,6 +131,26 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           ) : null}
         </div>
       </div>
+
+      {/* Cancel Event Action */}
+      {quote?.workflow_status !== 'cancelled' && onCancelEvent && (
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={onCancelEvent}
+            disabled={isCancelling}
+            className="gap-1.5"
+          >
+            {isCancelling ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <XCircle className="h-4 w-4" />
+            )}
+            Cancel Event
+          </Button>
+        </div>
+      )}
 
       {/* Customer Section */}
       <section className="space-y-1">
