@@ -1,18 +1,22 @@
 
+Immediate answer:
+- Yes. Staff users should log in through `/admin/auth`.
+- After successful login, they are automatically redirected to `/staff`.
 
-## Plan: Assign Staff Role + Fix Password Recovery
+What I found:
+- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
+- There is no `public.user_roles` row for that current user ID.
+- This is why she is seeing “Access denied” even after resetting password.
 
-### Step 1: Insert staff role for margery.funes@gmail.com
-- Insert into `user_roles`: `user_id = '97f844e6-92dd-4302-8fdf-67fd7df39f9b'`, `role = 'staff'`
+Implementation steps:
+1. Insert staff role for the current user ID:
+   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
+   - `role = 'staff'`
+2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
+3. Have Margery sign out and sign in again at `/admin/auth`.
+4. Verify she lands on `/staff` and can view Staff Schedule.
 
-### Step 2: Fix `initializeAuth` in `useAuth.tsx` to skip access check during recovery
-- At the top of `initializeAuth`, check URL for `mode=recovery` (search params) or `type=recovery` (hash fragment)
-- If detected: set `isPasswordRecovery = true`, set session/user from `getSession()`, set `loading = false`, and return early — skipping `checkAccess`
-- This prevents the session from being destroyed before the password reset form renders
-
-### Step 3: Guard `SIGNED_IN` handler in `onAuthStateChange`
-- Add secondary URL check in the `SIGNED_IN` branch: if URL contains recovery indicators, skip access gating
-
-### What stays untouched
-- All other auth flows, routes, components
-
+Technical details:
+- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
+- Only users with `admin` or `staff` in `public.user_roles` pass.
+- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.
