@@ -94,6 +94,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (event === 'SIGNED_IN' && session?.user) {
+          // Check URL for recovery indicators — skip access gating if present
+          const sp = new URLSearchParams(window.location.search);
+          const hp = new URLSearchParams(window.location.hash.replace('#', '?'));
+          if (sp.get('mode') === 'recovery' || hp.get('type') === 'recovery') {
+            setIsPasswordRecovery(true);
+            setSession(session);
+            setUser(session.user);
+            setLoading(false);
+            return;
+          }
+
           // Layer 1: If initializeAuth already resolved the role, reuse it
           if (initializedRef.current && userRole) {
             setSession(session);
@@ -155,6 +166,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const initializeAuth = async () => {
       try {
+        // Detect recovery mode from URL before any access checks
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace('#', '?'));
+        const isRecoveryUrl = urlParams.get('mode') === 'recovery' || hashParams.get('type') === 'recovery';
+
         const sessionResult = await Promise.race([
           supabase.auth.getSession(),
           new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
@@ -162,10 +178,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (!sessionResult) {
           console.warn('getSession() timed out – possible browser lock issue');
-          return; // falls through to finally → loading = false → redirects to login
+          return;
         }
 
         const { data: { session } } = sessionResult;
+
+        // If recovery URL detected, skip access check entirely to preserve session
+        if (isRecoveryUrl && session?.user) {
+          setIsPasswordRecovery(true);
+          setSession(session);
+          setUser(session.user);
+          return; // falls through to finally → loading = false
+        }
+
         if (session?.user) {
           // Validate token server-side BEFORE trusting the cached session
           const userResult = await Promise.race([
