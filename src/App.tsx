@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute, StaffRoute } from "@/components/ProtectedRoute";
@@ -56,7 +56,25 @@ const PageLoader = () => (
   </div>
 );
 
+// Detect Supabase auth hash fragments and redirect to /admin/auth
+function useAuthRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (!hash.includes('access_token=')) return;
+    const typeMatch = hash.match(/type=(\w+)/);
+    if (!typeMatch) return;
+    const type = typeMatch[1];
+    if (type === 'recovery') {
+      navigate('/admin/auth?mode=recovery', { replace: true });
+    } else if (['invite', 'signup', 'magiclink'].includes(type)) {
+      navigate('/admin/auth', { replace: true });
+    }
+  }, [navigate]);
+}
+
 const AppContent = () => {
+  useAuthRedirect();
   useScrollToAnchor();
   useVisitorTracking(); // Track visitor page views for admin notifications
   const location = useLocation();
