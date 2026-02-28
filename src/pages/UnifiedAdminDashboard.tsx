@@ -6,9 +6,10 @@ import { PaymentList } from '@/components/admin/billing';
 import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplatePreview';
 import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
 import { NotificationPreferencesPanel } from '@/components/admin/settings/NotificationPreferencesPanel';
+import { ReportsView } from '@/components/admin/reports';
 import { Mail, Cog, Bell } from 'lucide-react';
 
-export type AdminView = 'events' | 'billing' | 'settings';
+export type AdminView = 'events' | 'billing' | 'settings' | 'reports';
 
 export function UnifiedAdminDashboard() {
   const [searchParams] = useSearchParams();
@@ -20,6 +21,8 @@ export function UnifiedAdminDashboard() {
         {currentView === 'events' && <EventsView />}
         
         {currentView === 'billing' && <PaymentList />}
+
+        {currentView === 'reports' && <ReportsView />}
         
         {currentView === 'settings' && (
           <Tabs defaultValue="notifications" className="space-y-4">

@@ -1,11 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { Calendar, CreditCard, Settings, LogOut, Users } from 'lucide-react';
+import { Calendar, CreditCard, Settings, LogOut, Users, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 
 const adminNavItems = [
   { icon: Calendar, label: 'Events', path: '/admin', query: '?view=events', isQueryBased: true },
   { icon: CreditCard, label: 'Billing', path: '/admin', query: '?view=billing', isQueryBased: true },
+  { icon: BarChart3, label: 'Reports', path: '/admin', query: '?view=reports', isQueryBased: true },
   { icon: Users, label: 'Staff', path: '/staff', query: '', isQueryBased: false },
   { icon: Settings, label: 'Settings', path: '/admin', query: '?view=settings', isQueryBased: true },
 ];
