@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
 import { usePaymentTransactions } from '@/hooks/useInvoices';
 import { useNavigate } from 'react-router-dom';
@@ -47,7 +48,9 @@ import {
   Package,
   RefreshCw,
   Info,
-  CheckCircle2
+  CheckCircle2,
+  Mail,
+  XCircle
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
@@ -74,12 +77,28 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const [isResendMode, setIsResendMode] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const updateQuoteStatus = useUpdateQuoteStatus();
   
   // Collapsible sections
   const [eventOpen, setEventOpen] = useState(true);
   const [estimateOpen, setEstimateOpen] = useState(true);
   const [itemsOpen, setItemsOpen] = useState(true);
-  
+
+  const handleCancelEvent = useCallback(async () => {
+    if (!quote?.id) return;
+    const confirmed = window.confirm('Are you sure you want to cancel this event? This action can be undone by changing the status later.');
+    if (!confirmed) return;
+    setIsCancelling(true);
+    try {
+      await updateQuoteStatus.mutateAsync({ quoteId: quote.id, status: 'cancelled' });
+      toast({ title: 'Event Cancelled', description: 'The event has been marked as cancelled.' });
+    } catch {
+      toast({ title: 'Failed to cancel event', variant: 'destructive' });
+    } finally {
+      setIsCancelling(false);
+    }
+  }, [quote?.id, updateQuoteStatus, toast]);
 
   // Data queries
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
@@ -136,6 +155,8 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
     isRegenerating,
     handleMarkEventCompleted,
     isMarkingComplete,
+    handleSendThankYou,
+    isSendingThankYou,
   } = useEstimateActions({
     quoteId: quote?.id,
     invoiceId: invoice?.id,
@@ -285,10 +306,26 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
             
             if (isCompleted) {
               return (
-                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
-                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                  Completed
-                </Badge>
+                <div className="flex items-center gap-1.5">
+                  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-xs">
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Completed
+                  </Badge>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleSendThankYou}
+                    disabled={isSendingThankYou}
+                    className="gap-1 text-xs h-7 px-2"
+                  >
+                    {isSendingThankYou ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Mail className="h-3 w-3" />
+                    )}
+                    Thanks
+                  </Button>
+                </div>
               );
             }
             if (canMarkComplete) {
@@ -815,6 +852,31 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                 })}
               </CardContent>
             </Card>
+          )}
+          {/* Danger Zone - Cancel Event */}
+          {quote?.workflow_status !== 'cancelled' && (
+            <Collapsible>
+              <CollapsibleTrigger className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full py-2">
+                <ChevronDown className="h-3 w-3" />
+                <span>Danger Zone</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2 pb-4">
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={handleCancelEvent}
+                  disabled={isCancelling}
+                  className="gap-1.5 w-full"
+                >
+                  {isCancelling ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <XCircle className="h-4 w-4" />
+                  )}
+                  Cancel Event
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
           )}
         </div>
       </ScrollArea>

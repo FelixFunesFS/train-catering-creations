@@ -13,6 +13,8 @@ import { ChangeHistory } from './ChangeHistory';
 import { PaymentScheduleSection } from './PaymentScheduleSection';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 
 interface EventDetailsPanelContentProps {
   quote: any;
@@ -132,25 +134,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </div>
       </div>
 
-      {/* Cancel Event Action */}
-      {quote?.workflow_status !== 'cancelled' && onCancelEvent && (
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={onCancelEvent}
-            disabled={isCancelling}
-            className="gap-1.5"
-          >
-            {isCancelling ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <XCircle className="h-4 w-4" />
-            )}
-            Cancel Event
-          </Button>
-        </div>
-      )}
+
+
 
       {/* Customer Section */}
       <section className="space-y-1">
@@ -158,8 +143,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Users className="h-4 w-4" /> Customer
           </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditCustomer} aria-label="Edit customer details">
-            <Pencil className="h-3 w-3" />
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={onEditCustomer} aria-label="Edit customer details">
+            <Pencil className="h-4 w-4" />
           </Button>
         </div>
         <p className="font-medium">{quote?.contact_name}</p>
@@ -261,8 +246,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide flex items-center gap-2">
             <Utensils className="h-4 w-4" /> Menu Selections
           </h3>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu} aria-label="Edit menu selections">
-            <Pencil className="h-3 w-3" />
+          <Button variant="outline" size="icon" className="h-8 w-8" onClick={onEditMenu} aria-label="Edit menu selections">
+            <Pencil className="h-4 w-4" />
           </Button>
         </div>
 
@@ -410,8 +395,8 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
               <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" /> Special Requests
               </h3>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onEditMenu} aria-label="Edit special requests">
-                <Pencil className="h-3 w-3" />
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={onEditMenu} aria-label="Edit special requests">
+                <Pencil className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-sm italic text-muted-foreground">{quote.special_requests}</p>
@@ -447,6 +432,35 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       {/* Change History */}
       <Separator />
       <ChangeHistory quoteId={quote?.id} />
+
+      {/* Danger Zone - Cancel Event */}
+      {quote?.workflow_status !== 'cancelled' && onCancelEvent && (
+        <>
+          <Separator />
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full py-2">
+              <ChevronDown className="h-3 w-3" />
+              <span>Danger Zone</span>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-2">
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={onCancelEvent}
+                disabled={isCancelling}
+                className="gap-1.5 w-full"
+              >
+                {isCancelling ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <XCircle className="h-4 w-4" />
+                )}
+                Cancel Event
+              </Button>
+            </CollapsibleContent>
+          </Collapsible>
+        </>
+      )}
     </div>
   );
 });
