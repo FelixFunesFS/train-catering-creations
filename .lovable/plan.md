@@ -1,46 +1,44 @@
 
 
-## Plan Review: Auth Redirect Hook
+## Vegetarian Quantity: Current State and What Needs Fixing
 
-### What the plan does
+### How it works today
 
-Add a `useAuthRedirect` hook to `AppContent` in `src/App.tsx` that detects Supabase auth hash fragments in the URL and redirects users to `/admin/auth`.
+- The quote form has **two separate fields** side by side: "Vegetarian Portions" (a number input) and "Vegetarian Entrées" (a multi-select dropdown)
+- There is cross-field validation: if portions > 0, the form shows an error saying "select at least one entrée" — but this is a **soft error** (uses `form.setError` manually, does not block submission)
+- The portions field (`guest_count_with_restrictions`) is defined as `z.string().optional()` in the schema — so it can be left blank even when entrees are selected
+- **The reverse validation is missing**: if a user selects vegetarian entrées but leaves portions blank, the form submits with no quantity, and invoice generation defaults to `1` — which then gets hidden everywhere because display logic only shows quantities > 1
 
-### Current problem
+### The core gap
 
-When Supabase sends invite or password-reset emails, the confirmation link lands on `/` (the public home page). The Supabase client silently processes the token, but:
+Selecting vegetarian entrées without entering a portion count creates invisible "×1" line items. The form should **require** a portion count when entrées are selected (and vice versa).
 
-- **Invited users** see the catering homepage with no guidance on where to go
-- **Password reset users** never see the "Set New Password" form because they're on `/` instead of `/admin/auth`
+### Plan (3 targeted changes)
 
-### Outcome after implementation
+**1. Add reverse cross-field validation in `MenuSelectionStep.tsx`**
 
-1. **Password reset flow**: User clicks reset link in email → lands on `/` → hook detects `type=recovery` in hash → redirects to `/admin/auth?mode=recovery` → `AdminAuth.tsx` renders the "Set New Password" form → user sets password → redirected to `/admin` or `/staff` based on role
+Update the existing `useEffect` validation block (lines 105-117) to also check the reverse case: if vegetarian entrées are selected but portions is 0 or empty, set an error on `guest_count_with_restrictions` saying "Please enter the number of vegetarian portions." This keeps the soft-error pattern already in use — no schema changes needed, no submission blocking changes.
 
-2. **Invite flow**: New user clicks invite link in email → lands on `/` → hook detects `type=invite` in hash → redirects to `/admin/auth` → Supabase session is active → `AdminAuth.tsx` checks role → redirects admin to `/admin`, staff to `/staff`
+**2. Fix invoice generation fallback in `generate-invoice-from-quote/index.ts`**
 
-3. **Magic link / signup flow**: Same pattern — hash detected, user routed to `/admin/auth`, role-based redirect takes over
+Line 96: Change fallback from `1` to `0`. Line 93: Only create the vegetarian line item when `vegCount > 0` OR when entrees exist (in which case default to `1` as a minimum). This prevents phantom quantity-1 items when the field was truly empty.
 
-### What changes
+**3. Always show quantity for dietary items in display layers**
 
-**One file modified: `src/App.tsx`**
+- `EstimateLineItems.tsx` line 61: Change `item.quantity > 1` to `(item.quantity > 1 || item.category === 'dietary')` so vegetarian portions always show their count
+- `emailTemplates.ts` lines 537 and 944: Same condition change so emails show "×1" for vegetarian items instead of hiding it
 
-- Add ~15-line `useAuthRedirect` hook inside `AppContent` that:
-  - Checks `window.location.hash` on mount for `access_token` + `type=` fragments
-  - Maps `type=recovery` → `/admin/auth?mode=recovery`
-  - Maps `type=invite`, `type=signup`, `type=magiclink` → `/admin/auth`
-  - Clears the hash after redirect to prevent re-triggering
+### Files modified
+
+1. `src/components/quote/alternative-form/MenuSelectionStep.tsx` — add reverse validation (entrees selected → require portions)
+2. `supabase/functions/generate-invoice-from-quote/index.ts` — fix vegCount fallback logic
+3. `src/components/customer/EstimateLineItems.tsx` — always show dietary item quantities
+4. `supabase/functions/_shared/emailTemplates.ts` — always show dietary item quantities in emails
 
 ### What does NOT change
 
-- `AdminAuth.tsx` — already handles recovery mode, role-based redirects, and the sign-in form
-- `useAuth.tsx` — already handles `PASSWORD_RECOVERY` event and role verification
+- Form schema (`formSchema.ts`) — no changes needed, validation stays in the component
+- Form layout — both fields stay side by side, same inputs
+- Admin editor — already allows direct quantity editing on line items
 - No database changes
-- No new dependencies
-
-### Risk assessment
-
-- **Low risk**: The hook only fires when a Supabase auth hash is present (normal page loads have no hash fragment)
-- **No impact on public users**: Regular visitors never have `#access_token=...` in their URL
-- **Existing flows preserved**: The hook just adds a redirect step before the existing auth logic takes over
 
