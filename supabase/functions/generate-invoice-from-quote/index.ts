@@ -93,26 +93,29 @@ const generateLineItems = (quote: any): any[] => {
   if (quote.guest_count_with_restrictions || vegetarianEntrees.length > 0) {
     // Parse count from string like "5 guests" or just "5"
     const vegMatch = quote.guest_count_with_restrictions?.match(/\d+/);
-    const vegCount = vegMatch ? parseInt(vegMatch[0]) : 1;
+    // Default to 0 if unparseable; if entrees exist but no count, use 1 as minimum
+    const vegCount = vegMatch ? parseInt(vegMatch[0]) : (vegetarianEntrees.length > 0 ? 1 : 0);
     
-    // Build description with selected entrées if available
-    let description = '';
-    if (vegetarianEntrees.length > 0) {
-      description = vegetarianEntrees.map(formatMenuDescription).join(', ');
-    } else {
-      description = 'Vegetarian meal accommodations';
+    if (vegCount > 0 || vegetarianEntrees.length > 0) {
+      // Build description with selected entrées if available
+      let description = '';
+      if (vegetarianEntrees.length > 0) {
+        description = vegetarianEntrees.map(formatMenuDescription).join(', ');
+      } else {
+        description = 'Vegetarian meal accommodations';
+      }
+      
+      lineItems.push({
+        title: 'Vegetarian Entrée Selection',
+        description: description,
+        quantity: vegCount > 0 ? vegCount : 1,
+        unit_price: 0,
+        total_price: 0,
+        category: 'dietary',
+        sort_order: sortOrder
+      });
+      sortOrder += 10;
     }
-    
-    lineItems.push({
-      title: 'Vegetarian Entrée Selection',
-      description: description,
-      quantity: vegCount,
-      unit_price: 0,
-      total_price: 0,
-      category: 'dietary',
-      sort_order: sortOrder
-    });
-    sortOrder += 10;
   }
   
   // TIER 2: APPETIZER SELECTION

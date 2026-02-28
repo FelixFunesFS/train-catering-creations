@@ -534,7 +534,7 @@ export function generateMenuSection(lineItems: any[], bothProteinsAvailable?: bo
 <strong style="color:#2d2d2d;font-size:15px;">${(item.title?.toLowerCase().includes('selection') && item.description) ? item.description : (item.title || item.description)}</strong>
 ${(item.description && item.title && !item.title.toLowerCase().includes('selection')) ? `<br><span style="color:#666;font-size:13px;">${item.description}</span>` : ''}
 </td>
-${item.quantity > 1 ? `<td align="right" style="padding:10px 0;"><span style="color:${BRAND_COLORS.crimson};font-weight:600;font-size:14px;">×${item.quantity}</span></td>` : ''}
+${(item.quantity > 1 || item.category === 'dietary') ? `<td align="right" style="padding:10px 0;"><span style="color:${BRAND_COLORS.crimson};font-weight:600;font-size:14px;">×${item.quantity}</span></td>` : ''}
 </tr>
 </table>
 `;
@@ -941,7 +941,7 @@ export function generateMenuWithPricingSection(
         const borderBottom = index < items.length - 1 ? 'border-bottom:1px solid #eee;' : '';
         const unitPriceStr = item.unit_price ? fmtCurrency(item.unit_price) : '';
         const totalPriceStr = item.total_price ? fmtCurrency(item.total_price) : '';
-        const qtyStr = item.quantity > 1 ? `${item.quantity} × ${unitPriceStr}` : '';
+        const qtyStr = (item.quantity > 1 || item.category === 'dietary') ? `${item.quantity} × ${unitPriceStr}` : '';
         
         // Show icon inline if we skipped the header
         const inlineIcon = skipHeader ? `<span style="font-size:16px;margin-right:6px;">${icon}</span>` : '';

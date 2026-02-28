@@ -106,6 +106,7 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
     const portionCount = parseInt(watchedPortions || '0', 10);
     const hasEntrees = Array.isArray(watchedEntrees) && watchedEntrees.length > 0;
     
+    // Forward: portions entered but no entrees selected
     if (portionCount > 0 && !hasEntrees) {
       form.setError('vegetarian_entrees', {
         type: 'manual',
@@ -113,6 +114,16 @@ const MenuSelectionStepComponent = ({ form, trackFieldInteraction, variant = 're
       });
     } else {
       form.clearErrors('vegetarian_entrees');
+    }
+
+    // Reverse: entrees selected but no portions entered
+    if (hasEntrees && (portionCount <= 0 || !watchedPortions)) {
+      form.setError('guest_count_with_restrictions', {
+        type: 'manual',
+        message: 'Please enter the number of vegetarian portions.',
+      });
+    } else {
+      form.clearErrors('guest_count_with_restrictions');
     }
   }, [watchedPortions, watchedEntrees, form]);
 
