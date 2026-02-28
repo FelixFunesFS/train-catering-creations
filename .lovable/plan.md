@@ -1,100 +1,46 @@
 
 
-## Staff BEO: Single Source of Truth (Revised)
+## Plan Review: Auth Redirect Hook
 
-### Problem Summary
+### What the plan does
 
-When an admin modifies the estimate (adds/removes items, changes services), those changes update `invoice_line_items` but NOT the raw boolean/array fields on `quote_requests`. The staff view currently reads equipment and service details from those stale raw fields, creating a data mismatch.
+Add a `useAuthRedirect` hook to `AppContent` in `src/App.tsx` that detects Supabase auth hash fragments in the URL and redirects users to `/admin/auth`.
 
-Conversely, if an admin edits quote-level fields (location, guest count, contact info, event date), those update immediately since the hook reads directly from `quote_requests`.
+### Current problem
 
-### Data Flow After Fix
+When Supabase sends invite or password-reset emails, the confirmation link lands on `/` (the public home page). The Supabase client silently processes the token, but:
 
-```text
-Admin changes estimate line items
-       |
-       v
-invoice_line_items updated (DB trigger recalculates totals)
-       |
-       v
-Staff view reads line_items --> renders ALL operational sections from them
-       |
-       v
-Raw quote_requests fields used ONLY as fallback (pre-estimate events)
-       + ALWAYS used for: location, date, guest count, contact info,
-         theme colors, military org, dietary_restrictions array,
-         special_requests, ceremony_included, custom_menu_requests
-```
+- **Invited users** see the catering homepage with no guidance on where to go
+- **Password reset users** never see the "Set New Password" form because they're on `/` instead of `/admin/auth`
 
-### What Changes
+### Outcome after implementation
 
-#### 1. Data Layer: `src/hooks/useStaffEvents.ts`
+1. **Password reset flow**: User clicks reset link in email → lands on `/` → hook detects `type=recovery` in hash → redirects to `/admin/auth?mode=recovery` → `AdminAuth.tsx` renders the "Set New Password" form → user sets password → redirected to `/admin` or `/staff` based on role
 
-- Add 4 missing fields to `QUOTE_FIELDS`: `custom_menu_requests`, `utensils`, `extras`, `ceremony_included`
-- Add matching properties to `StaffEvent` interface
-- Update `transformToStaffEvent` to parse them (JSON arrays + boolean)
-- Add computed flag `has_approved_line_items: boolean` (true when `line_items.length > 0`)
-- Reduce `staleTime` from 5 minutes to 2 minutes for fresher data
+2. **Invite flow**: New user clicks invite link in email → lands on `/` → hook detects `type=invite` in hash → redirects to `/admin/auth` → Supabase session is active → `AdminAuth.tsx` checks role → redirects admin to `/admin`, staff to `/staff`
 
-#### 2. Display Logic: `src/components/staff/StaffEventDetails.tsx`
+3. **Magic link / signup flow**: Same pattern — hash detected, user routed to `/admin/auth`, role-based redirect takes over
 
-**Line-item-first rendering (when `has_approved_line_items` is true):**
+### What changes
 
-- "Event Requirements" section: Already renders from `LineItemsByCategory` -- no change needed
-- "Equipment/Supplies" section: Derive from line items with category `supplies` instead of raw boolean flags (`chafers_requested`, `plates_requested`, etc.)
-- "Service Details" section: Derive from line items with category `service` or `service_addon` instead of raw boolean flags (`wait_staff_requested`, `bussing_tables_needed`, etc.)
-- This ensures that if the admin removed "Wait Staff" from the estimate, it disappears from the staff BEO
+**One file modified: `src/App.tsx`**
 
-**Fallback rendering (when no line items exist):**
+- Add ~15-line `useAuthRedirect` hook inside `AppContent` that:
+  - Checks `window.location.hash` on mount for `access_token` + `type=` fragments
+  - Maps `type=recovery` → `/admin/auth?mode=recovery`
+  - Maps `type=invite`, `type=signup`, `type=magiclink` → `/admin/auth`
+  - Clears the hash after redirect to prevent re-triggering
 
-- Keep current behavior reading from raw quote fields -- these are pre-estimate events where the original submission is the only data available
+### What does NOT change
 
-**Always shown regardless of line item status (event-level fields that admins edit on `quote_requests` directly):**
+- `AdminAuth.tsx` — already handles recovery mode, role-based redirects, and the sign-in form
+- `useAuth.tsx` — already handles `PASSWORD_RECOVERY` event and role verification
+- No database changes
+- No new dependencies
 
-- Location, date, time, guest count, contact info -- already correct
-- `special_requests` -- operational context
-- `dietary_restrictions` array + `guest_count_with_restrictions` -- safety-critical
-- `theme_colors`, `military_organization` -- event context
-- `ceremony_included` -- new, shown as badge for wedding events
+### Risk assessment
 
-**New "Customer Notes" section:**
-
-- `custom_menu_requests` -- free-text food notes from the customer
-- `extras` -- additional items requested (JSON array, rendered as bullet list)
-- `utensils` -- utensil preferences (JSON array)
-- Only shown when at least one of these has content
-- Rendered with a distinct visual style (info callout) so staff knows these are original customer notes vs. approved scope
-
-**Data provenance indicator:**
-
-- Small text label: "Based on approved estimate" or "Based on quote submission" so staff knows the data source
-
-**Refresh button:**
-
-- Manual refresh icon button in the detail header to force re-fetch
-
-#### 3. Desktop Empty States: `src/pages/StaffSchedule.tsx`
-
-- Update desktop empty state to match mobile's filter-aware messages:
-  - "today" filter: "No events scheduled for today"
-  - "week" filter: "No events scheduled this week"
-  - "all" filter: "No upcoming events found"
-
-### Why This Is Safe
-
-- **Admin edits to quote-level fields** (location, date, guest count, contact): The hook reads these directly from `quote_requests` on every fetch -- changes appear immediately on next query refresh
-- **Admin edits to line items** (add/remove food, services, equipment): The hook reads these from `invoice_line_items` on every fetch -- changes appear immediately on next query refresh
-- **Admin edits to admin notes**: Fetched directly from `admin_notes` table -- changes appear immediately
-- **Admin edits to staff assignments**: Fetched directly from `staff_assignments` table -- changes appear immediately
-- **No caching staleness beyond 2 minutes** with the reduced staleTime, plus manual refresh option
-
-### Files Modified
-
-1. `src/hooks/useStaffEvents.ts` -- Add 4 fields, computed flag, reduce staleTime
-2. `src/components/staff/StaffEventDetails.tsx` -- Line-item-first rendering for equipment/service sections, add customer notes section, ceremony badge, provenance indicator, refresh button
-3. `src/pages/StaffSchedule.tsx` -- Align desktop empty states with mobile
-
-### No Database Changes Required
-
-All data already exists. This is purely a frontend rendering logic change to ensure the staff BEO always reflects the admin's latest approved scope.
+- **Low risk**: The hook only fires when a Supabase auth hash is present (normal page loads have no hash fragment)
+- **No impact on public users**: Regular visitors never have `#access_token=...` in their URL
+- **Existing flows preserved**: The hook just adds a redirect step before the existing auth logic takes over
 
