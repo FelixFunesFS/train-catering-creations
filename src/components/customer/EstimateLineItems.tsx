@@ -58,7 +58,7 @@ export function EstimateLineItems({ lineItems, subtotal, taxAmount, total }: Est
                   {item.description}
                 </p>
               )}
-              {item.quantity > 1 && (
+              {(item.quantity > 1 || item.category === 'dietary') && (
                 <p className="text-xs text-muted-foreground mt-1">
                   {item.quantity} × {formatCurrency(item.unit_price)}
                 </p>
