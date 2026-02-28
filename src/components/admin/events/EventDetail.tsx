@@ -392,7 +392,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
           </section>
 
           {/* Event Status Actions */}
-          {quote.workflow_status !== 'cancelled' && quote.workflow_status !== 'completed' && quote.workflow_status !== 'pending' && (
+          {quote.workflow_status !== 'cancelled' && (
             <>
               <Separator />
               <section>
