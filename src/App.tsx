@@ -37,6 +37,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Portfolio = lazy(() => import("./pages/Portfolio"));
 
 const ApproveEstimate = lazy(() => import("./pages/ApproveEstimate"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
