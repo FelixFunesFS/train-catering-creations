@@ -209,9 +209,9 @@ function LineItemsByCategory({ lineItems, excludeCategories }: { lineItems: Staf
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {Object.entries(grouped).map(([category, items]) => (
-        <div key={category} className="space-y-1">
+        <div key={category} className="space-y-2">
           <h4 className="text-sm font-medium text-muted-foreground">
             {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
           </h4>
