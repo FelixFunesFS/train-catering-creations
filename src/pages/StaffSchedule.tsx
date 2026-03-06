@@ -21,6 +21,11 @@ export default function StaffSchedule() {
   const { data: events, isLoading, error } = useStaffEvents(filter);
   const { data: selectedEvent } = useStaffEvent(selectedEventId);
 
+  const PAGE_SIZE = 10;
+  const eventList = events ?? [];
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [filter]);
+  const paginatedEvents = eventList.slice(startIndex, endIndex);
+
   const showMobileDetails = isMobile && selectedEventId && selectedEvent;
 
   const handleCardClick = (eventId: string) => {
