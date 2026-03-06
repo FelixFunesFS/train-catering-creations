@@ -592,10 +592,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden md:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
-                      label="Status" 
+                      label="Status"
                       sortKey="status" 
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
