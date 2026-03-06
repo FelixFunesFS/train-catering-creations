@@ -607,7 +607,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden lg:table-cell"
+                      className="hidden xl:table-cell"
                     />
                     <SortableTableHead 
                       label="Invoice #" 
@@ -615,7 +615,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden lg:table-cell"
+                      className="hidden xl:table-cell"
                     />
                     <SortableTableHead 
                       label="Total" 
