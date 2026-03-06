@@ -717,7 +717,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
-                      <TableCell className="text-right sticky right-0 bg-card z-10">
+                      <TableCell className="text-right">
                         {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
