@@ -1,22 +1,27 @@
 
-Immediate answer:
-- Yes. Staff users should log in through `/admin/auth`.
-- After successful login, they are automatically redirected to `/staff`.
 
-What I found:
-- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
-- There is no `public.user_roles` row for that current user ID.
-- This is why she is seeing “Access denied” even after resetting password.
+# Staff View UX: Spacing & Clarity Improvements
 
-Implementation steps:
-1. Insert staff role for the current user ID:
-   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
-   - `role = 'staff'`
-2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
-3. Have Margery sign out and sign in again at `/admin/auth`.
-4. Verify she lands on `/staff` and can view Staff Schedule.
+## Problem
+Inside the collapsible sections (Event Requirements, Equipment, Service Details, etc.), the content starts immediately below the section title's bottom border — the category sub-headers like "Catering Package" or "Appetizers" visually collide with the trigger button's edge. This affects both mobile and desktop.
 
-Technical details:
-- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
-- Only users with `admin` or `staff` in `public.user_roles` pass.
-- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.
+## Root Cause
+The `CollapsibleContent` wrapper (line 100) has `px-3 pb-4` but **no top padding**. Content renders flush against the trigger button's bottom edge.
+
+Additionally, `LineItemsByCategory` uses `space-y-1` between the category label and the item list (line 214), which is too tight — the sub-category titles need slightly more breathing room.
+
+## Changes (single file: `StaffEventDetails.tsx`)
+
+**1. Add top padding to CollapsibleContent (line 100)**
+Change `className="px-3 pb-4"` → `className="px-3 pt-3 pb-4"`
+
+This adds 12px of breathing room between every section trigger and its content — applies globally to all collapsible sections (Event Requirements, Equipment, Service, Admin Notes, Staff Assignments).
+
+**2. Increase category group spacing (line 212)**
+In `LineItemsByCategory`, change the outer `space-y-4` to `space-y-5` and the inner `space-y-1` (line 214) to `space-y-2` so sub-category titles ("Catering Package", "Appetizers", etc.) have more visual separation from the items below them.
+
+**3. Add a subtle top border to CustomerNotesSection (line 302)**
+The `CustomerNotesSection` sits outside a `CollapsibleSection` — it renders directly in the card. Add `mt-1` to its outer wrapper so it doesn't crowd the separator above it.
+
+### No workflow, logic, or data changes. Pure CSS spacing adjustments.
+
