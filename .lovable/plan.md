@@ -1,22 +1,21 @@
 
-Immediate answer:
-- Yes. Staff users should log in through `/admin/auth`.
-- After successful login, they are automatically redirected to `/staff`.
 
-What I found:
-- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
-- There is no `public.user_roles` row for that current user ID.
-- This is why she is seeing “Access denied” even after resetting password.
+# Fix: Restore Normal Font Size, Use Compact Column Widths Instead
 
-Implementation steps:
-1. Insert staff role for the current user ID:
-   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
-   - `role = 'staff'`
-2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
-3. Have Margery sign out and sign in again at `/admin/auth`.
-4. Verify she lands on `/staff` and can view Staff Schedule.
+## Problem
+The `lg:text-xs` class on the Table makes all text noticeably smaller than the rest of the admin UI. The user wants normal font size with columns that simply fit without scrolling.
 
-Technical details:
-- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
-- Only users with `admin` or `staff` in `public.user_roles` pass.
-- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.
+## Approach
+Instead of shrinking font size globally, we keep the default `text-sm` and only slightly reduce horizontal padding. The key insight is that 11 columns at `text-sm` can fit at 1024px if we use tighter padding (`px-2` instead of `px-4`) — we don't need to shrink the text.
+
+### Changes to `EventList.tsx` (single file)
+
+**Line 556** — Remove `lg:text-xs`, keep only reduced padding:
+```
+<Table className="[&_th]:lg:px-2 [&_td]:lg:px-2">
+```
+
+This keeps the default `text-sm` font size (matching the rest of the admin), while the reduced horizontal padding (`px-2` vs default `px-4`) saves ~22px per column × 11 columns = ~242px — enough to fit all columns at 1024px without horizontal scroll.
+
+No other changes needed. All breakpoints, logic, and workflows remain untouched.
+
