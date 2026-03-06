@@ -245,12 +245,17 @@ function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLin
   return (
     <ul className="space-y-2">
       {filtered.map(item => (
-        <li key={item.id} className="text-sm flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
-          <span>{item.title}</span>
-          {item.quantity > 1 && (
-            <span className="text-muted-foreground">×{item.quantity}</span>
-          )}
+        <li key={item.id} className="text-sm flex items-start gap-2">
+          <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-medium">{item.title}</span>
+            {item.quantity > 1 && (
+              <span className="text-muted-foreground ml-1">×{item.quantity}</span>
+            )}
+            {item.description && (
+              <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+            )}
+          </div>
         </li>
       ))}
     </ul>
