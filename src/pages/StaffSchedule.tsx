@@ -166,8 +166,8 @@ export default function StaffSchedule() {
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
-              {events && events.length > 0 ? (
-                events.map((event) => (
+              {paginatedEvents.length > 0 ? (
+                paginatedEvents.map((event) => (
                   <StaffEventCard 
                     key={event.id} 
                     event={event}
@@ -185,6 +185,14 @@ export default function StaffSchedule() {
                   </p>
                 </div>
               )}
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={eventList.length}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </ScrollArea>
         </ResizablePanel>
