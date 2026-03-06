@@ -653,7 +653,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         }
                       }}
                     >
-                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
+                      <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {formatDateTimeShortET(event.created_at!)}
                       </TableCell>
                       <TableCell className="font-medium whitespace-nowrap">
