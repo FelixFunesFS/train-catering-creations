@@ -212,9 +212,11 @@ function LineItemsByCategory({ lineItems, excludeCategories }: { lineItems: Staf
     <div className="space-y-5">
       {Object.entries(grouped).map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">
-            {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-          </h4>
+          {items.length > 1 && (
+            <h4 className="text-sm font-medium text-muted-foreground">
+              {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            </h4>
+          )}
           <ul className="space-y-1">
             {items.map(item => (
               <li key={item.id} className="text-sm flex items-start gap-2">
