@@ -700,7 +700,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         {invoice?.invoice_number ? (
                           <span className="font-mono text-sm">{invoice.invoice_number}</span>
                         ) : (
