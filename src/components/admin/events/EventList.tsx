@@ -707,7 +707,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {invoice ? (
                           <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
                         ) : (
