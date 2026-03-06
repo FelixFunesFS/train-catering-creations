@@ -714,7 +714,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
+                      <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
                       <TableCell className="text-right sticky right-0 bg-card z-10">
