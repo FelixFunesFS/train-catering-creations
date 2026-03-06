@@ -674,7 +674,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden sm:table-cell">
                         {event.event_name}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {event.guest_count}
                       </TableCell>
                       <TableCell>
