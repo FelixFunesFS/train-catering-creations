@@ -37,6 +37,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const AdminAuth = lazy(() => import("./pages/AdminAuth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Portfolio = lazy(() => import("./pages/Portfolio"));
 
 const ApproveEstimate = lazy(() => import("./pages/ApproveEstimate"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
@@ -85,9 +86,10 @@ const AppContent = () => {
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
+  const isPortfolioRoute = location.pathname === '/portfolio';
+  const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute || isPortfolioRoute;
 
-  const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
+  const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute && !isPortfolioRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       {!hideChrome && <Header />}
@@ -139,6 +141,8 @@ const AppContent = () => {
             <Route path="/invoice/public/:invoiceToken" element={<CustomerEstimateView />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
+            {/* Portfolio - publicly accessible UX case study */}
+            <Route path="/portfolio" element={<Portfolio />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
