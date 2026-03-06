@@ -631,7 +631,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <TableHead className="w-10 sticky right-0 bg-card z-10" />
                   </TableRow>
