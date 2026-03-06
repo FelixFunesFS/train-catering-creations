@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard, DollarSign } from 'lucide-react';
@@ -592,10 +592,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden md:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
-                      label="Status" 
+                      label="Status"
                       sortKey="status" 
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
@@ -607,7 +607,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden lg:table-cell"
+                      className="hidden xl:table-cell"
                     />
                     <SortableTableHead 
                       label="Invoice #" 
@@ -615,7 +615,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden lg:table-cell"
+                      className="hidden xl:table-cell"
                     />
                     <SortableTableHead 
                       label="Total" 
@@ -633,7 +633,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       onSort={handleSort}
                       className="hidden xl:table-cell"
                     />
-                    <TableCell className="w-10" />
+                    <TableHead className="w-10 sticky right-0 bg-card z-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -674,7 +674,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden sm:table-cell">
                         {event.event_name}
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {event.guest_count}
                       </TableCell>
                       <TableCell>
@@ -685,7 +685,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           {formatStatus(event.workflow_status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         {(() => {
                           if (!invoice) return <span className="text-muted-foreground">—</span>;
                           const nextMilestone = invoice.payment_milestones 
@@ -700,7 +700,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="hidden lg:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         {invoice?.invoice_number ? (
                           <span className="font-mono text-sm">{invoice.invoice_number}</span>
                         ) : (
@@ -717,7 +717,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right sticky right-0 bg-card z-10">
                         {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
