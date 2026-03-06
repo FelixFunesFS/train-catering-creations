@@ -685,7 +685,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           {formatStatus(event.workflow_status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {(() => {
                           if (!invoice) return <span className="text-muted-foreground">—</span>;
                           const nextMilestone = invoice.payment_milestones 
