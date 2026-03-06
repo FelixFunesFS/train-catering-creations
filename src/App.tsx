@@ -86,9 +86,10 @@ const AppContent = () => {
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute;
+  const isPortfolioRoute = location.pathname === '/portfolio';
+  const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute || isPortfolioRoute;
 
-  const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute;
+  const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute && !isPortfolioRoute;
   
   return <div className="min-h-screen bg-background font-clean flex flex-col transition-colors duration-300 py-0 my-0">
       {!hideChrome && <Header />}
