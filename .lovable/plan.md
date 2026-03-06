@@ -1,26 +1,22 @@
 
+Immediate answer:
+- Yes. Staff users should log in through `/admin/auth`.
+- After successful login, they are automatically redirected to `/staff`.
 
-# De-duplicate Redundant Category Titles in Staff Event Details
+What I found:
+- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
+- There is no `public.user_roles` row for that current user ID.
+- This is why she is seeing “Access denied” even after resetting password.
 
-## Scope Confirmation
-`LineItemsByCategory` and `LineItemsForCategories` are **private components** defined within `src/components/staff/StaffEventDetails.tsx` — they are not exported or used anywhere else. All changes below affect only the `/staff` route. No email templates, admin views, or customer-facing views are impacted.
+Implementation steps:
+1. Insert staff role for the current user ID:
+   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
+   - `role = 'staff'`
+2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
+3. Have Margery sign out and sign in again at `/admin/auth`.
+4. Verify she lands on `/staff` and can view Staff Schedule.
 
-## Changes (single file: `StaffEventDetails.tsx`)
-
-### 1. `LineItemsByCategory` (lines 211-237) — collapse single-item categories
-When a category group has exactly **one item**, skip the `<h4>` category sub-header entirely. The item's own title + description serves as the label. This eliminates "Catering Package → Catering Package ×150" and "Appetizers → Appetizer Selection ×150" redundancy.
-
-Multi-item categories keep the existing header + list layout unchanged.
-
-### 2. `LineItemsForCategories` (lines 241-262) — hide generic package titles
-When the filtered list has exactly **one item** that has a description, skip the bold item title and render only the description with a checkmark. The collapsible section header (e.g., "Equipment & Supplies") already names the section — repeating "Supply & Equipment Package" adds nothing.
-
-When there are multiple items or no description, keep current rendering.
-
-### Result
-- "Event Requirements" → items show directly without echoing category headers
-- "Equipment & Supplies" → shows the description (e.g., "Food Warmers with Fuel, plates…") without the redundant "Supply & Equipment Package" title
-- "Service Details" → shows "Delivery with Setup" without the redundant "Service Package" title
-
-No data, logic, or workflow changes.
-
+Technical details:
+- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
+- Only users with `admin` or `staff` in `public.user_roles` pass.
+- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.

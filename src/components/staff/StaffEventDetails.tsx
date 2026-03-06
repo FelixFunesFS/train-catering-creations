@@ -212,9 +212,11 @@ function LineItemsByCategory({ lineItems, excludeCategories }: { lineItems: Staf
     <div className="space-y-5">
       {Object.entries(grouped).map(([category, items]) => (
         <div key={category} className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">
-            {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-          </h4>
+          {items.length > 1 && (
+            <h4 className="text-sm font-medium text-muted-foreground">
+              {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            </h4>
+          )}
           <ul className="space-y-1">
             {items.map(item => (
               <li key={item.id} className="text-sm flex items-start gap-2">
@@ -244,20 +246,29 @@ function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLin
   
   return (
     <ul className="space-y-2">
-      {filtered.map(item => (
-        <li key={item.id} className="text-sm flex items-start gap-2">
-          <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-medium">{item.title}</span>
-            {item.quantity > 1 && (
-              <span className="text-muted-foreground ml-1">×{item.quantity}</span>
-            )}
-            {item.description && (
-              <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
-            )}
-          </div>
-        </li>
-      ))}
+      {filtered.map(item => {
+        const isSingleWithDescription = filtered.length === 1 && item.description;
+        return (
+          <li key={item.id} className="text-sm flex items-start gap-2">
+            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+            <div>
+              {isSingleWithDescription ? (
+                <span>{item.description}</span>
+              ) : (
+                <>
+                  <span className="font-medium">{item.title}</span>
+                  {item.quantity > 1 && (
+                    <span className="text-muted-foreground ml-1">×{item.quantity}</span>
+                  )}
+                  {item.description && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
+                  )}
+                </>
+              )}
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 }
