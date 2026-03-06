@@ -10,6 +10,8 @@ import { StaffEventDetails } from '@/components/staff/StaffEventDetails';
 import { SubscribeCalendarButton } from '@/components/staff/SubscribeCalendarButton';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { usePagination } from '@/hooks/usePagination';
+import { PaginationControls } from '@/components/admin/PaginationControls';
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
