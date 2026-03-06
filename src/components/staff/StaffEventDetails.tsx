@@ -97,7 +97,7 @@ function CollapsibleSection({
           )} />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="px-3 pb-4">
+      <CollapsibleContent className="px-3 pt-3 pb-4">
         {children}
       </CollapsibleContent>
     </Collapsible>
@@ -209,9 +209,9 @@ function LineItemsByCategory({ lineItems, excludeCategories }: { lineItems: Staf
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {Object.entries(grouped).map(([category, items]) => (
-        <div key={category} className="space-y-1">
+        <div key={category} className="space-y-2">
           <h4 className="text-sm font-medium text-muted-foreground">
             {categoryLabels[category] || category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
           </h4>
@@ -299,7 +299,7 @@ function CustomerNotesSection({ event }: { event: StaffEvent }) {
   if (!hasCustomMenuRequests && !hasExtras && !hasUtensils) return null;
   
   return (
-    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+    <div className="mt-1 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
       <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-medium text-sm mb-3">
         <Info className="h-4 w-4" />
         Customer Notes & Preferences
