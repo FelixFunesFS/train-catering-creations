@@ -553,7 +553,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </div>
             ) : (
               /* Desktop Table Layout */
-              <Table className="lg:text-xs [&_th]:lg:px-2 [&_th]:lg:py-2 [&_td]:lg:px-2 [&_td]:lg:py-2">
+              <Table className="[&_th]:lg:px-2 [&_td]:lg:px-2">
                 <TableHeader>
                   <TableRow>
                     <SortableTableHead 
