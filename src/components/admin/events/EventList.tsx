@@ -623,7 +623,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
                       label="Last Edited" 
