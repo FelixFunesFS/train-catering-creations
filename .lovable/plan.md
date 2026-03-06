@@ -1,11 +1,22 @@
 
+Immediate answer:
+- Yes. Staff users should log in through `/admin/auth`.
+- After successful login, they are automatically redirected to `/staff`.
 
-# Add Indent to Collapsible Section Content
+What I found:
+- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
+- There is no `public.user_roles` row for that current user ID.
+- This is why she is seeing “Access denied” even after resetting password.
 
-## Change
-Single tweak in `StaffEventDetails.tsx`: increase the left padding on the `CollapsibleContent` wrapper from `px-3` to `pl-6 pr-3`. This indents all content within every collapsible section (Event Requirements, Equipment & Supplies, Service Details, Admin Notes, Staff Assignments) to visually nest it under the section header.
+Implementation steps:
+1. Insert staff role for the current user ID:
+   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
+   - `role = 'staff'`
+2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
+3. Have Margery sign out and sign in again at `/admin/auth`.
+4. Verify she lands on `/staff` and can view Staff Schedule.
 
-**Line 100:** `px-3 pt-3 pb-4` → `pl-6 pr-3 pt-3 pb-4`
-
-This adds ~12px extra left indent, creating a clear visual hierarchy between the collapsible trigger and its details. No other changes needed — single line edit.
-
+Technical details:
+- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
+- Only users with `admin` or `staff` in `public.user_roles` pass.
+- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.

@@ -97,7 +97,7 @@ function CollapsibleSection({
           )} />
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="px-3 pt-3 pb-4">
+      <CollapsibleContent className="pl-6 pr-3 pt-3 pb-4">
         {children}
       </CollapsibleContent>
     </Collapsible>
