@@ -1,21 +1,22 @@
 
+Immediate answer:
+- Yes. Staff users should log in through `/admin/auth`.
+- After successful login, they are automatically redirected to `/staff`.
 
-# Paginate Staff Event List Panel
+What I found:
+- `margery.funes@gmail.com` currently exists as user ID `5ad326c7-6636-4d4e-8337-fcae7b18228c`.
+- There is no `public.user_roles` row for that current user ID.
+- This is why she is seeing “Access denied” even after resetting password.
 
-## Approach
-Client-side pagination on the already-fetched events array. The hook `useStaffEvents` fetches all matching events in one query (with joined assignments, line items, notes). Since this is a staff-facing operational view with a modest event count, client-side pagination is the right call — no need to refactor the data layer or break the parallel fetching of related data.
+Implementation steps:
+1. Insert staff role for the current user ID:
+   - `user_id = '5ad326c7-6636-4d4e-8337-fcae7b18228c'`
+   - `role = 'staff'`
+2. (Optional cleanup) Remove old/stale role row tied to deleted user `97f844e6-92dd-4302-8fdf-67fd7df39f9b`.
+3. Have Margery sign out and sign in again at `/admin/auth`.
+4. Verify she lands on `/staff` and can view Staff Schedule.
 
-## Changes
-
-### `src/pages/StaffSchedule.tsx`
-1. Import `usePagination` and `PaginationControls`
-2. Call `usePagination(events.length, 10, [filter])` — resets to page 1 when the filter tab changes
-3. Slice `events` to `paginatedEvents = events.slice(startIndex, endIndex)`
-4. Render `paginatedEvents` instead of `events` in both the **desktop left panel** and **mobile list view**
-5. Add `<PaginationControls>` below the event cards in both views (inside the scroll area on desktop, below the card list on mobile)
-
-The detail panel (`selectedEventId`, `useStaffEvent`) is completely independent — it fetches by ID, so pagination of the list has zero effect on detail viewing. Selecting an event that's on a different page still works because the detail query is separate.
-
-### No other files changed
-`usePagination` and `PaginationControls` already exist and handle edge cases (page clamping, filter reset).
-
+Technical details:
+- Access check is enforced by `has_any_role` via `useAuth.checkAccess()`.
+- Only users with `admin` or `staff` in `public.user_roles` pass.
+- Password reset success does not grant access by itself; role assignment is required on the active `auth.users.id`.
