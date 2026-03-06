@@ -553,7 +553,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </div>
             ) : (
               /* Desktop Table Layout */
-              <Table>
+              <Table className="lg:text-xs [&_th]:lg:px-2 [&_th]:lg:py-2 [&_td]:lg:px-2 [&_td]:lg:py-2">
                 <TableHeader>
                   <TableRow>
                     <SortableTableHead 
@@ -562,7 +562,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
                       label="Event Date" 
@@ -607,7 +607,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
                       label="Invoice #" 
@@ -615,7 +615,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
                       label="Total" 
@@ -623,7 +623,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
                     <SortableTableHead 
                       label="Last Edited" 
@@ -631,9 +631,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       currentSortBy={sortBy} 
                       currentSortOrder={sortOrder}
                       onSort={handleSort}
-                      className="hidden xl:table-cell"
+                      className="hidden lg:table-cell"
                     />
-                    <TableHead className="w-10 sticky right-0 bg-card z-10" />
+                    <TableHead className="w-10" />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -653,7 +653,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         }
                       }}
                     >
-                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
+                      <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {formatDateTimeShortET(event.created_at!)}
                       </TableCell>
                       <TableCell className="font-medium whitespace-nowrap">
@@ -685,7 +685,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           {formatStatus(event.workflow_status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {(() => {
                           if (!invoice) return <span className="text-muted-foreground">—</span>;
                           const nextMilestone = invoice.payment_milestones 
@@ -700,24 +700,24 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           );
                         })()}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {invoice?.invoice_number ? (
                           <span className="font-mono text-sm">{invoice.invoice_number}</span>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         {invoice ? (
                           <span className="font-medium">{formatCurrency(invoice.total_amount)}</span>
                         ) : (
                           <span className="text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell className="hidden xl:table-cell text-muted-foreground text-sm whitespace-nowrap">
+                      <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
-                      <TableCell className="text-right sticky right-0 bg-card z-10">
+                      <TableCell className="text-right">
                         {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
