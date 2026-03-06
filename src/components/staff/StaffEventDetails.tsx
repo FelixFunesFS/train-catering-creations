@@ -249,13 +249,20 @@ function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLin
       {filtered.map(item => {
         const isSingleWithDescription = filtered.length === 1 && item.description;
         return (
-          <li key={item.id} className="text-sm flex items-start gap-2">
-            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
-            <div>
-              {isSingleWithDescription ? (
-                <span>{item.description}</span>
-              ) : (
-                <>
+          <li key={item.id} className="text-sm">
+            {isSingleWithDescription ? (
+              <ul className="space-y-1">
+                {item.description!.split(',').map((part, i) => (
+                  <li key={i} className="flex items-center gap-2">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                    <span>{part.trim()}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                <div>
                   <span className="font-medium">{item.title}</span>
                   {item.quantity > 1 && (
                     <span className="text-muted-foreground ml-1">×{item.quantity}</span>
@@ -263,9 +270,9 @@ function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLin
                   {item.description && (
                     <p className="text-xs text-muted-foreground mt-0.5">{item.description}</p>
                   )}
-                </>
-              )}
-            </div>
+                </div>
+              </div>
+            )}
           </li>
         );
       })}
