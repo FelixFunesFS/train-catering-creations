@@ -140,6 +140,8 @@ const AppContent = () => {
             <Route path="/invoice/public/:invoiceToken" element={<CustomerEstimateView />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
+            {/* Portfolio - publicly accessible UX case study */}
+            <Route path="/portfolio" element={<Portfolio />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
