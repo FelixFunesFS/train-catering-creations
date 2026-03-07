@@ -7,6 +7,7 @@ import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplateP
 import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
 import { NotificationPreferencesPanel } from '@/components/admin/settings/NotificationPreferencesPanel';
 import { ReportsView } from '@/components/admin/reports';
+import { ViewHelpCard } from '@/components/admin/help/ViewHelpCard';
 import { Mail, Cog, Bell } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings' | 'reports';
