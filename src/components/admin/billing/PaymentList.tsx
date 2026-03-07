@@ -6,6 +6,7 @@ import { format, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ViewHelpCard } from '../help/ViewHelpCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -130,6 +131,7 @@ export function PaymentList() {
 
   return (
     <div className="space-y-4">
+      <ViewHelpCard viewKey="billing" />
       <div className="flex items-center justify-between flex-wrap gap-4">
         <h2 className="text-lg font-semibold">Payment Tracking</h2>
         <Button

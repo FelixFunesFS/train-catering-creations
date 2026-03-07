@@ -7,6 +7,7 @@ import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplateP
 import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
 import { NotificationPreferencesPanel } from '@/components/admin/settings/NotificationPreferencesPanel';
 import { ReportsView } from '@/components/admin/reports';
+import { ViewHelpCard } from '@/components/admin/help/ViewHelpCard';
 import { Mail, Cog, Bell } from 'lucide-react';
 
 export type AdminView = 'events' | 'billing' | 'settings' | 'reports';
@@ -25,6 +26,8 @@ export function UnifiedAdminDashboard() {
         {currentView === 'reports' && <ReportsView />}
         
         {currentView === 'settings' && (
+          <div className="space-y-4">
+          <ViewHelpCard viewKey="settings" />
           <Tabs defaultValue="notifications" className="space-y-4">
             <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
               <TabsList className="inline-flex w-max min-w-full sm:w-auto">
@@ -65,6 +68,7 @@ export function UnifiedAdminDashboard() {
               </div>
             </TabsContent>
           </Tabs>
+          </div>
         )}
       </div>
     </AdminLayout>

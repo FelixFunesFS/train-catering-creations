@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
+import { AdminHelpButton } from './help/AdminHelpButton';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -35,6 +36,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             
             <div className="hidden lg:flex items-center gap-1">
               <MobileAdminNav />
+              <AdminHelpButton />
               <Button
                 variant="ghost"
                 size="sm"
