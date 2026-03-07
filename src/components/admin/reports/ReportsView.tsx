@@ -6,6 +6,7 @@ import { RevenueOverview } from './RevenueOverview';
 import { EventAnalytics } from './EventAnalytics';
 import { ItemsAnalysis } from './ItemsAnalysis';
 import { PaymentAnalysis } from './PaymentAnalysis';
+import { ViewHelpCard } from '../help/ViewHelpCard';
 import {
   type ReportsFilters,
   getDefaultFilters,
