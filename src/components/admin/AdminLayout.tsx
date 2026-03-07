@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
+import { AdminHelpButton } from './help/AdminHelpButton';
 
 interface AdminLayoutProps {
   children: ReactNode;
