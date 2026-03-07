@@ -3,7 +3,8 @@ import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { 
   MapPin, Users, Clock, ChefHat, Utensils, CheckCircle2, 
   AlertTriangle, ChevronDown, User, Phone, Shield, Palette,
-  MessageSquare, StickyNote, Package, RefreshCw, Info, Heart
+  MessageSquare, StickyNote, Package, RefreshCw, Info, Heart,
+  FileCheck, FileText, CircleDashed
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StaffEventDetailsProps {
   event: StaffEvent;
@@ -86,6 +88,7 @@ function CollapsibleSection({
         <Button 
           variant="ghost" 
           className="w-full justify-between h-12 px-3 hover:bg-muted/50"
+          aria-expanded={isOpen}
         >
           <div className="flex items-center gap-2">
             <Icon className="h-4 w-4" />
@@ -166,7 +169,7 @@ function StaffAssignmentCard({ assignment }: { assignment: StaffAssignment }) {
               </span>
             ) : (
               <span className="text-amber-600 flex items-center gap-1">
-                <span className="h-3 w-3 rounded-full border border-current" /> Pending
+                <CircleDashed className="h-3 w-3" /> Pending
               </span>
             )}
           </div>
@@ -313,28 +316,18 @@ function AdminNotesBlock({ notes }: { notes: StaffAdminNote[] }) {
   );
 }
 
-// Customer Notes section
-function CustomerNotesSection({ event }: { event: StaffEvent }) {
-  const hasCustomMenuRequests = !!event.custom_menu_requests;
-  const hasExtras = event.extras.length > 0;
-  const hasUtensils = event.utensils.length > 0;
-  
-  if (!hasCustomMenuRequests && !hasExtras && !hasUtensils) return null;
-  
+// Customer Notes section (inner content)
+function CustomerNotesContent({ event }: { event: StaffEvent }) {
   return (
-    <div className="mt-1 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-      <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400 font-medium text-sm mb-3">
-        <Info className="h-4 w-4" />
-        Customer Notes & Preferences
-      </div>
+    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
       <div className="space-y-3">
-        {hasCustomMenuRequests && (
+        {event.custom_menu_requests && (
           <div>
             <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Menu Notes</h5>
             <p className="text-sm text-blue-900 dark:text-blue-200">{event.custom_menu_requests}</p>
           </div>
         )}
-        {hasExtras && (
+        {event.extras.length > 0 && (
           <div>
             <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Additional Requests</h5>
             <ul className="space-y-1">
@@ -347,7 +340,7 @@ function CustomerNotesSection({ event }: { event: StaffEvent }) {
             </ul>
           </div>
         )}
-        {hasUtensils && (
+        {event.utensils.length > 0 && (
           <div>
             <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Utensil Preferences</h5>
             <ul className="space-y-1">
@@ -367,6 +360,7 @@ function CustomerNotesSection({ event }: { event: StaffEvent }) {
 
 export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const countdown = getCountdownBadge(event.days_until, event.event_date);
   const confirmation = getConfirmationBadge(event.workflow_status);
@@ -402,6 +396,8 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
   const showEquipmentSection = hasSuppliesLineItems || hasEquipmentFallback;
   const showServiceSection = hasServiceLineItems || hasServiceFallback || event.special_requests ||
     (hasLineItems && (event.serving_setup_area || event.separate_serving_area || event.wait_staff_requirements || event.wait_staff_setup_areas));
+
+  const hasCustomerNotes = !!event.custom_menu_requests || event.extras.length > 0 || event.utensils.length > 0;
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -445,8 +441,18 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           <CardTitle className="text-xl leading-tight">{event.event_name}</CardTitle>
           
           {/* Data provenance indicator */}
-          <p className="text-xs text-muted-foreground/70 italic">
-            {hasLineItems ? '📋 Based on approved estimate' : '📝 Based on quote submission'}
+          <p className="text-xs text-muted-foreground/70 italic flex items-center gap-1">
+            {hasLineItems ? (
+              <>
+                <FileCheck className="h-3 w-3" aria-hidden="true" />
+                Based on approved estimate
+              </>
+            ) : (
+              <>
+                <FileText className="h-3 w-3" aria-hidden="true" />
+                Based on quote submission
+              </>
+            )}
           </p>
           
           {/* Date and time */}
@@ -470,7 +476,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-start gap-2 text-sm text-primary hover:underline min-h-[44px] py-2"
+            className="flex items-start gap-2 text-sm text-primary hover:underline min-h-[44px] lg:min-h-0 py-2"
           >
             <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
             <span>{event.location}</span>
@@ -495,7 +501,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               {event.phone && (
                 <a 
                   href={`tel:${event.phone}`}
-                  className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[44px] py-2"
+                  className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[44px] lg:min-h-0 py-2"
                 >
                   <Phone className="h-4 w-4" />
                   {event.phone}
@@ -556,14 +562,16 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                   )}
 
                   {event.guest_count_with_restrictions && Number(event.guest_count_with_restrictions) > 0 && (
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      🌿 {event.guest_count_with_restrictions} guests with dietary restrictions
+                    <p className="text-sm text-green-700 dark:text-green-400 flex items-center gap-1">
+                      <Heart className="h-3.5 w-3.5" aria-hidden="true" />
+                      {event.guest_count_with_restrictions} guests with dietary restrictions
                     </p>
                   )}
 
                   {event.both_proteins_available && (
-                    <p className="text-sm text-amber-700 dark:text-amber-400">
-                      ⭐ Both proteins served to all guests
+                    <p className="text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      Both proteins served to all guests
                     </p>
                   )}
                 </div>
@@ -594,14 +602,16 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                   )}
 
                   {event.guest_count_with_restrictions && Number(event.guest_count_with_restrictions) > 0 && (
-                    <p className="text-sm text-green-700 dark:text-green-400">
-                      🌿 {event.guest_count_with_restrictions} guests with dietary restrictions
+                    <p className="text-sm text-green-700 dark:text-green-400 flex items-center gap-1">
+                      <Heart className="h-3.5 w-3.5" aria-hidden="true" />
+                      {event.guest_count_with_restrictions} guests with dietary restrictions
                     </p>
                   )}
 
                   {event.both_proteins_available && (
-                    <p className="text-sm text-amber-700 dark:text-amber-400">
-                      ⭐ Both proteins served to all guests
+                    <p className="text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      Both proteins served to all guests
                     </p>
                   )}
 
@@ -698,14 +708,20 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           </>
         )}
 
-        {/* Customer Notes & Preferences */}
-        <CustomerNotesSection event={event} />
-        {(event.custom_menu_requests || event.extras.length > 0 || event.utensils.length > 0) && <Separator />}
+        {/* Customer Notes & Preferences — wrapped in CollapsibleSection */}
+        {hasCustomerNotes && (
+          <>
+            <CollapsibleSection title="Customer Notes & Preferences" icon={MessageSquare} defaultOpen={!isMobile}>
+              <CustomerNotesContent event={event} />
+            </CollapsibleSection>
+            <Separator />
+          </>
+        )}
 
         {/* Admin Notes */}
         {event.admin_notes.length > 0 && (
           <>
-            <CollapsibleSection title="Admin Notes" icon={StickyNote} defaultOpen>
+            <CollapsibleSection title="Admin Notes" icon={StickyNote} defaultOpen={!isMobile}>
               <AdminNotesBlock notes={event.admin_notes} />
             </CollapsibleSection>
             <Separator />

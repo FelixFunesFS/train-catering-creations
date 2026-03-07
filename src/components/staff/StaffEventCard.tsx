@@ -55,10 +55,22 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
   
   const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
+
   return (
     <Card 
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${event.event_name}`}
+      onKeyDown={handleKeyDown}
       className={cn(
         "cursor-pointer transition-all active:bg-muted/50 active:scale-[0.99]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         isSelected && "ring-2 ring-primary"
       )}
       onClick={onClick}
@@ -122,7 +134,7 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
 
         {/* Staff summary */}
         {totalStaff > 0 && (
-          <div className="flex items-center gap-2 text-sm pt-1 border-t">
+          <div className="flex items-center gap-2 text-sm pt-2 mt-1 border-t">
             {confirmedCount === totalStaff ? (
               <CheckCircle className="h-4 w-4 text-green-500" />
             ) : (

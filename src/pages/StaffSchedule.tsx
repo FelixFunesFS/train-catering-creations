@@ -108,7 +108,7 @@ export default function StaffSchedule() {
           </div>
         </div>
         
-        <div className="p-4 space-y-3">
+        <div className="p-4 pb-20 space-y-3">
           {paginatedEvents.length > 0 ? (
             paginatedEvents.map((event) => (
               <StaffEventCard 
