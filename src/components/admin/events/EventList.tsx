@@ -398,12 +398,15 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                             </Badge>
                           )}
                         </div>
-                        <Badge 
-                          variant="outline" 
-                          className={`shrink-0 ml-2 text-xs ${eventStatusColors[event.workflow_status] || ''}`}
-                        >
-                          {formatStatus(event.workflow_status)}
-                        </Badge>
+                        {/* Show event status badge only when no invoice (avoids redundancy) */}
+                        {!invoice && (
+                          <Badge 
+                            variant="outline" 
+                            className={`shrink-0 ml-2 text-xs ${eventStatusColors[event.workflow_status] || ''}`}
+                          >
+                            {formatStatus(event.workflow_status)}
+                          </Badge>
+                        )}
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-3">
