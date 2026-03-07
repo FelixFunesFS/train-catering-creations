@@ -33,8 +33,24 @@ export function EventFilters({
 }: EventFiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Status Filter Pills */}
-      <div className="flex flex-wrap gap-1">
+      {/* Mobile: Status Dropdown */}
+      <div className="sm:hidden">
+        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <SelectTrigger className="w-[130px] h-8 text-xs">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.value === 'all' ? 'All Statuses' : option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Desktop: Status Filter Pills */}
+      <div className="hidden sm:flex flex-wrap gap-1">
         {statusOptions.map((option) => (
           <Button
             key={option.value}
@@ -50,7 +66,7 @@ export function EventFilters({
 
       {/* Service Type Dropdown */}
       <Select value={serviceTypeFilter} onValueChange={(v) => setServiceTypeFilter(v as ServiceTypeFilter)}>
-        <SelectTrigger className="w-[140px] h-8 text-xs">
+        <SelectTrigger className="w-[130px] sm:w-[140px] h-8 text-xs">
           <SelectValue placeholder="Service Type" />
         </SelectTrigger>
         <SelectContent>

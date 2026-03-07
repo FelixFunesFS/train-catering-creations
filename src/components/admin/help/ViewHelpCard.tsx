@@ -10,7 +10,9 @@ interface ViewHelpCardProps {
 export function ViewHelpCard({ viewKey }: ViewHelpCardProps) {
   const storageKey = `admin-help-dismissed-${viewKey}`;
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    return localStorage.getItem(storageKey) === 'true';
+    const stored = localStorage.getItem(storageKey);
+    // Default to collapsed if never set
+    return stored === null ? true : stored === 'true';
   });
 
   const tips = viewHelpTips[viewKey];

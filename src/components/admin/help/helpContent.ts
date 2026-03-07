@@ -13,6 +13,7 @@ export const viewHelpTips: Record<string, HelpTip[]> = {
     { text: "New quote requests appear in the Submissions card at the top — click to review and create an estimate." },
     { text: "The Event List below shows all active events. Click any row to open its detail page." },
     { text: "Use the calendar views (List, Week, Month) to manage your upcoming schedule." },
+    { text: "Icon guide: 📞 Call customer · 💲 Send payment reminder · 📄 View event/estimate · ✉️ Email sent · 📬 Email opened · 🌐 Customer viewed portal." },
   ],
   billing: [
     { text: "Filter by status to quickly find overdue or pending invoices." },
