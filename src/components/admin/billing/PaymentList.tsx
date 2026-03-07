@@ -6,6 +6,7 @@ import { format, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
 import { useInvoices } from '@/hooks/useInvoices';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ViewHelpCard } from '../help/ViewHelpCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
