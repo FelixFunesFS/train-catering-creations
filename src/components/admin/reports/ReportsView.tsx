@@ -26,6 +26,7 @@ export function ReportsView() {
 
   return (
     <div className="space-y-4">
+      <ViewHelpCard viewKey="reports" />
       <div className="flex items-center gap-2 mb-2">
         <BarChart3 className="h-5 w-5 text-primary" />
         <h1 className="text-xl font-semibold">Reports & Analytics</h1>

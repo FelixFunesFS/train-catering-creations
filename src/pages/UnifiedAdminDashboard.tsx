@@ -68,6 +68,7 @@ export function UnifiedAdminDashboard() {
               </div>
             </TabsContent>
           </Tabs>
+          </div>
         )}
       </div>
     </AdminLayout>

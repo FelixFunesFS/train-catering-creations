@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Lightbulb, ChevronDown, ChevronUp } from 'lucide-react';
+import { Lightbulb, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { viewHelpTips } from './helpContent';
 
@@ -14,11 +14,12 @@ export function ViewHelpCard({ viewKey }: ViewHelpCardProps) {
   });
 
   const tips = viewHelpTips[viewKey];
-  if (!tips) return null;
 
   useEffect(() => {
     localStorage.setItem(storageKey, String(isCollapsed));
   }, [isCollapsed, storageKey]);
+
+  if (!tips) return null;
 
   if (isCollapsed) {
     return (

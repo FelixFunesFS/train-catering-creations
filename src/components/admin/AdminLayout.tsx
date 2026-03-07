@@ -36,6 +36,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             
             <div className="hidden lg:flex items-center gap-1">
               <MobileAdminNav />
+              <AdminHelpButton />
               <Button
                 variant="ghost"
                 size="sm"
