@@ -26,6 +26,8 @@ export function UnifiedAdminDashboard() {
         {currentView === 'reports' && <ReportsView />}
         
         {currentView === 'settings' && (
+          <div className="space-y-4">
+          <ViewHelpCard viewKey="settings" />
           <Tabs defaultValue="notifications" className="space-y-4">
             <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
               <TabsList className="inline-flex w-max min-w-full sm:w-auto">
