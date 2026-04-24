@@ -508,16 +508,35 @@ export const SinglePageQuoteForm = ({
               </div>
             );
           }
-          // Mobile: single column review
+          // Mobile: single column review with explicit "not submitted yet" warning
           return (
             <div className="w-full max-w-lg mx-auto">
-              <div className="text-center mb-8">
+              <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <ClipboardCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-elegant font-semibold">Review your request</h2>
-                <p className="text-muted-foreground mt-2">Make sure everything looks good before submitting</p>
+                <h2 className="text-2xl font-elegant font-semibold">Almost done — review and submit</h2>
+                <p className="text-muted-foreground mt-2">Please review, then tap <strong>Submit Quote Request</strong> below to send.</p>
               </div>
+              <Alert variant="destructive" className="mb-4 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="font-medium">
+                  Not submitted yet — review your details and tap the <strong>Submit</strong> button at the bottom of the screen.
+                </AlertDescription>
+              </Alert>
+              {submitError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    {submitError}. Tap Submit again to retry, or call (843) 970-0265.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {isRetrying && (
+                <Alert className="mb-4">
+                  <AlertDescription>Retrying… (attempt {attempt} of 3)</AlertDescription>
+                </Alert>
+              )}
               <ReviewSummaryCard form={form} variant={variant} />
             </div>
           );
