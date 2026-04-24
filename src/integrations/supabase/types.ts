@@ -387,6 +387,39 @@ export type Database = {
           },
         ]
       }
+      email_send_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message_id: string
+          metadata: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id: string
+          metadata?: Json | null
+          recipient_email: string
+          status?: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string
+          metadata?: Json | null
+          recipient_email?: string
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
       estimate_versions: {
         Row: {
           change_request_id: string | null
@@ -655,6 +688,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      form_analytics_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          field_name: string | null
+          form_type: string | null
+          id: string
+          metadata: Json | null
+          session_id: string
+          step_name: string | null
+          step_number: number | null
+          time_on_step_seconds: number | null
+          total_time_seconds: number | null
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          field_name?: string | null
+          form_type?: string | null
+          id?: string
+          metadata?: Json | null
+          session_id: string
+          step_name?: string | null
+          step_number?: number | null
+          time_on_step_seconds?: number | null
+          total_time_seconds?: number | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          field_name?: string | null
+          form_type?: string | null
+          id?: string
+          metadata?: Json | null
+          session_id?: string
+          step_name?: string | null
+          step_number?: number | null
+          time_on_step_seconds?: number | null
+          total_time_seconds?: number | null
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       invoice_audit_log: {
         Row: {
@@ -1807,6 +1888,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      submission_failures: {
+        Row: {
+          admin_notes: string | null
+          contact_name: string | null
+          converted_to_quote_id: string | null
+          created_at: string
+          email: string | null
+          error_details: Json | null
+          error_message: string | null
+          failure_stage: string
+          form_type: string | null
+          id: string
+          partial_payload: Json | null
+          phone: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          session_id: string | null
+          updated_at: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          contact_name?: string | null
+          converted_to_quote_id?: string | null
+          created_at?: string
+          email?: string | null
+          error_details?: Json | null
+          error_message?: string | null
+          failure_stage: string
+          form_type?: string | null
+          id?: string
+          partial_payload?: Json | null
+          phone?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          session_id?: string | null
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          contact_name?: string | null
+          converted_to_quote_id?: string | null
+          created_at?: string
+          email?: string | null
+          error_details?: Json | null
+          error_message?: string | null
+          failure_stage?: string
+          form_type?: string | null
+          id?: string
+          partial_payload?: Json | null
+          phone?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          session_id?: string | null
+          updated_at?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
