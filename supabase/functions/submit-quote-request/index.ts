@@ -65,6 +65,30 @@ serve(async (req) => {
       );
     }
 
+    // Idempotency check — if client retries with the same key, return existing quote
+    // instead of inserting a duplicate.
+    const idempotencyKey = typeof payload.idempotency_key === 'string' && payload.idempotency_key.length > 0
+      ? String(payload.idempotency_key).slice(0, 100)
+      : null;
+
+    if (idempotencyKey) {
+      const { data: existing, error: idemErr } = await supabase
+        .from('quote_requests')
+        .select('id')
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (idemErr) {
+        console.warn('[idempotency] lookup error (proceeding):', idemErr);
+      } else if (existing?.id) {
+        console.log(`[idempotency] returning existing quote ${existing.id} for key ${idempotencyKey}`);
+        return new Response(
+          JSON.stringify({ success: true, quote_id: existing.id, deduplicated: true }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Rate limiting check - count recent submissions from this email
     const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
     const { count, error: countError } = await supabase
