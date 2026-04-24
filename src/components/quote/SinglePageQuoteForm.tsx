@@ -71,9 +71,12 @@ export const SinglePageQuoteForm = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
+  const { trackFieldInteraction, trackFormSubmission, trackStepView } = useFormAnalytics({ 
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
+  const { run: runWithRetry, attempt, isRetrying } = useSubmissionRetry({ maxAttempts: 3 });
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
   // On desktop, show split layout for the Review step (step 6 = index 5)
   const isReviewStep = currentStep === 5;
