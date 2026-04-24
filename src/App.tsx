@@ -49,6 +49,7 @@ const CustomerEstimateView = lazy(() => import("./components/customer/CustomerEs
 const QuoteThankYou = lazy(() => import("./pages/QuoteThankYou"));
 const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
 const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
+const SubmissionFailures = lazy(() => import("./pages/admin/SubmissionFailures"));
 
 // Minimal loading fallback to avoid layout shift
 const PageLoader = () => (
