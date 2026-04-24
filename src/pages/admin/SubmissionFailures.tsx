@@ -114,7 +114,7 @@ export default function SubmissionFailures() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl font-elegant font-semibold flex items-center gap-2">
-              <AlertTriangle className="h-6 w-6 text-amber-500" />
+              <AlertTriangle className="h-6 w-6 text-warning" />
               Lost Leads — Submission Failures
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -137,13 +137,13 @@ export default function SubmissionFailures() {
           <Card>
             <CardContent className="p-4">
               <div className="text-xs uppercase text-muted-foreground tracking-wider">Unresolved</div>
-              <div className="text-2xl font-semibold mt-1 text-amber-600">{stats.unresolved}</div>
+              <div className="text-2xl font-semibold mt-1 text-warning">{stats.unresolved}</div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <div className="text-xs uppercase text-muted-foreground tracking-wider">Recovered</div>
-              <div className="text-2xl font-semibold mt-1 text-emerald-600">{stats.recovered}</div>
+              <div className="text-2xl font-semibold mt-1 text-success">{stats.recovered}</div>
             </CardContent>
           </Card>
         </div>
