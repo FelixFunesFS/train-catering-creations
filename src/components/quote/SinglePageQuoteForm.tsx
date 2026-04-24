@@ -17,12 +17,16 @@ import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
+import { useFormDraftPersistence } from "@/hooks/useFormDraftPersistence";
+import { useSubmissionRetry } from "@/hooks/useSubmissionRetry";
+import { suggestEmailCorrection } from "@/utils/emailTypoDetector";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { X, AlertTriangle } from "lucide-react";
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -67,9 +71,12 @@ export const SinglePageQuoteForm = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
-  const { trackFieldInteraction, trackFormSubmission } = useFormAnalytics({ 
+  const { trackFieldInteraction, trackFormSubmission, trackStepView } = useFormAnalytics({ 
     formType: variant === 'wedding' ? 'wedding_event' : 'regular_event' 
   });
+  const { run: runWithRetry, attempt, isRetrying } = useSubmissionRetry({ maxAttempts: 3 });
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
   // On desktop, show split layout for the Review step (step 6 = index 5)
   const isReviewStep = currentStep === 5;
@@ -139,6 +146,41 @@ export const SinglePageQuoteForm = ({
       military_organization: "",
     },
   });
+
+  // Draft persistence — survives accidental refreshes/closes
+  const watchedValues = form.watch();
+  const draftKey = `quote_draft_v1_${variant}`;
+  const { clear: clearDraft } = useFormDraftPersistence({
+    storageKey: draftKey,
+    values: watchedValues,
+    onRestore: (data) => {
+      try {
+        form.reset({ ...form.getValues(), ...(data as Partial<FormData>) });
+        toast({
+          title: "Draft restored",
+          description: "We saved your progress from your last visit.",
+        });
+      } catch (e) {
+        console.warn("[draft] restore failed", e);
+      }
+    },
+  });
+
+  // Email typo suggestion (watches email field on contact step)
+  const emailValue = form.watch("email");
+  useEffect(() => {
+    if (!emailValue || currentStep !== 0) {
+      setEmailSuggestion(null);
+      return;
+    }
+    setEmailSuggestion(suggestEmailCorrection(emailValue));
+  }, [emailValue, currentStep]);
+
+  // Track step views (for funnel analytics)
+  useEffect(() => {
+    trackStepView(currentStep + 1, STEPS[currentStep]?.title || `step_${currentStep + 1}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
 
   const focusFirstInvalidFieldInStep = useCallback(() => {
     const step = STEPS[currentStep];
@@ -294,57 +336,61 @@ export const SinglePageQuoteForm = ({
       return;
     }
     
+    const submitPayload = {
+      contact_name: formatCustomerName(data.contact_name),
+      email: data.email,
+      phone: data.phone,
+      event_name: formatEventName(data.event_name),
+      event_type: data.event_type,
+      event_date: data.event_date,
+      start_time: data.start_time,
+      guest_count: data.guest_count,
+      location: formatLocation(data.location),
+      service_type: data.service_type,
+      serving_start_time: data.serving_start_time || null,
+      proteins: data.proteins || [],
+      both_proteins_available: data.both_proteins_available,
+      appetizers: data.appetizers || [],
+      sides: data.sides || [],
+      desserts: data.desserts || [],
+      drinks: data.drinks || [],
+      dietary_restrictions: data.dietary_restrictions || [],
+      vegetarian_entrees: data.vegetarian_entrees || [],
+      guest_count_with_restrictions: data.guest_count_with_restrictions,
+      plates_requested: data.plates_requested,
+      cups_requested: data.cups_requested,
+      napkins_requested: data.napkins_requested,
+      serving_utensils_requested: data.serving_utensils_requested,
+      chafers_requested: data.chafers_requested,
+      ice_requested: data.ice_requested,
+      utensils: data.utensils || [],
+      extras: data.extras || [],
+      separate_serving_area: data.separate_serving_area,
+      serving_setup_area: data.serving_setup_area,
+      bussing_tables_needed: data.bussing_tables_needed,
+      special_requests: data.special_requests,
+      referral_source: data.referral_source,
+      theme_colors: data.theme_colors,
+      cocktail_hour: data.cocktail_hour,
+      military_organization: data.military_organization || null,
+    };
+
     try {
-      const submitPayload = {
-        contact_name: formatCustomerName(data.contact_name),
-        email: data.email,
-        phone: data.phone,
-        event_name: formatEventName(data.event_name),
-        event_type: data.event_type,
-        event_date: data.event_date,
-        start_time: data.start_time,
-        guest_count: data.guest_count,
-        location: formatLocation(data.location),
-        service_type: data.service_type,
-        serving_start_time: data.serving_start_time || null,
-        proteins: data.proteins || [],
-        both_proteins_available: data.both_proteins_available,
-        appetizers: data.appetizers || [],
-        sides: data.sides || [],
-        desserts: data.desserts || [],
-        drinks: data.drinks || [],
-        dietary_restrictions: data.dietary_restrictions || [],
-        vegetarian_entrees: data.vegetarian_entrees || [],
-        guest_count_with_restrictions: data.guest_count_with_restrictions,
-        plates_requested: data.plates_requested,
-        cups_requested: data.cups_requested,
-        napkins_requested: data.napkins_requested,
-        serving_utensils_requested: data.serving_utensils_requested,
-        chafers_requested: data.chafers_requested,
-        ice_requested: data.ice_requested,
-        utensils: data.utensils || [],
-        extras: data.extras || [],
-        separate_serving_area: data.separate_serving_area,
-        serving_setup_area: data.serving_setup_area,
-        bussing_tables_needed: data.bussing_tables_needed,
-        special_requests: data.special_requests,
-        referral_source: data.referral_source,
-        theme_colors: data.theme_colors,
-        cocktail_hour: data.cocktail_hour,
-        military_organization: data.military_organization || null,
-      };
-      
-      // Use edge function to bypass RLS for public form submissions
-      const { data: result, error } = await supabase.functions.invoke('submit-quote-request', {
-        body: submitPayload
+      setSubmitError(null);
+
+      // Wrap the network call in retry-with-backoff (3 attempts)
+      const result = await runWithRetry(async () => {
+        const { data: r, error } = await supabase.functions.invoke('submit-quote-request', {
+          body: submitPayload,
+        });
+        if (error) throw error;
+        if (!r?.success) throw new Error(r?.error || 'Submission failed');
+        return r;
       });
 
-      if (error) throw error;
-      if (!result?.success) throw new Error(result?.error || 'Submission failed');
-      
       const quoteId = result.quote_id;
 
-      // Persist event data for the Thank You page (calendar/share actions)
+      // Persist event data for the Thank You page
       sessionStorage.setItem(
         "quote_thankyou_eventData",
         JSON.stringify({
@@ -355,32 +401,48 @@ export const SinglePageQuoteForm = ({
           contactName: data.contact_name,
         })
       );
-      
-      await trackFormSubmission(quoteId);
-      
-      toast({
-        title: "Quote Saved Successfully!",
-         description: "Your quote request has been saved.",
-      });
 
-      if (onSuccess) {
-        onSuccess(quoteId);
-      }
-      
+      // Clear saved draft now that we know it submitted
+      clearDraft();
+
+      await trackFormSubmission(quoteId);
+
       toast({
-        title: "✅ Quote Request Submitted!",
+        title: "Quote Request Submitted",
         description: "We'll respond within 48 hours. Check your email for confirmation.",
       });
 
-      // Restore full-site chrome by redirecting to the Thank You page
+      if (onSuccess) onSuccess(quoteId);
+
       navigate(`/request-quote/thank-you?quoteId=${encodeURIComponent(quoteId)}`, { replace: true });
     } catch (error: any) {
       console.error('Form submission error:', error);
-      const errorMessage = error?.message || error?.details || error?.hint || 
+      const errorMessage = error?.message || error?.details || error?.hint ||
         (typeof error === 'string' ? error : 'Unknown error');
+
+      // Log failure server-side so admin can manually recover the lead
+      try {
+        await supabase.functions.invoke('log-submission-failure', {
+          body: {
+            failure_stage: 'client_submit_failed',
+            form_type: variant === 'wedding' ? 'wedding_event' : 'regular_event',
+            contact_name: data.contact_name,
+            email: data.email,
+            phone: data.phone,
+            error_message: errorMessage,
+            partial_payload: submitPayload,
+            session_id: undefined,
+            url: window.location.pathname,
+          },
+        });
+      } catch (logErr) {
+        console.warn('[submit] failure logging failed:', logErr);
+      }
+
+      setSubmitError(errorMessage);
       toast({
         title: "Submission Failed",
-        description: `${errorMessage}. Please try again or contact us at (843) 970-0265.`,
+        description: `${errorMessage}. Please try again or call (843) 970-0265.`,
         variant: "destructive",
       });
       sessionStorage.removeItem("quote_thankyou_eventData");
@@ -446,16 +508,35 @@ export const SinglePageQuoteForm = ({
               </div>
             );
           }
-          // Mobile: single column review
+          // Mobile: single column review with explicit "not submitted yet" warning
           return (
             <div className="w-full max-w-lg mx-auto">
-              <div className="text-center mb-8">
+              <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <ClipboardCheck className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-elegant font-semibold">Review your request</h2>
-                <p className="text-muted-foreground mt-2">Make sure everything looks good before submitting</p>
+                <h2 className="text-2xl font-elegant font-semibold">Almost done — review and submit</h2>
+                <p className="text-muted-foreground mt-2">Please review, then tap <strong>Submit Quote Request</strong> below to send.</p>
               </div>
+              <Alert variant="destructive" className="mb-4 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription className="font-medium">
+                  Not submitted yet — review your details and tap the <strong>Submit</strong> button at the bottom of the screen.
+                </AlertDescription>
+              </Alert>
+              {submitError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    {submitError}. Tap Submit again to retry, or call (843) 970-0265.
+                  </AlertDescription>
+                </Alert>
+              )}
+              {isRetrying && (
+                <Alert className="mb-4">
+                  <AlertDescription>Retrying… (attempt {attempt} of 3)</AlertDescription>
+                </Alert>
+              )}
               <ReviewSummaryCard form={form} variant={variant} />
             </div>
           );
