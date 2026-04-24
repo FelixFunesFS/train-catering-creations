@@ -179,8 +179,9 @@ const MenuSelectionStepComponent = ({
     () => [
       { label: wProteins.length === 1 ? 'Protein' : 'Proteins', count: wProteins.length },
       { label: wSides.length === 1 ? 'Side' : 'Sides', count: wSides.length },
+      { label: wVeg.length === 1 ? 'Veg entrée' : 'Veg entrées', count: wVeg.length },
     ],
-    [wProteins.length, wSides.length]
+    [wProteins.length, wSides.length, wVeg.length]
   );
 
   const extrasSummary = useMemo(
@@ -188,9 +189,8 @@ const MenuSelectionStepComponent = ({
       { label: wAppetizers.length === 1 ? 'Appetizer' : 'Appetizers', count: wAppetizers.length },
       { label: wDesserts.length === 1 ? 'Dessert' : 'Desserts', count: wDesserts.length },
       { label: wDrinks.length === 1 ? 'Beverage' : 'Beverages', count: wDrinks.length },
-      { label: wVeg.length === 1 ? 'Veg entrée' : 'Veg entrées', count: wVeg.length },
     ],
-    [wAppetizers.length, wDesserts.length, wDrinks.length, wVeg.length]
+    [wAppetizers.length, wDesserts.length, wDrinks.length]
   );
 
   const showMains = subStep === 'mains' || subStep === 'full';
