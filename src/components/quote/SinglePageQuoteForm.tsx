@@ -495,39 +495,32 @@ export const SinglePageQuoteForm = ({
             </div>
           );
         case 4:
-          return <SuppliesStep form={form} variant={variant} />;
-        case 5:
-          // On desktop, render split layout with review + submit CTA side-by-side
-          if (showReviewSplitLayout) {
-            return (
-              <div className="w-full max-w-5xl mx-auto">
-                <ReviewSplitLayout
-                  reviewContent={<ReviewSummaryCard form={form} variant={variant} />}
-                  onSubmit={onSubmit}
-                  onBack={handleBack}
-                  isSubmitting={isSubmitting}
-                />
-              </div>
-            );
-          }
-          // Mobile: single column review with explicit "not submitted yet" warning
           return (
-            <div className="w-full max-w-lg mx-auto">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <ClipboardCheck className="h-8 w-8 text-primary" />
+            <div className="w-full max-w-lg mx-auto space-y-6">
+              <SuppliesStep form={form} variant={variant} />
+
+              {/* Inline review summary — collapsed by default, expanded on demand.
+                  Replaces the old standalone Review screen so submit is the final action. */}
+              <details className="rounded-lg border bg-card">
+                <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-accent/50 transition-colors">
+                  <span>Review your request before submitting</span>
+                  <span className="text-xs text-muted-foreground">Tap to expand</span>
+                </summary>
+                <div className="px-4 pb-4 pt-2">
+                  <ReviewSummaryCard form={form} variant={variant} />
                 </div>
-                <h2 className="text-2xl font-elegant font-semibold">Almost done — review and submit</h2>
-                <p className="text-muted-foreground mt-2">Please review, then tap <strong>Submit Quote Request</strong> below to send.</p>
-              </div>
-              <Alert variant="destructive" className="mb-4 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+              </details>
+
+              {/* Critical "not yet submitted" cue — adjacent to the submit button below. */}
+              <Alert variant="destructive" className="border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="font-medium">
-                  Not submitted yet — review your details and tap the <strong>Submit</strong> button at the bottom of the screen.
+                  You haven't submitted yet — tap <strong>Submit Quote Request</strong> below to send.
                 </AlertDescription>
               </Alert>
+
               {submitError && (
-                <Alert variant="destructive" className="mb-4">
+                <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     {submitError}. Tap Submit again to retry, or call (843) 970-0265.
@@ -535,11 +528,10 @@ export const SinglePageQuoteForm = ({
                 </Alert>
               )}
               {isRetrying && (
-                <Alert className="mb-4">
+                <Alert>
                   <AlertDescription>Retrying… (attempt {attempt} of 3)</AlertDescription>
                 </Alert>
               )}
-              <ReviewSummaryCard form={form} variant={variant} />
             </div>
           );
         default:
