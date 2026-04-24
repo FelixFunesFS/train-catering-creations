@@ -50,7 +50,8 @@ const STEPS = [
   { id: 'contact', title: 'Contact Info', icon: User, required: true, fields: ['contact_name', 'email', 'phone'] },
   { id: 'event', title: 'Event Details', icon: Calendar, required: true, fields: ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'] },
   { id: 'service', title: 'Service Type', icon: ChefHat, required: true, fields: ['service_type'] },
-  { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false, fields: ['proteins', 'sides'] },
+  { id: 'menu_mains', title: 'Menu: Mains', icon: UtensilsCrossed, required: false, fields: ['proteins', 'sides'] },
+  { id: 'menu_extras', title: 'Menu: Extras', icon: UtensilsCrossed, required: false, fields: ['appetizers', 'desserts', 'drinks', 'vegetarian_entrees', 'guest_count_with_restrictions'] },
   { id: 'supplies', title: 'Supplies & Submit', icon: Package, required: false, fields: [] },
 ];
 
