@@ -77,10 +77,12 @@ export const SinglePageQuoteForm = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
-  // On desktop, show split layout for the Review step (step 6 = index 5)
-  const isReviewStep = currentStep === 5;
-  const showReviewSplitLayout = isReviewStep && !isMobile;
-  
+  // Stable idempotency key per form session — survives retries so the server
+  // can dedupe accidental duplicate submissions without creating extra quotes.
+  const idempotencyKeyRef = useRef<string>(
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+
   // Show exit/progress header for fullscreen layouts
   const showFullscreenChrome = layout === 'fullscreen';
 
