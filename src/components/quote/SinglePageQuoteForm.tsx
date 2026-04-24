@@ -557,33 +557,70 @@ export const SinglePageQuoteForm = ({
   // STANDARD LAYOUT (fullscreen or embedded)
   return (
     <div className={cn(layout === 'fullscreen' ? "min-h-screen flex flex-col" : "w-full")}>      
-      {/* Fullscreen sticky header (Exit + Progress) - shown on all devices */}
+      {/* Fullscreen sticky header — compact on mobile, expanded on tablet+ */}
       {showFullscreenChrome ? (
         <div className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm border-b">
-          <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Mobile compact: single row with Exit + inline pips */}
+          <div className="flex md:hidden items-center justify-between max-w-2xl mx-auto px-3 py-2 gap-3">
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={() => navigate(returnTo())}
-              className="gap-2"
+              className="gap-1 h-9 px-2"
+              aria-label="Exit form"
             >
               <X className="h-4 w-4" />
-              Exit
+              <span className="text-xs">Exit</span>
             </Button>
-            <div className="text-sm font-medium text-foreground">
-              {variant === 'wedding' ? 'Formal Event Quote' : 'Event Quote'}
+            <div className="flex-1 flex flex-col items-center gap-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                {STEPS.map((_, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "h-1.5 rounded-full transition-all duration-300",
+                      i < currentStep ? "w-3 bg-primary" :
+                      i === currentStep ? "w-5 bg-primary" :
+                      "w-3 bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
+              <span className="text-[10px] text-muted-foreground leading-none truncate max-w-full">
+                Step {currentStep + 1}/{STEPS.length} • {STEPS[currentStep].title}
+              </span>
             </div>
-            <div className="w-[64px]" />
+            <div className="w-[52px]" />
           </div>
 
-          <div className="py-4 border-t">
-            <div className="max-w-2xl mx-auto px-4">
-              <StepProgress
-                currentStep={currentStep}
-                totalSteps={STEPS.length}
-                stepTitles={STEPS.map(s => s.title)}
-              />
+          {/* Tablet/desktop: original two-row layout */}
+          <div className="hidden md:block">
+            <div className="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(returnTo())}
+                className="gap-2"
+              >
+                <X className="h-4 w-4" />
+                Exit
+              </Button>
+              <div className="text-sm font-medium text-foreground">
+                {variant === 'wedding' ? 'Formal Event Quote' : 'Event Quote'}
+              </div>
+              <div className="w-[64px]" />
+            </div>
+
+            <div className="py-4 border-t">
+              <div className="max-w-2xl mx-auto px-4">
+                <StepProgress
+                  currentStep={currentStep}
+                  totalSteps={STEPS.length}
+                  stepTitles={STEPS.map(s => s.title)}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -604,7 +641,7 @@ export const SinglePageQuoteForm = ({
         ref={containerRef}
         className={cn(
           layout === 'fullscreen'
-            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
+            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(8rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
             : "py-8 px-4"
         )}
       >
@@ -621,12 +658,26 @@ export const SinglePageQuoteForm = ({
         </FormProvider>
       </div>
 
-      {/* Navigation — submit lives here on the final step (Supplies) */}
+      {/* Sticky bottom CTA. On the final step we float a "not yet submitted" cue
+          directly above the button so it's always in view regardless of scroll. */}
       <div className={cn(
         layout === 'fullscreen'
-          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
+          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
           : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
       )}>
+        {currentStep === STEPS.length - 1 && (
+          <div className="max-w-lg mx-auto mb-2">
+            <Alert
+              variant="destructive"
+              className="py-2 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200"
+            >
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="text-xs font-medium leading-snug">
+                Not yet submitted — tap <strong>Submit Quote Request</strong> to send.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
         <StepNavigation
           currentStep={currentStep}
           totalSteps={STEPS.length}
