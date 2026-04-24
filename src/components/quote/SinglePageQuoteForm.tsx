@@ -374,6 +374,7 @@ export const SinglePageQuoteForm = ({
       theme_colors: data.theme_colors,
       cocktail_hour: data.cocktail_hour,
       military_organization: data.military_organization || null,
+      idempotency_key: idempotencyKeyRef.current,
     };
 
     try {
