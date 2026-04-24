@@ -336,8 +336,46 @@ export const SinglePageQuoteForm = ({
       return;
     }
     
+    const submitPayload = {
+      contact_name: formatCustomerName(data.contact_name),
+      email: data.email,
+      phone: data.phone,
+      event_name: formatEventName(data.event_name),
+      event_type: data.event_type,
+      event_date: data.event_date,
+      start_time: data.start_time,
+      guest_count: data.guest_count,
+      location: formatLocation(data.location),
+      service_type: data.service_type,
+      serving_start_time: data.serving_start_time || null,
+      proteins: data.proteins || [],
+      both_proteins_available: data.both_proteins_available,
+      appetizers: data.appetizers || [],
+      sides: data.sides || [],
+      desserts: data.desserts || [],
+      drinks: data.drinks || [],
+      dietary_restrictions: data.dietary_restrictions || [],
+      vegetarian_entrees: data.vegetarian_entrees || [],
+      guest_count_with_restrictions: data.guest_count_with_restrictions,
+      plates_requested: data.plates_requested,
+      cups_requested: data.cups_requested,
+      napkins_requested: data.napkins_requested,
+      serving_utensils_requested: data.serving_utensils_requested,
+      chafers_requested: data.chafers_requested,
+      ice_requested: data.ice_requested,
+      utensils: data.utensils || [],
+      extras: data.extras || [],
+      separate_serving_area: data.separate_serving_area,
+      serving_setup_area: data.serving_setup_area,
+      bussing_tables_needed: data.bussing_tables_needed,
+      special_requests: data.special_requests,
+      referral_source: data.referral_source,
+      theme_colors: data.theme_colors,
+      cocktail_hour: data.cocktail_hour,
+      military_organization: data.military_organization || null,
+    };
+
     try {
-      const submitPayload = {
         contact_name: formatCustomerName(data.contact_name),
         email: data.email,
         phone: data.phone,
