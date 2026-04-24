@@ -294,14 +294,8 @@ const MenuSelectionStepComponent = ({
               )}
             />
           </div>
-        </>
-      )}
 
-      {showExtras && (
-        <>
-          <SelectionSummary items={extrasSummary} />
-
-          {/* VEGETARIAN SECTION */}
+          {/* VEGETARIAN SECTION — kept within Mains so dietary core is in one place */}
           <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2 mb-4">
               <Leaf className="h-5 w-5 text-green-600" />
@@ -360,6 +354,13 @@ const MenuSelectionStepComponent = ({
               />
             </div>
           </div>
+        </>
+      )}
+
+      {showExtras && (
+        <>
+          <SelectionSummary items={extrasSummary} />
+
 
           {/* Appetizers + Desserts + Beverages */}
           <div className="grid md:grid-cols-3 gap-6">
