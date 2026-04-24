@@ -1829,8 +1829,8 @@ export function getEmailContentBlocks(
         { type: 'menu_with_pricing' },
         { type: 'service_addons' },
         { type: 'custom_html', data: { html: estimateValidityHtml } },
-        ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html', data: { html: estimatePaymentScheduleHtml } }] : []),
-        { type: 'custom_html', data: { html: estimateActionButtonsHtml }},
+        ...(estimatePaymentScheduleHtml ? [{ type: 'custom_html' as const, data: { html: estimatePaymentScheduleHtml } }] : []),
+        { type: 'custom_html' as const, data: { html: estimateActionButtonsHtml }},
         
       ];
       ctaButton = undefined; // Multi-button layout replaces single CTA
@@ -1940,7 +1940,7 @@ export function getEmailContentBlocks(
           ` }}
         ];
         // CTA is now inline above
-        ctaButton = null;
+        ctaButton = undefined;
       } else {
         // Admin variant
         contentBlocks = [

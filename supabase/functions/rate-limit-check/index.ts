@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         allowed: true,
         error: 'Rate limit check failed, allowing request',
-        message: error.message 
+        message: error instanceof Error ? error.message : String(error) 
       }),
       { 
         status: 200,

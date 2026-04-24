@@ -161,8 +161,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Payment amount calculated", { paymentAmount, payment_type });
 
-    const customerEmail = invoice.quote_requests?.email;
-    const customerName = invoice.quote_requests?.contact_name;
+    const quoteReq: any = Array.isArray(invoice.quote_requests) ? invoice.quote_requests[0] : invoice.quote_requests;
+    const customerEmail = quoteReq?.email;
+    const customerName = quoteReq?.contact_name;
 
     let stripeCustomerId: string | undefined;
 
@@ -206,13 +207,13 @@ const handler = async (req: Request): Promise<Response> => {
         price_data: {
           currency: "usd",
           product_data: {
-            name: `${invoice.quote_requests?.event_name || 'Catering Event'} - ${
+            name: `${quoteReq?.event_name || 'Catering Event'} - ${
               payment_type === 'full' ? 'Full Balance Payment'
               : payment_type === 'deposit' ? 'Deposit'
-              : payment_type === 'custom' ? 'Partial Payment'
+              : (payment_type as string) === 'custom' ? 'Partial Payment'
               : 'Payment'
             }`,
-            description: `Event Date: ${invoice.quote_requests?.event_date || 'TBD'}`,
+            description: `Event Date: ${quoteReq?.event_date || 'TBD'}`,
           },
           unit_amount: paymentAmount,
         },
