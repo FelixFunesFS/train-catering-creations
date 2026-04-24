@@ -150,7 +150,8 @@ serve(async (req) => {
       // ceremony_included is deprecated - no longer submitted
       cocktail_hour: payload.cocktail_hour != null ? Boolean(payload.cocktail_hour) : null,
       military_organization: payload.military_organization ? String(payload.military_organization).trim().slice(0, 200) : null,
-      workflow_status: 'pending'
+      workflow_status: 'pending',
+      idempotency_key: idempotencyKey,
     };
 
     console.log('Inserting quote request for:', insertPayload.email);
