@@ -513,17 +513,6 @@ export const SinglePageQuoteForm = ({
             <div className="w-full max-w-lg mx-auto space-y-6">
               <SuppliesStep form={form} variant={variant} />
 
-              {/* Inline review summary — collapsed by default, expanded on demand. */}
-              <details className="rounded-lg border bg-card">
-                <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-accent/50 transition-colors">
-                  <span>Review your request before submitting</span>
-                  <span className="text-xs text-muted-foreground">Tap to expand</span>
-                </summary>
-                <div className="px-4 pb-4 pt-2">
-                  <ReviewSummaryCard form={form} variant={variant} />
-                </div>
-              </details>
-
               {submitError && (
                 <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
@@ -665,19 +654,6 @@ export const SinglePageQuoteForm = ({
           ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
           : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
       )}>
-        {currentStep === STEPS.length - 1 && (
-          <div className="max-w-lg mx-auto mb-2">
-            <Alert
-              variant="destructive"
-              className="py-2 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200"
-            >
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription className="text-xs font-medium leading-snug">
-                Not yet submitted — tap <strong>Submit Quote Request</strong> to send.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
         <StepNavigation
           currentStep={currentStep}
           totalSteps={STEPS.length}
