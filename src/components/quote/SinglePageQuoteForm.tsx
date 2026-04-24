@@ -599,9 +599,7 @@ export const SinglePageQuoteForm = ({
         ref={containerRef}
         className={cn(
           layout === 'fullscreen'
-            ? showReviewSplitLayout 
-              ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-8 px-4 lg:px-8"
-              : "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
+            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
             : "py-8 px-4"
         )}
       >
@@ -609,8 +607,7 @@ export const SinglePageQuoteForm = ({
           <Form {...form}>
             <form onSubmit={(e) => e.preventDefault()} className={cn(layout === 'fullscreen' ? "min-h-full flex flex-col" : "")}>              
               <div className={cn(
-                layout === 'fullscreen' ? "flex-1 flex items-start lg:items-center justify-center" : "flex items-start justify-center",
-                showReviewSplitLayout && "max-w-6xl mx-auto w-full"
+                layout === 'fullscreen' ? "flex-1 flex items-start lg:items-center justify-center" : "flex items-start justify-center"
               )}>
                 {renderStep()}
               </div>
@@ -619,25 +616,23 @@ export const SinglePageQuoteForm = ({
         </FormProvider>
       </div>
 
-      {/* Navigation - hidden on desktop Review step (it has its own submit CTA) */}
-      {!showReviewSplitLayout && (
-        <div className={cn(
-          layout === 'fullscreen'
-            ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
-            : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
-        )}>
-          <StepNavigation
-            currentStep={currentStep}
-            totalSteps={STEPS.length}
-            onNext={handleNext}
-            onBack={handleBack}
-            onSubmit={onSubmit}
-            isSubmitting={isSubmitting}
-            canProceed={canProceed()}
-            isOptionalStep={!STEPS[currentStep].required}
-          />
-        </div>
-      )}
+      {/* Navigation — submit lives here on the final step (Supplies) */}
+      <div className={cn(
+        layout === 'fullscreen'
+          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
+          : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
+      )}>
+        <StepNavigation
+          currentStep={currentStep}
+          totalSteps={STEPS.length}
+          onNext={handleNext}
+          onBack={handleBack}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          canProceed={canProceed()}
+          isOptionalStep={!STEPS[currentStep].required}
+        />
+      </div>
     </div>
   );
 };
