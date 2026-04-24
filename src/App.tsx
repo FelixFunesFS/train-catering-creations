@@ -128,6 +128,7 @@ const AppContent = () => {
             
             {/* Admin estimate print route - Protected */}
             <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+            <Route path="/admin/submission-failures" element={<ProtectedRoute><SubmissionFailures /></ProtectedRoute>} />
             <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
             
             {/* Staff Schedule - Protected */}
