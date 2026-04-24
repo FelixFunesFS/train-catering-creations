@@ -147,6 +147,41 @@ export const SinglePageQuoteForm = ({
     },
   });
 
+  // Draft persistence — survives accidental refreshes/closes
+  const watchedValues = form.watch();
+  const draftKey = `quote_draft_v1_${variant}`;
+  const { clear: clearDraft } = useFormDraftPersistence({
+    storageKey: draftKey,
+    values: watchedValues,
+    onRestore: (data) => {
+      try {
+        form.reset({ ...form.getValues(), ...(data as Partial<FormData>) });
+        toast({
+          title: "Draft restored",
+          description: "We saved your progress from your last visit.",
+        });
+      } catch (e) {
+        console.warn("[draft] restore failed", e);
+      }
+    },
+  });
+
+  // Email typo suggestion (watches email field on contact step)
+  const emailValue = form.watch("email");
+  useEffect(() => {
+    if (!emailValue || currentStep !== 0) {
+      setEmailSuggestion(null);
+      return;
+    }
+    setEmailSuggestion(suggestEmailCorrection(emailValue));
+  }, [emailValue, currentStep]);
+
+  // Track step views (for funnel analytics)
+  useEffect(() => {
+    trackStepView(currentStep + 1, STEPS[currentStep]?.title || `step_${currentStep + 1}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep]);
+
   const focusFirstInvalidFieldInStep = useCallback(() => {
     const step = STEPS[currentStep];
     if (!step?.fields?.length) return;
