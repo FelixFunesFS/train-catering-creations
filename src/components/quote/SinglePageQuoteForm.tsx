@@ -11,8 +11,8 @@ import { SuppliesStep } from "./steps/SuppliesStep";
 import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
-import { ReviewSplitLayout } from "./ReviewSplitLayout";
-import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
+// ReviewSplitLayout removed: review now lives inline on Supplies step (5 → 4 idx).
+import { User, Calendar, ChefHat, UtensilsCrossed, Package } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -51,8 +51,7 @@ const STEPS = [
   { id: 'event', title: 'Event Details', icon: Calendar, required: true, fields: ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'] },
   { id: 'service', title: 'Service Type', icon: ChefHat, required: true, fields: ['service_type'] },
   { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false, fields: ['proteins', 'sides'] },
-  { id: 'supplies', title: 'Supplies & Details', icon: Package, required: false, fields: [] },
-  { id: 'review', title: 'Review & Submit', icon: ClipboardCheck, required: false, fields: [] },
+  { id: 'supplies', title: 'Supplies & Submit', icon: Package, required: false, fields: [] },
 ];
 
 export const SinglePageQuoteForm = ({
@@ -78,10 +77,12 @@ export const SinglePageQuoteForm = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
-  // On desktop, show split layout for the Review step (step 6 = index 5)
-  const isReviewStep = currentStep === 5;
-  const showReviewSplitLayout = isReviewStep && !isMobile;
-  
+  // Stable idempotency key per form session — survives retries so the server
+  // can dedupe accidental duplicate submissions without creating extra quotes.
+  const idempotencyKeyRef = useRef<string>(
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
+
   // Show exit/progress header for fullscreen layouts
   const showFullscreenChrome = layout === 'fullscreen';
 
@@ -373,6 +374,7 @@ export const SinglePageQuoteForm = ({
       theme_colors: data.theme_colors,
       cocktail_hour: data.cocktail_hour,
       military_organization: data.military_organization || null,
+      idempotency_key: idempotencyKeyRef.current,
     };
 
     try {
@@ -493,39 +495,32 @@ export const SinglePageQuoteForm = ({
             </div>
           );
         case 4:
-          return <SuppliesStep form={form} variant={variant} />;
-        case 5:
-          // On desktop, render split layout with review + submit CTA side-by-side
-          if (showReviewSplitLayout) {
-            return (
-              <div className="w-full max-w-5xl mx-auto">
-                <ReviewSplitLayout
-                  reviewContent={<ReviewSummaryCard form={form} variant={variant} />}
-                  onSubmit={onSubmit}
-                  onBack={handleBack}
-                  isSubmitting={isSubmitting}
-                />
-              </div>
-            );
-          }
-          // Mobile: single column review with explicit "not submitted yet" warning
           return (
-            <div className="w-full max-w-lg mx-auto">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                  <ClipboardCheck className="h-8 w-8 text-primary" />
+            <div className="w-full max-w-lg mx-auto space-y-6">
+              <SuppliesStep form={form} variant={variant} />
+
+              {/* Inline review summary — collapsed by default, expanded on demand.
+                  Replaces the old standalone Review screen so submit is the final action. */}
+              <details className="rounded-lg border bg-card">
+                <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-accent/50 transition-colors">
+                  <span>Review your request before submitting</span>
+                  <span className="text-xs text-muted-foreground">Tap to expand</span>
+                </summary>
+                <div className="px-4 pb-4 pt-2">
+                  <ReviewSummaryCard form={form} variant={variant} />
                 </div>
-                <h2 className="text-2xl font-elegant font-semibold">Almost done — review and submit</h2>
-                <p className="text-muted-foreground mt-2">Please review, then tap <strong>Submit Quote Request</strong> below to send.</p>
-              </div>
-              <Alert variant="destructive" className="mb-4 border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
+              </details>
+
+              {/* Critical "not yet submitted" cue — adjacent to the submit button below. */}
+              <Alert variant="destructive" className="border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="font-medium">
-                  Not submitted yet — review your details and tap the <strong>Submit</strong> button at the bottom of the screen.
+                  You haven't submitted yet — tap <strong>Submit Quote Request</strong> below to send.
                 </AlertDescription>
               </Alert>
+
               {submitError && (
-                <Alert variant="destructive" className="mb-4">
+                <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
                     {submitError}. Tap Submit again to retry, or call (843) 970-0265.
@@ -533,11 +528,10 @@ export const SinglePageQuoteForm = ({
                 </Alert>
               )}
               {isRetrying && (
-                <Alert className="mb-4">
+                <Alert>
                   <AlertDescription>Retrying… (attempt {attempt} of 3)</AlertDescription>
                 </Alert>
               )}
-              <ReviewSummaryCard form={form} variant={variant} />
             </div>
           );
         default:
@@ -605,9 +599,7 @@ export const SinglePageQuoteForm = ({
         ref={containerRef}
         className={cn(
           layout === 'fullscreen'
-            ? showReviewSplitLayout 
-              ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-8 px-4 lg:px-8"
-              : "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
+            ? "flex-1 min-h-0 overflow-y-auto pt-8 pb-[calc(7rem+env(safe-area-inset-bottom))] lg:pb-4 px-4"
             : "py-8 px-4"
         )}
       >
@@ -615,8 +607,7 @@ export const SinglePageQuoteForm = ({
           <Form {...form}>
             <form onSubmit={(e) => e.preventDefault()} className={cn(layout === 'fullscreen' ? "min-h-full flex flex-col" : "")}>              
               <div className={cn(
-                layout === 'fullscreen' ? "flex-1 flex items-start lg:items-center justify-center" : "flex items-start justify-center",
-                showReviewSplitLayout && "max-w-6xl mx-auto w-full"
+                layout === 'fullscreen' ? "flex-1 flex items-start lg:items-center justify-center" : "flex items-start justify-center"
               )}>
                 {renderStep()}
               </div>
@@ -625,25 +616,23 @@ export const SinglePageQuoteForm = ({
         </FormProvider>
       </div>
 
-      {/* Navigation - hidden on desktop Review step (it has its own submit CTA) */}
-      {!showReviewSplitLayout && (
-        <div className={cn(
-          layout === 'fullscreen'
-            ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
-            : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
-        )}>
-          <StepNavigation
-            currentStep={currentStep}
-            totalSteps={STEPS.length}
-            onNext={handleNext}
-            onBack={handleBack}
-            onSubmit={onSubmit}
-            isSubmitting={isSubmitting}
-            canProceed={canProceed()}
-            isOptionalStep={!STEPS[currentStep].required}
-          />
-        </div>
-      )}
+      {/* Navigation — submit lives here on the final step (Supplies) */}
+      <div className={cn(
+        layout === 'fullscreen'
+          ? "sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm pt-4 lg:pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] lg:pb-3 px-4 border-t"
+          : "bg-background/95 backdrop-blur-sm py-4 px-4 border-t rounded-lg"
+      )}>
+        <StepNavigation
+          currentStep={currentStep}
+          totalSteps={STEPS.length}
+          onNext={handleNext}
+          onBack={handleBack}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          canProceed={canProceed()}
+          isOptionalStep={!STEPS[currentStep].required}
+        />
+      </div>
     </div>
   );
 };

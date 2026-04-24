@@ -49,6 +49,7 @@ const CustomerEstimateView = lazy(() => import("./components/customer/CustomerEs
 const QuoteThankYou = lazy(() => import("./pages/QuoteThankYou"));
 const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
 const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
+const SubmissionFailures = lazy(() => import("./pages/admin/SubmissionFailures"));
 
 // Minimal loading fallback to avoid layout shift
 const PageLoader = () => (
@@ -127,6 +128,7 @@ const AppContent = () => {
             
             {/* Admin estimate print route - Protected */}
             <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+            <Route path="/admin/submission-failures" element={<ProtectedRoute><SubmissionFailures /></ProtectedRoute>} />
             <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
             
             {/* Staff Schedule - Protected */}

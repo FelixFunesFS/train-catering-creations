@@ -65,6 +65,30 @@ serve(async (req) => {
       );
     }
 
+    // Idempotency check — if client retries with the same key, return existing quote
+    // instead of inserting a duplicate.
+    const idempotencyKey = typeof payload.idempotency_key === 'string' && payload.idempotency_key.length > 0
+      ? String(payload.idempotency_key).slice(0, 100)
+      : null;
+
+    if (idempotencyKey) {
+      const { data: existing, error: idemErr } = await supabase
+        .from('quote_requests')
+        .select('id')
+        .eq('idempotency_key', idempotencyKey)
+        .maybeSingle();
+
+      if (idemErr) {
+        console.warn('[idempotency] lookup error (proceeding):', idemErr);
+      } else if (existing?.id) {
+        console.log(`[idempotency] returning existing quote ${existing.id} for key ${idempotencyKey}`);
+        return new Response(
+          JSON.stringify({ success: true, quote_id: existing.id, deduplicated: true }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Rate limiting check - count recent submissions from this email
     const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MS).toISOString();
     const { count, error: countError } = await supabase
@@ -126,7 +150,8 @@ serve(async (req) => {
       // ceremony_included is deprecated - no longer submitted
       cocktail_hour: payload.cocktail_hour != null ? Boolean(payload.cocktail_hour) : null,
       military_organization: payload.military_organization ? String(payload.military_organization).trim().slice(0, 200) : null,
-      workflow_status: 'pending'
+      workflow_status: 'pending',
+      idempotency_key: idempotencyKey,
     };
 
     console.log('Inserting quote request for:', insertPayload.email);
@@ -154,22 +179,34 @@ serve(async (req) => {
     const quoteId = data.id;
 
     const invokeEmailFn = async (fnName: string) => {
+      const ctrl = new AbortController();
+      const timeoutMs = 12000;
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
-        const { data: fnData, error: fnError } = await supabase.functions.invoke(fnName, {
-          body: { quote_id: quoteId },
-        });
+        // Note: supabase-js v2 doesn't expose `signal` on functions.invoke,
+        // so we race the invocation against the AbortController manually.
+        const result = await Promise.race([
+          supabase.functions.invoke(fnName, { body: { quote_id: quoteId } }),
+          new Promise((_, reject) =>
+            ctrl.signal.addEventListener('abort', () =>
+              reject(new Error(`timeout after ${timeoutMs}ms`))
+            )
+          ),
+        ]) as { data: unknown; error: { message?: string } | null };
 
-        if (fnError) {
-          console.warn(`[email] ${fnName} returned error for quote ${quoteId}:`, fnError);
-          return { ok: false, error: fnError.message };
+        if (result.error) {
+          console.warn(`[email] ${fnName} returned error for quote ${quoteId}:`, result.error);
+          return { ok: false, error: result.error.message };
         }
 
-        console.log(`[email] ${fnName} invoked for quote ${quoteId}`, fnData ?? null);
+        console.log(`[email] ${fnName} invoked for quote ${quoteId}`, result.data ?? null);
         return { ok: true };
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         console.warn(`[email] ${fnName} threw for quote ${quoteId}:`, msg);
         return { ok: false, error: msg };
+      } finally {
+        clearTimeout(timer);
       }
     };
 
