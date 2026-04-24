@@ -17,12 +17,16 @@ import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
+import { useFormDraftPersistence } from "@/hooks/useFormDraftPersistence";
+import { useSubmissionRetry } from "@/hooks/useSubmissionRetry";
+import { suggestEmailCorrection } from "@/utils/emailTypoDetector";
 import { formatCustomerName, formatEventName, formatLocation } from "@/utils/textFormatters";
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { X, AlertTriangle } from "lucide-react";
 
 type FormData = z.infer<typeof formSchema>;
 
