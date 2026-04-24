@@ -489,19 +489,31 @@ export const SinglePageQuoteForm = ({
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <UtensilsCrossed className="h-8 w-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-elegant font-semibold">Build your menu</h2>
-                <p className="text-muted-foreground mt-2">Select proteins, sides, and extras for your guests</p>
+                <h2 className="text-2xl font-elegant font-semibold">Build your menu — Mains</h2>
+                <p className="text-muted-foreground mt-2">Choose your proteins and sides</p>
               </div>
-              <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} />
+              <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} subStep="mains" />
             </div>
           );
         case 4:
           return (
+            <div className="w-full max-w-2xl mx-auto">
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                  <UtensilsCrossed className="h-8 w-8 text-primary" />
+                </div>
+                <h2 className="text-2xl font-elegant font-semibold">Menu — Extras & Dietary</h2>
+                <p className="text-muted-foreground mt-2">Appetizers, desserts, beverages & vegetarian needs</p>
+              </div>
+              <MenuSelectionStep form={form} trackFieldInteraction={trackFieldInteraction} variant={variant} subStep="extras" />
+            </div>
+          );
+        case 5:
+          return (
             <div className="w-full max-w-lg mx-auto space-y-6">
               <SuppliesStep form={form} variant={variant} />
 
-              {/* Inline review summary — collapsed by default, expanded on demand.
-                  Replaces the old standalone Review screen so submit is the final action. */}
+              {/* Inline review summary — collapsed by default, expanded on demand. */}
               <details className="rounded-lg border bg-card">
                 <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-accent/50 transition-colors">
                   <span>Review your request before submitting</span>
@@ -511,14 +523,6 @@ export const SinglePageQuoteForm = ({
                   <ReviewSummaryCard form={form} variant={variant} />
                 </div>
               </details>
-
-              {/* Critical "not yet submitted" cue — adjacent to the submit button below. */}
-              <Alert variant="destructive" className="border-amber-500/40 bg-amber-50 dark:bg-amber-950/30 text-amber-900 dark:text-amber-200">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription className="font-medium">
-                  You haven't submitted yet — tap <strong>Submit Quote Request</strong> below to send.
-                </AlertDescription>
-              </Alert>
 
               {submitError && (
                 <Alert variant="destructive">
