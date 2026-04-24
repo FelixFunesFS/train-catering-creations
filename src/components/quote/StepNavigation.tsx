@@ -81,17 +81,6 @@ export const StepNavigation = ({
         )}
       </div>
 
-      {/* Keyboard Hint */}
-      <p className="text-center text-xs text-muted-foreground">
-        Press <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">Enter ↵</kbd> to continue
-        {!isFirstStep && (
-          <>
-            {" • "}
-            <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">Esc</kbd> to go back
-          </>
-        )}
-      </p>
-
       {/* Skip hint for optional steps */}
       {isOptionalStep && !canProceed && (
         <p className="text-center text-xs text-muted-foreground">
