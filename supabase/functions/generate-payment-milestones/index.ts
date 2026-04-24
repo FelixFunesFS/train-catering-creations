@@ -95,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Invoice not found");
     }
 
-    const quote = invoice.quote_requests;
+    const quote: any = Array.isArray(invoice.quote_requests) ? invoice.quote_requests[0] : invoice.quote_requests;
     const totalAmountCents = invoice.total_amount;
     const eventDate = new Date(quote?.event_date || new Date());
     const now = new Date();

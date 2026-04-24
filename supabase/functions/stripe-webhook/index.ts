@@ -55,7 +55,7 @@ serve(async (req) => {
       event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
       logStep("Webhook signature verified");
     } catch (err) {
-      logStep("Webhook signature verification failed", { error: err.message });
+      logStep("Webhook signature verification failed", { error: err instanceof Error ? err.message : String(err) });
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 400,
@@ -347,7 +347,7 @@ serve(async (req) => {
             failedReason = "Checkout session expired - payment attempt failed";
           }
         } catch (piError) {
-          logStep("Error fetching payment intent (non-critical)", { error: piError.message });
+          logStep("Error fetching payment intent (non-critical)", { error: piError instanceof Error ? piError.message : String(piError) });
           failedReason = "Checkout session expired - unable to retrieve decline details";
         }
       } else {
