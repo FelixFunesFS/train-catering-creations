@@ -258,7 +258,7 @@ const handler = async (req: Request): Promise<Response> => {
       customer_email: customerEmail,
       status: "pending",
       stripe_session_id: session.id,
-      description: `${payment_type} payment for ${invoice.quote_requests?.event_name}`
+      description: `${payment_type} payment for ${quoteReq?.event_name}`
     });
 
     const responseData = isEmbedded
