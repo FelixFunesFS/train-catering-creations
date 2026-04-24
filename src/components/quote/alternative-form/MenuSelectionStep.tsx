@@ -179,8 +179,9 @@ const MenuSelectionStepComponent = ({
     () => [
       { label: wProteins.length === 1 ? 'Protein' : 'Proteins', count: wProteins.length },
       { label: wSides.length === 1 ? 'Side' : 'Sides', count: wSides.length },
+      { label: wVeg.length === 1 ? 'Veg entrée' : 'Veg entrées', count: wVeg.length },
     ],
-    [wProteins.length, wSides.length]
+    [wProteins.length, wSides.length, wVeg.length]
   );
 
   const extrasSummary = useMemo(
@@ -188,9 +189,8 @@ const MenuSelectionStepComponent = ({
       { label: wAppetizers.length === 1 ? 'Appetizer' : 'Appetizers', count: wAppetizers.length },
       { label: wDesserts.length === 1 ? 'Dessert' : 'Desserts', count: wDesserts.length },
       { label: wDrinks.length === 1 ? 'Beverage' : 'Beverages', count: wDrinks.length },
-      { label: wVeg.length === 1 ? 'Veg entrée' : 'Veg entrées', count: wVeg.length },
     ],
-    [wAppetizers.length, wDesserts.length, wDrinks.length, wVeg.length]
+    [wAppetizers.length, wDesserts.length, wDrinks.length]
   );
 
   const showMains = subStep === 'mains' || subStep === 'full';
@@ -294,14 +294,8 @@ const MenuSelectionStepComponent = ({
               )}
             />
           </div>
-        </>
-      )}
 
-      {showExtras && (
-        <>
-          <SelectionSummary items={extrasSummary} />
-
-          {/* VEGETARIAN SECTION */}
+          {/* VEGETARIAN SECTION — kept within Mains so dietary core is in one place */}
           <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2 mb-4">
               <Leaf className="h-5 w-5 text-green-600" />
@@ -360,6 +354,13 @@ const MenuSelectionStepComponent = ({
               />
             </div>
           </div>
+        </>
+      )}
+
+      {showExtras && (
+        <>
+          <SelectionSummary items={extrasSummary} />
+
 
           {/* Appetizers + Desserts + Beverages */}
           <div className="grid md:grid-cols-3 gap-6">
