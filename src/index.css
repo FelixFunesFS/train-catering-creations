@@ -992,3 +992,20 @@ html {
     transition: opacity 0.2s ease !important;
   }
 }
+
+/* ===========================================================================
+   Quote form: keyboard-aware focus margin
+   When an input/textarea/select is focused on mobile, the on-screen keyboard
+   eats the bottom of the viewport AND our sticky CTA covers another ~88px.
+   scroll-margin-bottom ensures the focused field scrolls clear of both.
+   =========================================================================== */
+@media (max-width: 1023px) {
+  .quote-form input,
+  .quote-form textarea,
+  .quote-form [role="combobox"],
+  form input,
+  form textarea {
+    scroll-margin-top: 88px;   /* clear sticky compact header */
+    scroll-margin-bottom: 140px; /* clear sticky CTA + safe area */
+  }
+}
