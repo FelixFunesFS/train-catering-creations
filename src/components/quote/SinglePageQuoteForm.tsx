@@ -12,7 +12,7 @@ import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
 import { ReviewSplitLayout } from "./ReviewSplitLayout";
-import { User, Calendar, ChefHat, UtensilsCrossed, Package, ClipboardCheck } from "lucide-react";
+import { User, Calendar, ChefHat, UtensilsCrossed, Package } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
