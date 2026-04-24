@@ -179,22 +179,34 @@ serve(async (req) => {
     const quoteId = data.id;
 
     const invokeEmailFn = async (fnName: string) => {
+      const ctrl = new AbortController();
+      const timeoutMs = 12000;
+      const timer = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
-        const { data: fnData, error: fnError } = await supabase.functions.invoke(fnName, {
-          body: { quote_id: quoteId },
-        });
+        // Note: supabase-js v2 doesn't expose `signal` on functions.invoke,
+        // so we race the invocation against the AbortController manually.
+        const result = await Promise.race([
+          supabase.functions.invoke(fnName, { body: { quote_id: quoteId } }),
+          new Promise((_, reject) =>
+            ctrl.signal.addEventListener('abort', () =>
+              reject(new Error(`timeout after ${timeoutMs}ms`))
+            )
+          ),
+        ]) as { data: unknown; error: { message?: string } | null };
 
-        if (fnError) {
-          console.warn(`[email] ${fnName} returned error for quote ${quoteId}:`, fnError);
-          return { ok: false, error: fnError.message };
+        if (result.error) {
+          console.warn(`[email] ${fnName} returned error for quote ${quoteId}:`, result.error);
+          return { ok: false, error: result.error.message };
         }
 
-        console.log(`[email] ${fnName} invoked for quote ${quoteId}`, fnData ?? null);
+        console.log(`[email] ${fnName} invoked for quote ${quoteId}`, result.data ?? null);
         return { ok: true };
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         console.warn(`[email] ${fnName} threw for quote ${quoteId}:`, msg);
         return { ok: false, error: msg };
+      } finally {
+        clearTimeout(timer);
       }
     };
 
