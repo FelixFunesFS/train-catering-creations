@@ -51,8 +51,7 @@ const STEPS = [
   { id: 'event', title: 'Event Details', icon: Calendar, required: true, fields: ['event_name', 'event_type', 'event_date', 'start_time', 'guest_count', 'location'] },
   { id: 'service', title: 'Service Type', icon: ChefHat, required: true, fields: ['service_type'] },
   { id: 'menu', title: 'Menu Selection', icon: UtensilsCrossed, required: false, fields: ['proteins', 'sides'] },
-  { id: 'supplies', title: 'Supplies & Details', icon: Package, required: false, fields: [] },
-  { id: 'review', title: 'Review & Submit', icon: ClipboardCheck, required: false, fields: [] },
+  { id: 'supplies', title: 'Supplies & Submit', icon: Package, required: false, fields: [] },
 ];
 
 export const SinglePageQuoteForm = ({
