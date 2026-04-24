@@ -376,17 +376,21 @@ export const SinglePageQuoteForm = ({
         military_organization: data.military_organization || null,
       };
       
-      // Use edge function to bypass RLS for public form submissions
-      const { data: result, error } = await supabase.functions.invoke('submit-quote-request', {
-        body: submitPayload
+      setSubmitError(null);
+
+      // Wrap the network call in retry-with-backoff (3 attempts)
+      const result = await runWithRetry(async () => {
+        const { data: r, error } = await supabase.functions.invoke('submit-quote-request', {
+          body: submitPayload,
+        });
+        if (error) throw error;
+        if (!r?.success) throw new Error(r?.error || 'Submission failed');
+        return r;
       });
 
-      if (error) throw error;
-      if (!result?.success) throw new Error(result?.error || 'Submission failed');
-      
       const quoteId = result.quote_id;
 
-      // Persist event data for the Thank You page (calendar/share actions)
+      // Persist event data for the Thank You page
       sessionStorage.setItem(
         "quote_thankyou_eventData",
         JSON.stringify({
@@ -397,32 +401,48 @@ export const SinglePageQuoteForm = ({
           contactName: data.contact_name,
         })
       );
-      
-      await trackFormSubmission(quoteId);
-      
-      toast({
-        title: "Quote Saved Successfully!",
-         description: "Your quote request has been saved.",
-      });
 
-      if (onSuccess) {
-        onSuccess(quoteId);
-      }
-      
+      // Clear saved draft now that we know it submitted
+      clearDraft();
+
+      await trackFormSubmission(quoteId);
+
       toast({
-        title: "✅ Quote Request Submitted!",
+        title: "Quote Request Submitted",
         description: "We'll respond within 48 hours. Check your email for confirmation.",
       });
 
-      // Restore full-site chrome by redirecting to the Thank You page
+      if (onSuccess) onSuccess(quoteId);
+
       navigate(`/request-quote/thank-you?quoteId=${encodeURIComponent(quoteId)}`, { replace: true });
     } catch (error: any) {
       console.error('Form submission error:', error);
-      const errorMessage = error?.message || error?.details || error?.hint || 
+      const errorMessage = error?.message || error?.details || error?.hint ||
         (typeof error === 'string' ? error : 'Unknown error');
+
+      // Log failure server-side so admin can manually recover the lead
+      try {
+        await supabase.functions.invoke('log-submission-failure', {
+          body: {
+            failure_stage: 'client_submit_failed',
+            form_type: variant === 'wedding' ? 'wedding_event' : 'regular_event',
+            contact_name: data.contact_name,
+            email: data.email,
+            phone: data.phone,
+            error_message: errorMessage,
+            partial_payload: submitPayload,
+            session_id: undefined,
+            url: window.location.pathname,
+          },
+        });
+      } catch (logErr) {
+        console.warn('[submit] failure logging failed:', logErr);
+      }
+
+      setSubmitError(errorMessage);
       toast({
         title: "Submission Failed",
-        description: `${errorMessage}. Please try again or contact us at (843) 970-0265.`,
+        description: `${errorMessage}. Please try again or call (843) 970-0265.`,
         variant: "destructive",
       });
       sessionStorage.removeItem("quote_thankyou_eventData");
