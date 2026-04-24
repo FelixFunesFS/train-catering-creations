@@ -112,7 +112,7 @@ async function signVapidJwt(
   // Import the private key for ECDSA signing
   const cryptoKey = await crypto.subtle.importKey(
     "pkcs8",
-    pkcs8Key,
+    pkcs8Key.buffer.slice(pkcs8Key.byteOffset, pkcs8Key.byteOffset + pkcs8Key.byteLength) as ArrayBuffer,
     { name: "ECDSA", namedCurve: "P-256" },
     false,
     ["sign"]
@@ -244,7 +244,7 @@ async function sendPush(
     return { success: true };
   } catch (error) {
     console.error("[Push] Error:", error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
@@ -400,7 +400,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("Send push notification error:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

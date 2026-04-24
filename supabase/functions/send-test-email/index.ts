@@ -82,17 +82,19 @@ const handler = async (req: Request): Promise<Response> => {
       const selectedConfig = variant === 'admin' && config.admin ? config.admin : config.customer;
       
       testEmailHtml = generateStandardEmail({
-        ...selectedConfig,
+        ...selectedConfig!,
         quote: SAMPLE_DATA.quote,
         invoice: SAMPLE_DATA.invoice,
-        accessToken: SAMPLE_DATA.accessToken,
-        paymentAmount: SAMPLE_DATA.paymentAmount,
-        milestoneType: SAMPLE_DATA.milestoneType,
-        changeRequest: SAMPLE_DATA.changeRequest,
-        adminResponse: SAMPLE_DATA.adminResponse
+        ...({
+          accessToken: SAMPLE_DATA.accessToken,
+          paymentAmount: SAMPLE_DATA.paymentAmount,
+          milestoneType: SAMPLE_DATA.milestoneType,
+          changeRequest: SAMPLE_DATA.changeRequest,
+          adminResponse: SAMPLE_DATA.adminResponse,
+        } as any),
       });
       
-      subject = `[TEST] ${selectedConfig.heroSection.title} - Soul Train's Eatery`;
+      subject = `[TEST] ${selectedConfig!.heroSection.title} - Soul Train's Eatery`;
       console.log(`Sending test email for template: ${emailType} (${variant || 'customer'})`);
     } else {
       // Legacy mode: Simple SMTP test email
