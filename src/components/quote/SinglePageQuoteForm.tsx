@@ -11,7 +11,7 @@ import { SuppliesStep } from "./steps/SuppliesStep";
 import { StepProgress } from "./StepProgress";
 import { StepNavigation } from "./StepNavigation";
 import { ReviewSummaryCard } from "./ReviewSummaryCard";
-import { ReviewSplitLayout } from "./ReviewSplitLayout";
+// ReviewSplitLayout removed: review now lives inline on Supplies step (5 → 4 idx).
 import { User, Calendar, ChefHat, UtensilsCrossed, Package } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
 import { supabase } from "@/integrations/supabase/client";
