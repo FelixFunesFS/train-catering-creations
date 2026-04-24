@@ -1638,6 +1638,7 @@ export type Database = {
           guest_count_with_restrictions: string | null
           ice_requested: boolean | null
           id: string
+          idempotency_key: string | null
           last_status_change: string | null
           location: string
           military_organization: string | null
@@ -1693,6 +1694,7 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          idempotency_key?: string | null
           last_status_change?: string | null
           location: string
           military_organization?: string | null
@@ -1748,6 +1750,7 @@ export type Database = {
           guest_count_with_restrictions?: string | null
           ice_requested?: boolean | null
           id?: string
+          idempotency_key?: string | null
           last_status_change?: string | null
           location?: string
           military_organization?: string | null
