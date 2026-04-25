@@ -51,6 +51,16 @@ const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
 const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
 const SubmissionFailures = lazy(() => import("./pages/admin/SubmissionFailures"));
 
+// Local SEO landing pages — lazy-loaded to keep home LCP intact
+const WeddingsCateringSEO = lazy(() => import("./pages/seo/WeddingsCateringSEO"));
+const CorporateCateringSEO = lazy(() => import("./pages/seo/CorporateCateringSEO"));
+const MilitaryCateringSEO = lazy(() => import("./pages/seo/MilitaryCateringSEO"));
+const PrivateEventsCateringSEO = lazy(() => import("./pages/seo/PrivateEventsCateringSEO"));
+const HolidaysCateringSEO = lazy(() => import("./pages/seo/HolidaysCateringSEO"));
+const MountPleasantCateringSEO = lazy(() => import("./pages/seo/MountPleasantCateringSEO"));
+const DanielIslandCateringSEO = lazy(() => import("./pages/seo/DanielIslandCateringSEO"));
+const DowntownCharlestonCateringSEO = lazy(() => import("./pages/seo/DowntownCharlestonCateringSEO"));
+
 // Minimal loading fallback to avoid layout shift
 const PageLoader = () => (
   <div className="min-h-[50vh] flex items-center justify-center">
@@ -145,6 +155,17 @@ const AppContent = () => {
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
             {/* Portfolio - publicly accessible UX case study */}
             <Route path="/portfolio" element={<Portfolio />} />
+
+            {/* Local SEO landing pages */}
+            <Route path="/catering/weddings" element={<WeddingsCateringSEO />} />
+            <Route path="/catering/corporate" element={<CorporateCateringSEO />} />
+            <Route path="/catering/military" element={<MilitaryCateringSEO />} />
+            <Route path="/catering/private-events" element={<PrivateEventsCateringSEO />} />
+            <Route path="/catering/holidays" element={<HolidaysCateringSEO />} />
+            <Route path="/catering-charleston/mount-pleasant" element={<MountPleasantCateringSEO />} />
+            <Route path="/catering-charleston/daniel-island" element={<DanielIslandCateringSEO />} />
+            <Route path="/catering-charleston/downtown" element={<DowntownCharlestonCateringSEO />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

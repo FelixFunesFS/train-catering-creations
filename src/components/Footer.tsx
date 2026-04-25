@@ -27,7 +27,20 @@ export const Footer = () => {
     name: "Request Quote",
     href: "/request-quote#page-header"
   }];
-  const services = ["Military Functions", "Corporate Catering", "Wedding Catering", "Private Events", "Holiday Parties", "Funeral Repasts", "Custom Menus"];
+  const services: { name: string; href: string }[] = [
+    { name: "Wedding Catering", href: "/catering/weddings" },
+    { name: "Corporate Catering", href: "/catering/corporate" },
+    { name: "Military Functions", href: "/catering/military" },
+    { name: "Private Events", href: "/catering/private-events" },
+    { name: "Holiday Catering", href: "/catering/holidays" },
+    { name: "Funeral Repasts", href: "/catering/private-events" },
+    { name: "Custom Menus", href: "/menu" }
+  ];
+  const areasServed: { name: string; href: string }[] = [
+    { name: "Mount Pleasant", href: "/catering-charleston/mount-pleasant" },
+    { name: "Daniel Island", href: "/catering-charleston/daniel-island" },
+    { name: "Downtown Charleston", href: "/catering-charleston/downtown" }
+  ];
   return <footer className="bg-gradient-to-br from-background via-muted/20 to-background border-t border-border">
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-10 lg:py-12">
@@ -98,9 +111,20 @@ export const Footer = () => {
           <div className="space-y-4">
             <h3 className="text-lg font-elegant font-semibold text-foreground border-b border-border pb-2">Our Services</h3>
             <ul className="space-y-3">
-              {services.map((service, index) => <li key={index} className="text-sm text-muted-foreground flex items-start">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                  {service}
+              {services.map((service) => <li key={service.name}>
+                  <Link to={service.href} className="text-sm text-muted-foreground hover:text-primary flex items-start group">
+                    <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                    <span className="group-hover:translate-x-1 transition-transform duration-200">{service.name}</span>
+                  </Link>
+                </li>)}
+            </ul>
+            <h3 className="text-lg font-elegant font-semibold text-foreground border-b border-border pb-2 pt-4">Areas We Serve</h3>
+            <ul className="space-y-3">
+              {areasServed.map((area) => <li key={area.name}>
+                  <Link to={area.href} className="text-sm text-muted-foreground hover:text-primary flex items-start group">
+                    <MapPin className="h-3.5 w-3.5 text-primary mt-0.5 mr-2 flex-shrink-0" />
+                    <span className="group-hover:translate-x-1 transition-transform duration-200">{area.name} Catering</span>
+                  </Link>
                 </li>)}
             </ul>
           </div>
