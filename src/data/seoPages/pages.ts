@@ -1,5 +1,29 @@
 import type { SeoPageData } from "./types";
 
+// ─── Imagery (reused from gallery system) ───
+import imgWeddingReception from "@/assets/gallery/formal-gold-reception.jpg";
+import imgWeddingOrchid from "@/assets/gallery/buffet-orchid-setup.jpg";
+import imgWeddingChafing from "@/assets/gallery/chafing-dish-roses.jpg";
+import imgFormalOrchid from "@/assets/gallery/formal-orchid-buffet.jpg";
+import imgBuffetTeam from "@/assets/gallery/buffet-team-service.jpg";
+import imgBuffetLine from "@/assets/gallery/team-buffet-line.jpg";
+import imgTeamServiceAction from "@/assets/gallery/team-service-action.jpg";
+import imgChefDuo from "@/assets/gallery/buffet-chef-duo.jpg";
+import imgOutdoorTent from "@/assets/gallery/buffet-outdoor-tent.jpg";
+import imgPatriotic from "@/assets/gallery/buffet-labeled-patriotic.jpg";
+import imgMilitaryCharcuterie from "@/assets/gallery/military-charcuterie.jpg";
+import imgHolidayWings from "@/assets/gallery/buffet-holiday-wings.jpg";
+import imgHolidaySides from "@/assets/gallery/holiday-sides.jpg";
+import imgHolidayMeats from "@/assets/gallery/holiday-meats.jpg";
+import imgFallDecor from "@/assets/gallery/buffet-fall-decor.jpg";
+import imgBreakfast from "@/assets/gallery/breakfast-spread.jpg";
+import imgGuestsServing from "@/assets/gallery/buffet-guests-serving.jpg";
+import imgMacCheese from "@/assets/gallery/food-mac-cheese.jpg";
+import imgJerkChicken from "@/assets/gallery/food-jerk-chicken.jpg";
+import imgSalmon from "@/assets/gallery/food-salmon.jpg";
+import imgCharcuterie from "@/assets/gallery/charcuterie-spread.jpg";
+import imgChickenWaffles from "@/assets/gallery/chicken-waffles.jpg";
+
 const BASE = "https://www.soultrainseatery.com";
 
 const callCta = { label: "Call (843) 970-0265", href: "tel:8439700265" };
