@@ -315,7 +315,7 @@ export const danielIslandPage: SeoPageData = {
   gallery: [
     { src: imgWeddingReception, alt: "Daniel Island wedding reception with gold-and-white styling" },
     { src: imgSalmon, alt: "Plated salmon dish served at a Daniel Island private event" },
-    { src: imgChafing, alt: "Polished chafing dishes set for a Daniel Island club event" },
+    { src: imgWeddingChafing, alt: "Polished chafing dishes set for a Daniel Island club event" },
   ],
   ctaBackgroundImage: imgFormalOrchid,
   trustPoints: ["Club & Venue Experience", "Full-Service Team", "Custom Menus", "Lowcountry Roots"],
