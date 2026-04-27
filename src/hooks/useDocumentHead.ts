@@ -5,14 +5,27 @@ interface DocumentHeadOptions {
   description: string;
   canonical?: string;
   jsonLd?: object | object[];
+  ogImage?: string;
 }
+
+const setMeta = (selector: string, attr: "name" | "property", key: string, content: string) => {
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  const previous = el?.getAttribute("content") ?? null;
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+  return { el, previous };
+};
 
 /**
  * Lightweight head manager for SEO landing pages.
  * Sets <title>, meta description, canonical link, and injects JSON-LD.
  * Cleans up JSON-LD on unmount to avoid duplicate schema across SPA navigations.
  */
-export const useDocumentHead = ({ title, description, canonical, jsonLd }: DocumentHeadOptions) => {
+export const useDocumentHead = ({ title, description, canonical, jsonLd, ogImage }: DocumentHeadOptions) => {
   useEffect(() => {
     // Title
     const previousTitle = document.title;
