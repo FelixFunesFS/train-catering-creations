@@ -419,11 +419,17 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                 {tx.description}
                               </p>
                             )}
-                            
+
+                            {(tx as any).failed_reason && (
+                              <p className="text-xs text-destructive/80 mt-1.5 not-italic">
+                                <span className="font-medium">Reason:</span> {(tx as any).failed_reason}
+                              </p>
+                            )}
+
                             <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                               {getStatusIcon(tx.status)}
                               <span>
-                                Voided {tx.processed_at 
+                                {(tx as any).failed_reason && (tx as any).failed_reason.toLowerCase().includes('declined') ? 'Declined' : 'Voided'} {tx.processed_at
                                   ? format(new Date(tx.processed_at), 'MMM d, yyyy')
                                   : ''}
                               </span>
