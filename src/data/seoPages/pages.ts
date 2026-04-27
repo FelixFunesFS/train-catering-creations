@@ -42,7 +42,14 @@ export const weddingsPage: SeoPageData = {
   headline: "Charleston Wedding Catering Made From the Heart",
   subheadline:
     "Soulful Southern menus, gracious service, and stress-free planning for couples celebrating across the Lowcountry.",
-  trustPoints: ["Family-Run Since Day One", "Licensed & Insured", "Lowcountry Locals", "Custom Menus"],
+  heroImage: imgWeddingReception,
+  heroImageAlt: "Elegant Charleston wedding reception catered by Soul Train's Eatery with gold accents and candlelit tables",
+  gallery: [
+    { src: imgWeddingOrchid, alt: "Wedding buffet with orchid florals and polished chafing dishes at a Lowcountry venue" },
+    { src: imgWeddingChafing, alt: "Chafing dishes with rose accents at a Charleston wedding reception" },
+    { src: imgChickenWaffles, alt: "Soulful chicken and waffles plated for a wedding reception" },
+  ],
+  ctaBackgroundImage: imgFormalOrchid,
   intro:
     "Your wedding day deserves food guests will talk about for years — and a team that handles every detail with warmth and precision. Soul Train's Eatery brings authentic Charleston soul food to weddings of every size, from intimate backyard ceremonies on Johns Island to grand receptions downtown. We collaborate closely with you, your planner, and your venue so the only thing you have to do is enjoy the moment.",
   highlights: [
