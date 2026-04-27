@@ -86,6 +86,9 @@ verify_jwt = false
 [functions.create-stripe-customer]
 verify_jwt = false
 
+[functions.get-payment-failure-reason]
+verify_jwt = false
+
 # Workflow Functions
 [functions.generate-invoice-from-quote]
 verify_jwt = false

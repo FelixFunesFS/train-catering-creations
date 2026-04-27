@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { getDeclineFromSession } from "../_shared/declineTranslator.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -305,68 +306,91 @@ serve(async (req) => {
       }
     }
 
-    // Handle failed payments
+    // Handle failed payments (async / delayed payment methods)
     if (event.type === "checkout.session.async_payment_failed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      
-      logStep("Payment failed", { sessionId: session.id });
+      logStep("Async payment failed", { sessionId: session.id });
 
-      const { error: txUpdateError } = await supabaseClient
+      const decline = await getDeclineFromSession(stripe, session.id);
+      const failedReason = decline?.adminReason || 'Payment failed';
+
+      const { data: tx } = await supabaseClient
         .from('payment_transactions')
         .update({
           status: 'failed',
-          failed_reason: 'Payment failed'
+          failed_reason: failedReason,
+          processed_at: new Date().toISOString(),
         })
-        .eq('stripe_session_id', session.id);
+        .eq('stripe_session_id', session.id)
+        .select('invoice_id, amount')
+        .maybeSingle();
 
-      if (txUpdateError) {
-        logStep("Error updating failed transaction", { error: txUpdateError.message });
+      // Notify admin
+      if (tx?.invoice_id) {
+        try {
+          await supabaseClient.functions.invoke('send-admin-notification', {
+            body: {
+              invoiceId: tx.invoice_id,
+              notificationType: 'payment_failed',
+              metadata: {
+                amount: tx.amount,
+                reason: failedReason,
+                declineCode: decline?.declineCode,
+                zipMismatch: decline?.zipMismatch,
+              },
+            },
+          });
+          logStep("Admin notified of failed async payment");
+        } catch (err) {
+          logStep("Admin notification failed (non-critical)", { error: err });
+        }
       }
     }
 
     // Handle expired checkout sessions (card declined, customer abandoned, etc.)
     if (event.type === "checkout.session.expired") {
       const session = event.data.object as Stripe.Checkout.Session;
-      
-      logStep("Checkout session expired", { sessionId: session.id, paymentIntent: session.payment_intent });
+      logStep("Checkout session expired", { sessionId: session.id });
 
-      let failedReason = "Checkout session expired";
+      const decline = await getDeclineFromSession(stripe, session.id);
+      const failedReason = decline?.adminReason || 'Checkout session expired - no payment attempted';
 
-      // If there's a payment intent, fetch it to get the actual decline reason
-      if (session.payment_intent) {
-        try {
-          const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent as string);
-          const lastError = paymentIntent.last_payment_error;
-          
-          if (lastError) {
-            const declineCode = lastError.decline_code || lastError.code || 'unknown';
-            const message = lastError.message || 'Payment declined';
-            failedReason = `Payment declined by customer's bank: ${declineCode}`;
-            logStep("Decline details", { declineCode, message });
-          } else {
-            failedReason = "Checkout session expired - payment attempt failed";
-          }
-        } catch (piError) {
-          logStep("Error fetching payment intent (non-critical)", { error: piError instanceof Error ? piError.message : String(piError) });
-          failedReason = "Checkout session expired - unable to retrieve decline details";
-        }
-      } else {
-        failedReason = "Checkout session expired - no payment attempted";
-      }
-
-      const { error: txUpdateError } = await supabaseClient
+      const { data: tx, error: txUpdateError } = await supabaseClient
         .from('payment_transactions')
         .update({
           status: 'failed',
           failed_reason: failedReason,
-          processed_at: new Date().toISOString()
+          processed_at: new Date().toISOString(),
         })
-        .eq('stripe_session_id', session.id);
+        .eq('stripe_session_id', session.id)
+        .select('invoice_id, amount')
+        .maybeSingle();
 
       if (txUpdateError) {
         logStep("Error updating expired session transaction", { error: txUpdateError.message });
       } else {
-        logStep("Transaction marked as failed", { reason: failedReason });
+        logStep("Transaction marked as failed", { reason: failedReason, hadDecline: !!decline });
+      }
+
+      // Only notify admin when there was a real bank decline (not silent abandonment)
+      if (decline && tx?.invoice_id) {
+        try {
+          await supabaseClient.functions.invoke('send-admin-notification', {
+            body: {
+              invoiceId: tx.invoice_id,
+              notificationType: 'payment_failed',
+              metadata: {
+                amount: tx.amount,
+                reason: failedReason,
+                declineCode: decline.declineCode,
+                zipMismatch: decline.zipMismatch,
+              },
+            },
+          });
+          logStep("Admin notified of declined payment");
+        } catch (err) {
+          logStep("Admin notification failed (non-critical)", { error: err });
+        }
       }
     }
 

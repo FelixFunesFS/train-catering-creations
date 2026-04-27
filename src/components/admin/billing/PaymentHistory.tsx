@@ -64,11 +64,19 @@ function getStatusIcon(status: string) {
 }
 
 function getStatusBadge(status: string, failedReason?: string | null) {
-  // Show "Declined" for failed transactions with bank decline codes
-  if (status === 'failed' && failedReason && failedReason.toLowerCase().includes('declined')) {
+  const reason = (failedReason || '').toLowerCase();
+  const looksLikeDecline =
+    reason.includes('declined') ||
+    reason.includes('card declined') ||
+    reason.includes('card_velocity') ||
+    reason.includes('insufficient_funds') ||
+    reason.includes('do_not_honor');
+
+  // "Declined" badge for any failed/voided tx with bank decline indicators
+  if (looksLikeDecline) {
     return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-200">Declined</Badge>;
   }
-  
+
   const variants: Record<string, { label: string; className: string }> = {
     completed: { label: 'Completed', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
     succeeded: { label: 'Succeeded', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
@@ -411,11 +419,17 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                                 {tx.description}
                               </p>
                             )}
-                            
+
+                            {(tx as any).failed_reason && (
+                              <p className="text-xs text-destructive/80 mt-1.5 not-italic">
+                                <span className="font-medium">Reason:</span> {(tx as any).failed_reason}
+                              </p>
+                            )}
+
                             <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                               {getStatusIcon(tx.status)}
                               <span>
-                                Voided {tx.processed_at 
+                                {(tx as any).failed_reason && (tx as any).failed_reason.toLowerCase().includes('declined') ? 'Declined' : 'Voided'} {tx.processed_at
                                   ? format(new Date(tx.processed_at), 'MMM d, yyyy')
                                   : ''}
                               </span>
