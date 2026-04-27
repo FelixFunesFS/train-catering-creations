@@ -32,12 +32,17 @@ const localBusinessNode = () => ({
 export const buildSeoSchema = (page: SeoPageData) => {
   const canonical = `${BASE_URL}${page.slug}`;
 
+  const imageUrls = [page.heroImage, ...(page.gallery?.map((g) => g.src) ?? [])]
+    .filter(Boolean)
+    .map((src) => (src.startsWith("http") ? src : `${BASE_URL}${src.startsWith("/") ? "" : "/"}${src}`));
+
   const serviceNode = {
     "@type": "Service",
     name: page.eyebrow,
     serviceType: page.eyebrow,
     description: page.metaDescription,
     provider: { "@id": `${BASE_URL}/#business` },
+    image: imageUrls,
     areaServed: page.localProof.venues?.length
       ? page.localProof.venues.map((v) => ({ "@type": "Place", name: v }))
       : [{ "@type": "Place", name: "Charleston Lowcountry" }],

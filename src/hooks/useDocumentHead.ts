@@ -5,14 +5,27 @@ interface DocumentHeadOptions {
   description: string;
   canonical?: string;
   jsonLd?: object | object[];
+  ogImage?: string;
 }
+
+const setMeta = (selector: string, attr: "name" | "property", key: string, content: string) => {
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  const previous = el?.getAttribute("content") ?? null;
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+  return { el, previous };
+};
 
 /**
  * Lightweight head manager for SEO landing pages.
  * Sets <title>, meta description, canonical link, and injects JSON-LD.
  * Cleans up JSON-LD on unmount to avoid duplicate schema across SPA navigations.
  */
-export const useDocumentHead = ({ title, description, canonical, jsonLd }: DocumentHeadOptions) => {
+export const useDocumentHead = ({ title, description, canonical, jsonLd, ogImage }: DocumentHeadOptions) => {
   useEffect(() => {
     // Title
     const previousTitle = document.title;
@@ -42,6 +55,27 @@ export const useDocumentHead = ({ title, description, canonical, jsonLd }: Docum
       linkCanonical.setAttribute("href", canonical);
     }
 
+    // OG / Twitter image (absolute URL recommended)
+    const ogRestores: Array<() => void> = [];
+    if (ogImage) {
+      const absolute = ogImage.startsWith("http")
+        ? ogImage
+        : `${window.location.origin}${ogImage.startsWith("/") ? "" : "/"}${ogImage}`;
+      const ogTags: Array<[string, "name" | "property", string]> = [
+        ['meta[property="og:image"]', "property", "og:image"],
+        ['meta[name="twitter:image"]', "name", "twitter:image"],
+        ['meta[name="twitter:card"]', "name", "twitter:card"],
+      ];
+      ogTags.forEach(([sel, attr, key]) => {
+        const value = key === "twitter:card" ? "summary_large_image" : absolute;
+        const { el, previous } = setMeta(sel, attr, key, value);
+        ogRestores.push(() => {
+          if (previous !== null) el.setAttribute("content", previous);
+          else el.remove();
+        });
+      });
+    }
+
     // JSON-LD (tagged for cleanup)
     const ldScripts: HTMLScriptElement[] = [];
     if (jsonLd) {
@@ -60,7 +94,8 @@ export const useDocumentHead = ({ title, description, canonical, jsonLd }: Docum
       document.title = previousTitle;
       if (previousDesc !== null) metaDesc?.setAttribute("content", previousDesc);
       if (linkCanonical && previousCanonical !== null) linkCanonical.setAttribute("href", previousCanonical);
+      ogRestores.forEach((fn) => fn());
       ldScripts.forEach((s) => s.remove());
     };
-  }, [title, description, canonical, JSON.stringify(jsonLd)]);
+  }, [title, description, canonical, ogImage, JSON.stringify(jsonLd)]);
 };

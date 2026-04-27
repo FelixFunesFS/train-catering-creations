@@ -15,30 +15,38 @@ export interface SeoTestimonial {
   detail: string;
 }
 
+export interface SeoGalleryItem {
+  src: string;
+  alt: string;
+}
+
 export interface SeoPageData {
-  slug: string; // route path (e.g., "/catering/weddings")
+  slug: string;
   pageType: "service" | "location";
   // Head
   metaTitle: string;
   metaDescription: string;
   // Hero
-  eyebrow: string; // e.g., "Wedding Catering"
-  headline: string; // H1 — keyword + location
+  eyebrow: string;
+  headline: string;
   subheadline: string;
-  heroImage?: string; // optional override
+  heroImage: string;
+  heroImageAlt: string;
   // Trust strip
-  trustPoints: string[]; // 3-4 short pills
+  trustPoints: string[];
   // Body
-  intro: string; // 1-2 paragraph editorial intro
-  highlights: SeoHighlight[]; // 3-6 cards
+  intro: string;
+  highlights: SeoHighlight[];
+  gallery: SeoGalleryItem[]; // exactly 3 recommended
   localProof: {
     title: string;
     body: string;
-    venues?: string[]; // optional list of nearby venues / neighborhoods
+    venues?: string[];
   };
   testimonials: SeoTestimonial[];
   faqs: SeoFaqItem[];
   // CTAs
   primaryCta: { label: string; href: string };
   secondaryCta: { label: string; href: string };
+  ctaBackgroundImage?: string;
 }
