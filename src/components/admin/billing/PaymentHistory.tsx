@@ -64,11 +64,19 @@ function getStatusIcon(status: string) {
 }
 
 function getStatusBadge(status: string, failedReason?: string | null) {
-  // Show "Declined" for failed transactions with bank decline codes
-  if (status === 'failed' && failedReason && failedReason.toLowerCase().includes('declined')) {
+  const reason = (failedReason || '').toLowerCase();
+  const looksLikeDecline =
+    reason.includes('declined') ||
+    reason.includes('card declined') ||
+    reason.includes('card_velocity') ||
+    reason.includes('insufficient_funds') ||
+    reason.includes('do_not_honor');
+
+  // "Declined" badge for any failed/voided tx with bank decline indicators
+  if (looksLikeDecline) {
     return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-200">Declined</Badge>;
   }
-  
+
   const variants: Record<string, { label: string; className: string }> = {
     completed: { label: 'Completed', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
     succeeded: { label: 'Succeeded', className: 'bg-emerald-500/10 text-emerald-700 border-emerald-200' },
