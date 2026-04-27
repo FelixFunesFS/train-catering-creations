@@ -50,6 +50,7 @@ export const weddingsPage: SeoPageData = {
     { src: imgChickenWaffles, alt: "Soulful chicken and waffles plated for a wedding reception" },
   ],
   ctaBackgroundImage: imgFormalOrchid,
+  trustPoints: ["Family-Run Since Day One", "Licensed & Insured", "Lowcountry Locals", "Custom Menus"],
   intro:
     "Your wedding day deserves food guests will talk about for years — and a team that handles every detail with warmth and precision. Soul Train's Eatery brings authentic Charleston soul food to weddings of every size, from intimate backyard ceremonies on Johns Island to grand receptions downtown. We collaborate closely with you, your planner, and your venue so the only thing you have to do is enjoy the moment.",
   highlights: [
