@@ -91,6 +91,14 @@ export const corporatePage: SeoPageData = {
   headline: "Corporate Catering Charleston Teams Look Forward To",
   subheadline:
     "From boxed lunches to executive luncheons and all-hands events — reliable, hot, and unforgettable Lowcountry comfort food.",
+  heroImage: imgBuffetLine,
+  heroImageAlt: "Soul Train's Eatery team serving a corporate buffet lunch in Charleston",
+  gallery: [
+    { src: imgTeamServiceAction, alt: "Catering team serving hot soul food at a Charleston corporate event" },
+    { src: imgMacCheese, alt: "Macaroni and cheese tray for a Charleston office catering order" },
+    { src: imgGuestsServing, alt: "Office team enjoying a Soul Train's Eatery buffet lunch" },
+  ],
+  ctaBackgroundImage: imgBuffetLine,
   trustPoints: ["On-Time Delivery", "Tax-Receipt Invoicing", "Scalable Headcounts", "Repeat-Client Favorite"],
   intro:
     "Feeding your team should be easy. Soul Train's Eatery delivers hot, beautifully presented soul food to Charleston offices, training sessions, board meetings, and conferences — on time, every time. We handle the logistics so your team can focus on the work.",
@@ -127,6 +135,14 @@ export const militaryPage: SeoPageData = {
   headline: "Military Function Catering With Honor and Soul",
   subheadline:
     "Promotions, retirements, change-of-command, and unit celebrations — handled with the discipline and respect they deserve.",
+  heroImage: imgPatriotic,
+  heroImageAlt: "Patriotic-themed catering buffet for a military function in Charleston",
+  gallery: [
+    { src: imgMilitaryCharcuterie, alt: "Charcuterie spread served at a military reception" },
+    { src: imgChefDuo, alt: "Two Soul Train's Eatery chefs ready to serve a military ceremony" },
+    { src: imgFormalOrchid, alt: "Formal orchid-garnished buffet for a military change-of-command reception" },
+  ],
+  ctaBackgroundImage: imgPatriotic,
   trustPoints: ["Base-Experienced Team", "Punctual & Professional", "Custom Menus", "Lowcountry Roots"],
   intro:
     "We're proud to serve Charleston's military community. From Joint Base Charleston ceremonies to retirement gatherings at private venues, our team brings the same precision and warmth our service members give every day. Coordination, timing, and presentation — we know how it has to be done.",
@@ -162,6 +178,14 @@ export const privateEventsPage: SeoPageData = {
   headline: "Private Event Catering for Charleston's Most Memorable Moments",
   subheadline:
     "Birthdays, graduations, anniversaries, reunions, and celebrations of life — soul food that brings everyone closer to the table.",
+  heroImage: imgOutdoorTent,
+  heroImageAlt: "Outdoor tent catering setup for a Charleston private event by Soul Train's Eatery",
+  gallery: [
+    { src: imgGuestsServing, alt: "Family and friends serving themselves at a Soul Train's Eatery private event buffet" },
+    { src: imgJerkChicken, alt: "Jerk chicken platter served at a Charleston private celebration" },
+    { src: imgFallDecor, alt: "Fall-themed buffet styled for a private gathering" },
+  ],
+  ctaBackgroundImage: imgOutdoorTent,
   trustPoints: ["Family-Run", "Custom Menus", "Full-Service or Drop-Off", "Lowcountry Locals"],
   intro:
     "The best moments happen around food. Whether you're celebrating a milestone birthday, hosting a graduation party, or gathering family for a reunion, we'll build a menu that feels like home and a service experience that lets you stay present with your guests.",
@@ -197,6 +221,14 @@ export const holidaysPage: SeoPageData = {
   headline: "Charleston Holiday Catering With Soul, Tradition & Heart",
   subheadline:
     "Thanksgiving, Christmas, Easter, Juneteenth, and corporate holiday parties — let us handle the cooking so you can host the moment.",
+  heroImage: imgHolidayWings,
+  heroImageAlt: "Holiday wings and soul-food sides catered by Soul Train's Eatery in Charleston",
+  gallery: [
+    { src: imgHolidayMeats, alt: "Smoked holiday meats including turkey and ham for a Charleston Thanksgiving" },
+    { src: imgHolidaySides, alt: "Soul-food holiday sides including dressing, mac and cheese, and collards" },
+    { src: imgBreakfast, alt: "Holiday breakfast spread for a family gathering" },
+  ],
+  ctaBackgroundImage: imgHolidayMeats,
   trustPoints: ["Limited Holiday Slots", "Family-Style or Plated", "Pickup or Delivery", "Pre-Order Ready"],
   intro:
     "Holidays are about gathering — not stressing in the kitchen. From smoked turkey and cornbread dressing to honey ham, collards, mac & cheese, and from-scratch pies, we'll bring the comfort of a Southern holiday table straight to your home, office, or event venue.",
@@ -234,6 +266,14 @@ export const mountPleasantPage: SeoPageData = {
   headline: "Catering Mount Pleasant Trusts for Soul-Food Hospitality",
   subheadline:
     "From Old Village receptions to Boone Hall weddings and corporate events on Long Point Road — soulful menus, gracious service.",
+  heroImage: imgOutdoorTent,
+  heroImageAlt: "Mount Pleasant outdoor wedding catering tent setup by Soul Train's Eatery",
+  gallery: [
+    { src: imgWeddingOrchid, alt: "Mount Pleasant wedding buffet with orchid florals" },
+    { src: imgBuffetTeam, alt: "Soul Train's Eatery team serving a Mount Pleasant reception" },
+    { src: imgFallDecor, alt: "Seasonal Lowcountry buffet styled for a Mount Pleasant gathering" },
+  ],
+  ctaBackgroundImage: imgWeddingOrchid,
   trustPoints: ["Local Lowcountry Team", "Venue-Experienced", "Full-Service or Drop-Off", "Custom Menus"],
   intro:
     "Mount Pleasant is one of our home neighborhoods. We know the venues, the timing of waterfront ceremonies, and how to make every gathering feel effortless. Whether you're hosting at Boone Hall, the Old Village, Patriots Point, or a private home along Shem Creek, we'll bring authentic Charleston soul food and full-service hospitality.",
@@ -270,6 +310,14 @@ export const danielIslandPage: SeoPageData = {
   headline: "Catering Daniel Island Hosts With Soul & Style",
   subheadline:
     "Club events, weddings, corporate gatherings, and private parties — soulful menus and full-service hospitality across Daniel Island.",
+  heroImage: imgFormalOrchid,
+  heroImageAlt: "Daniel Island formal catering setup with orchid-garnished buffet by Soul Train's Eatery",
+  gallery: [
+    { src: imgWeddingReception, alt: "Daniel Island wedding reception with gold-and-white styling" },
+    { src: imgSalmon, alt: "Plated salmon dish served at a Daniel Island private event" },
+    { src: imgChafing, alt: "Polished chafing dishes set for a Daniel Island club event" },
+  ],
+  ctaBackgroundImage: imgFormalOrchid,
   trustPoints: ["Club & Venue Experience", "Full-Service Team", "Custom Menus", "Lowcountry Roots"],
   intro:
     "Daniel Island has become one of Charleston's most sought-after event destinations — and we love working there. From the Daniel Island Club to private waterfront homes, our team brings warm, professional service and a menu that adds genuine Lowcountry soul to every gathering.",
@@ -306,6 +354,14 @@ export const downtownCharlestonPage: SeoPageData = {
   headline: "Downtown Charleston Catering With Real Lowcountry Soul",
   subheadline:
     "Historic venues, rooftop receptions, corporate suites, and private homes south of Calhoun — we bring the soul, you enjoy the moment.",
+  heroImage: imgWeddingReception,
+  heroImageAlt: "Downtown Charleston historic-venue wedding reception catered by Soul Train's Eatery",
+  gallery: [
+    { src: imgFormalOrchid, alt: "Downtown Charleston formal buffet styled with orchid garnishes" },
+    { src: imgCharcuterie, alt: "Charcuterie spread for a downtown Charleston cocktail reception" },
+    { src: imgWeddingChafing, alt: "Chafing dishes with rose accents at a downtown Charleston wedding" },
+  ],
+  ctaBackgroundImage: imgWeddingReception,
   trustPoints: ["Historic Venue Experience", "Tight-Timeline Pros", "Custom Menus", "Family-Run Locals"],
   intro:
     "Downtown Charleston has its own rhythm — narrow streets, historic kitchens, strict load-in windows. We've been doing this long enough to make it look easy. Whether you're hosting at a historic mansion, a King Street rooftop, or a private courtyard south of Broad, our team arrives prepared and serves with grace.",
