@@ -241,15 +241,52 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Stripe session created", { sessionId: session.id, isEmbedded });
 
-    // Void any existing pending Stripe transactions for this invoice
-    await supabase
+    // Inspect existing pending Stripe transactions to see if any of them
+    // actually had a real bank decline. If so, mark them 'failed' with the
+    // real reason so admins and customers can see WHY (not just "superseded").
+    const { data: pendingTxs } = await supabase
       .from('payment_transactions')
-      .update({ status: 'voided', failed_reason: 'Superseded by new checkout session' })
+      .select('id, stripe_session_id')
       .eq('invoice_id', invoice_id)
       .eq('status', 'pending')
       .eq('payment_method', 'stripe');
 
-    logStep("Voided previous pending transactions for invoice", { invoice_id });
+    if (pendingTxs && pendingTxs.length > 0) {
+      for (const tx of pendingTxs) {
+        if (!tx.stripe_session_id || tx.stripe_session_id === session.id) continue;
+
+        let failedReason = 'Superseded by new checkout session';
+        let newStatus: 'voided' | 'failed' = 'voided';
+
+        try {
+          const decline = await getDeclineFromSession(stripe, tx.stripe_session_id);
+          if (decline) {
+            failedReason = decline.adminReason;
+            newStatus = 'failed';
+            logStep("Detected real decline on superseded session", {
+              sessionId: tx.stripe_session_id,
+              code: decline.declineCode,
+            });
+          }
+        } catch (err) {
+          logStep("Failed to inspect prior session (non-fatal)", {
+            sessionId: tx.stripe_session_id,
+            error: err instanceof Error ? err.message : String(err),
+          });
+        }
+
+        await supabase
+          .from('payment_transactions')
+          .update({
+            status: newStatus,
+            failed_reason: failedReason,
+            processed_at: new Date().toISOString(),
+          })
+          .eq('id', tx.id);
+      }
+    }
+
+    logStep("Reconciled previous pending transactions for invoice", { invoice_id, count: pendingTxs?.length || 0 });
 
     await supabase.from("payment_transactions").insert({
       invoice_id,
