@@ -28,7 +28,30 @@ export function usePaymentCheckout() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Surface clearer messaging for known business-rule errors returned
+        // by the edge function (e.g., deposit already paid).
+        const ctx: any = (error as any)?.context;
+        let parsedBody: any = null;
+        try {
+          if (ctx?.body && typeof ctx.body === 'string') parsedBody = JSON.parse(ctx.body);
+          else if (ctx?.body) parsedBody = ctx.body;
+          else if ((error as any)?.message && typeof (error as any).message === 'string') {
+            // supabase-js sometimes embeds JSON in the message
+            const match = (error as any).message.match(/\{.*\}/);
+            if (match) parsedBody = JSON.parse(match[0]);
+          }
+        } catch { /* ignore parse failures */ }
+
+        if (parsedBody?.code === 'DEPOSIT_SATISFIED' && parsedBody?.error) {
+          toast({
+            title: 'Already Paid',
+            description: parsedBody.error,
+          });
+          return;
+        }
+        throw error;
+      }
 
       if (data?.url) {
         window.location.href = data.url;
