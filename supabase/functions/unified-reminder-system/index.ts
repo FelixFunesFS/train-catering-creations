@@ -213,6 +213,36 @@ const handler = async (req: Request): Promise<Response> => {
           .maybeSingle();
 
         if (!recentReminder) {
+          // Compute TRUE remaining balance (not gross invoice total).
+          // Prevents inflated amounts on partially-paid invoices that went overdue.
+          const { data: paidTxns } = await supabase
+            .from('payment_transactions')
+            .select('amount')
+            .eq('invoice_id', invoice.id)
+            .eq('status', 'completed');
+          const totalPaid = (paidTxns ?? []).reduce((sum: number, t: any) => sum + (t.amount ?? 0), 0);
+          const trueBalance = Math.max(0, (invoice.total_amount ?? 0) - totalPaid);
+
+          // Skip if invoice is actually fully paid (stale 'overdue' status).
+          if (trueBalance <= 0) {
+            logStep('Skipping overdue reminder - invoice is fully paid', {
+              invoice_id: invoice.id,
+              total_amount: invoice.total_amount,
+              total_paid: totalPaid,
+            });
+            continue;
+          }
+
+          // Look up the next pending milestone for milestone-aware subject/hero.
+          const { data: nextMilestone } = await supabase
+            .from('payment_milestones')
+            .select('milestone_type, is_due_now')
+            .eq('invoice_id', invoice.id)
+            .eq('status', 'pending')
+            .order('due_date', { ascending: true })
+            .limit(1)
+            .maybeSingle();
+
           // Canonical customer-facing renderer + payment link
           const { error: emailError } = await supabase.functions.invoke('send-payment-reminder', {
             body: {
@@ -220,9 +250,11 @@ const handler = async (req: Request): Promise<Response> => {
               customerEmail: invoice.quote_requests.email,
               customerName: invoice.quote_requests.contact_name,
               eventName: invoice.quote_requests.event_name,
-              balanceRemaining: invoice.total_amount ?? 0,
+              balanceRemaining: trueBalance,
               daysOverdue: invoice.due_date ? Math.max(0, Math.ceil((Date.now() - new Date(invoice.due_date).getTime()) / (1000 * 60 * 60 * 24))) : 0,
-              urgency: 'high'
+              urgency: 'high',
+              milestoneType: nextMilestone?.milestone_type,
+              isDueNow: nextMilestone?.is_due_now,
             }
           });
 
