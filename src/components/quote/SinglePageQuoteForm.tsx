@@ -14,7 +14,9 @@ import { ReviewSummaryCard } from "./ReviewSummaryCard";
 // ReviewSplitLayout removed: review now lives inline on Supplies step (5 → 4 idx).
 import { User, Calendar, ChefHat, UtensilsCrossed, Package } from "lucide-react";
 import { formSchema } from "./alternative-form/formSchema";
-import { supabase } from "@/integrations/supabase/client";
+// Use the anonymous client for public form submissions to prevent stale
+// admin/customer JWTs from being attached to anonymous edge function calls.
+import { anonSupabase as supabase } from "@/integrations/supabase/anonymousClient";
 import { useToast } from "@/hooks/use-toast";
 import { useFormAnalytics } from "@/hooks/useFormAnalytics";
 import { useFormDraftPersistence } from "@/hooks/useFormDraftPersistence";
