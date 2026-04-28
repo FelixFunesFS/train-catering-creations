@@ -1787,6 +1787,7 @@ export type Database = {
           created_at: string
           id: string
           invoice_id: string | null
+          quote_request_id: string | null
           recipient_email: string
           reminder_type: string
           sent_at: string
@@ -1796,6 +1797,7 @@ export type Database = {
           created_at?: string
           id?: string
           invoice_id?: string | null
+          quote_request_id?: string | null
           recipient_email: string
           reminder_type: string
           sent_at?: string
@@ -1805,6 +1807,7 @@ export type Database = {
           created_at?: string
           id?: string
           invoice_id?: string | null
+          quote_request_id?: string | null
           recipient_email?: string
           reminder_type?: string
           sent_at?: string
@@ -1830,6 +1833,27 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reminder_logs_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "event_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "reminder_logs_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["quote_id"]
+          },
+          {
+            foreignKeyName: "reminder_logs_quote_request_id_fkey"
+            columns: ["quote_request_id"]
+            isOneToOne: false
+            referencedRelation: "quote_requests"
             referencedColumns: ["id"]
           },
         ]
