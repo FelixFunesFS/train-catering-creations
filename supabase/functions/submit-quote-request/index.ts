@@ -102,6 +102,24 @@ serve(async (req) => {
       // Don't block on rate limit check failure, but log it
     } else if (count !== null && count >= MAX_SUBMISSIONS_PER_WINDOW) {
       console.log(`Rate limit exceeded for email: ${sanitizedEmail} (${count} submissions in window)`);
+
+      // Log to submission_failures so admin can manually follow up with this lead.
+      // Best-effort; never block the 429 response.
+      try {
+        await supabase.from('submission_failures').insert({
+          failure_stage: 'rate_limited',
+          form_type: payload.event_type === 'wedding' ? 'wedding_event' : 'regular_event',
+          contact_name: payload.contact_name ? String(payload.contact_name).slice(0, 200) : null,
+          email: sanitizedEmail,
+          phone: payload.phone ? String(payload.phone).slice(0, 50) : null,
+          error_message: `Rate limit exceeded: ${count} submissions in past hour`,
+          partial_payload: payload,
+          url: '/submit-quote-request',
+        });
+      } catch (logErr) {
+        console.warn('[rate-limit] failed to log to submission_failures:', logErr);
+      }
+
       return new Response(
         JSON.stringify({ 
           error: 'Too many quote requests. Please wait before submitting another request.',
@@ -211,10 +229,36 @@ serve(async (req) => {
     };
 
     // Run in parallel; don't block quote creation success on email deliverability.
-    await Promise.all([
+    const emailResults = await Promise.all([
       invokeEmailFn('send-quote-confirmation'),
       invokeEmailFn('send-quote-notification'),
     ]);
+
+    // Log email failures to submission_failures so admin can manually resend.
+    // Quote creation already succeeded — these are post-success deliverability issues.
+    const failedEmails = [
+      { name: 'send-quote-confirmation', result: emailResults[0] },
+      { name: 'send-quote-notification', result: emailResults[1] },
+    ].filter((e) => !e.result.ok);
+
+    if (failedEmails.length > 0) {
+      try {
+        await supabase.from('submission_failures').insert({
+          failure_stage: 'post_submit_email_failed',
+          form_type: insertPayload.event_type === 'wedding' ? 'wedding_event' : 'regular_event',
+          contact_name: insertPayload.contact_name,
+          email: insertPayload.email,
+          phone: insertPayload.phone,
+          error_message: failedEmails.map((e) => `${e.name}: ${e.result.error || 'unknown'}`).join('; '),
+          error_details: { failed: failedEmails, quote_id: quoteId } as any,
+          converted_to_quote_id: quoteId,
+          url: '/submit-quote-request',
+        });
+        console.warn(`[email] Logged ${failedEmails.length} email failure(s) for quote ${quoteId}`);
+      } catch (logErr) {
+        console.warn('[email] Failed to write submission_failures row:', logErr);
+      }
+    }
 
     return new Response(
       JSON.stringify({ success: true, quote_id: data.id }),

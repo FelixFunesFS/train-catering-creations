@@ -142,9 +142,16 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       if (paymentAmount <= 0) {
-        logStep("Deposit already satisfied", { totalAlreadyPaid });
+        logStep("Deposit already satisfied", { totalAlreadyPaid, balanceRemaining });
         return new Response(
-          JSON.stringify({ error: "This milestone is already fully paid", code: "DEPOSIT_SATISFIED" }),
+          JSON.stringify({
+            error: balanceRemaining > 0
+              ? "Your deposit is already paid. Please use 'Pay Next Milestone' or 'Pay Full Balance' to continue."
+              : "This invoice is fully paid. No further payment is needed.",
+            code: "DEPOSIT_SATISFIED",
+            balance_remaining: balanceRemaining,
+            total_already_paid: totalAlreadyPaid,
+          }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
