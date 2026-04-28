@@ -211,11 +211,29 @@ const handler = async (req: Request): Promise<Response> => {
     const minifiedHtml = minifyEmailHTML(html);
     console.log(`HTML minified: ${html.length} -> ${minifiedHtml.length} chars`);
 
+    // Sanitize subject to ASCII-only (denomailer header safety).
+    // If sanitization yields an empty string, fall back to a default so the
+    // email is still delivered instead of failing silently at the SMTP layer.
+    const sanitizedSubject = (() => {
+      const cleaned = subject.replace(/[^\x00-\x7F]/g, '').trim();
+      if (cleaned.length > 0) return cleaned;
+      console.warn('[send-smtp-email] Subject empty after ASCII sanitize; using fallback', { originalSubject: subject });
+      // Best-effort analytics note (non-blocking)
+      logEmailEvent({
+        event_type: 'email_send_attempt',
+        to,
+        subject: '[fallback-empty-subject]',
+        emailType,
+        metadata: { ...metadata, originalSubject: subject, reason: 'empty_after_ascii_strip' },
+      }).catch(() => {});
+      return "Soul Train's Eatery - Update";
+    })();
+
     // Build email message
     const emailMessage: any = {
       from: fromParts.name ? `${fromParts.name} <${fromParts.email}>` : fromParts.email,
       to: to,
-      subject: subject.replace(/[^\x00-\x7F]/g, '').trim(),
+      subject: sanitizedSubject,
       content: (text && String(text).trim().length > 0)
         ? String(text).trim()
         : stripHtmlToText(minifiedHtml) || "Please view this email in an HTML-capable email client.",
