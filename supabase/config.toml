@@ -60,9 +60,6 @@ verify_jwt = false
 [functions.send-admin-notification]
 verify_jwt = false
 
-[functions.send-custom-invoice-email]
-verify_jwt = false
-
 # Unified Reminder System
 [functions.unified-reminder-system]
 verify_jwt = false
