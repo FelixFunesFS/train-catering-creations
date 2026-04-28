@@ -350,13 +350,16 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (sevenDayEvents) {
       for (const event of sevenDayEvents) {
-        const { data: recentReminder } = await supabase
+        // Dedup keyed on quote_request_id (event.id) when available, falling back to recipient_email.
+        // This prevents the rare case where one customer email has multiple events on the same target date.
+        const dedupQuery = supabase
           .from('reminder_logs')
           .select('id')
           .eq('reminder_type', 'event_7_day')
-          .eq('recipient_email', event.email)
-          .gte('sent_at', todayStr)
-          .maybeSingle();
+          .gte('sent_at', todayStr);
+        const { data: recentReminder } = event.id
+          ? await dedupQuery.eq('quote_request_id', event.id).maybeSingle()
+          : await dedupQuery.eq('recipient_email', event.email).maybeSingle();
 
         if (!recentReminder) {
           const emailHtml = generateStandardEmail({
@@ -384,6 +387,7 @@ const handler = async (req: Request): Promise<Response> => {
             await supabase.from('reminder_logs').insert({
               reminder_type: 'event_7_day',
               recipient_email: event.email,
+              quote_request_id: event.id,
               urgency: 'high'
             });
             sevenDayReminders++;
@@ -406,13 +410,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (twoDayEvents) {
       for (const event of twoDayEvents) {
-        const { data: recentReminder } = await supabase
+        // Dedup keyed on quote_request_id (event.id) when available, falling back to recipient_email.
+        const dedupQuery = supabase
           .from('reminder_logs')
           .select('id')
           .eq('reminder_type', 'event_2_day')
-          .eq('recipient_email', event.email)
-          .gte('sent_at', todayStr)
-          .maybeSingle();
+          .gte('sent_at', todayStr);
+        const { data: recentReminder } = event.id
+          ? await dedupQuery.eq('quote_request_id', event.id).maybeSingle()
+          : await dedupQuery.eq('recipient_email', event.email).maybeSingle();
 
         if (!recentReminder) {
           const emailHtml = generateStandardEmail({
@@ -440,6 +446,7 @@ const handler = async (req: Request): Promise<Response> => {
             await supabase.from('reminder_logs').insert({
               reminder_type: 'event_2_day',
               recipient_email: event.email,
+              quote_request_id: event.id,
               urgency: 'urgent'
             });
             twoDayReminders++;
