@@ -1,34 +1,107 @@
-## Fix: Overdue payment reminders show inflated balance
+## What I found from the logs/audit
 
-### Problem
+I pulled the available Supabase-side logs and checked the deployment-related files.
 
-In `unified-reminder-system/index.ts` Section 2a (overdue reminders), the code passes `invoice.total_amount` as `balanceRemaining`. For partially-paid invoices that go overdue, this displays the **gross contract total** instead of the actual unpaid balance — confusing customers and misrepresenting what they owe.
+Available logs showed:
+- No runtime logs for `unified-reminder-system`.
+- No recent `function_edge_logs` entries in the last 24 hours.
 
-### Fix
+That usually means the failure is happening during the deploy/upload step, before the function ever runs, so it will not show up as normal function runtime logs.
 
-In `supabase/functions/unified-reminder-system/index.ts`, before invoking `send-payment-reminder` in the overdue branch:
+The code/config audit found one concrete stale deploy target:
 
-1. Sum completed `payment_transactions` for the invoice (`status = 'completed'`).
-2. Compute `trueBalance = max(0, invoice.total_amount - totalPaid)`.
-3. Skip the reminder entirely if `trueBalance <= 0` (invoice is actually fully paid — likely a stale `overdue` status that auto-confirm hasn't reconciled yet).
-4. Pass `trueBalance` as `balanceRemaining` to `send-payment-reminder`.
+```text
+Configured in supabase/config.toml, but no function folder exists:
+- send-custom-invoice-email
+```
 
-Also pull the **next pending milestone** for that invoice (earliest `due_date` with `status = 'pending'`) and pass its `milestone_type` so the email subject/hero correctly says "Final Payment Overdue" or "Deposit Overdue" rather than generic "Payment Overdue" — matches the milestone-aware behavior already present in the upcoming-payment branch (Section 2b).
+I also confirmed:
+- `send-event-reminders` is no longer referenced in `supabase/config.toml`.
+- The current cron calls `unified-reminder-system` only.
+- Customer submission flow still uses separate functions such as `submit-quote-request`, not the reminder function.
 
-### Files touched
+## Likely cause
 
-- `supabase/functions/unified-reminder-system/index.ts` — Section 2a only (~25 line change). No other sections, no schema changes, no cron changes.
+The recurring “Couldn't deploy Supabase functions” warning is likely caused by `supabase/config.toml` still declaring a function that no longer exists in the repository:
 
-### Safety
+```toml
+[functions.send-custom-invoice-email]
+verify_jwt = false
+```
 
-- Section 2b (upcoming milestones) already does the right thing — untouched.
-- 3-day cooldown logic preserved.
-- 24h post-approval grace preserved.
-- `send-payment-reminder` already branches on `milestoneType` — no changes needed there.
-- Skipping zero-balance invoices is a pure improvement (prevents spam on stale records).
+Because there is no `supabase/functions/send-custom-invoice-email/index.ts`, the deploy pipeline may keep trying to process a function target that cannot be packaged.
 
-### Verification after deploy
+## Customer impact
 
-Query an overdue + partially-paid invoice (currently zero in production), simulate by manually invoking `unified-reminder-system`, and confirm the email body shows the correct remaining balance via `email_send_log`.
+Current customer submissions should not be blocked by this specific issue because:
 
-Reply **approved** to ship.
+- Quote submissions use `submit-quote-request`.
+- Payments use `create-checkout-session`, `stripe-webhook`, and `verify-payment`.
+- Customer portal access uses existing estimate/portal routes and deployed functions.
+- The repeated failure appears tied to backend function deployment metadata, not the public quote form.
+
+The risk is backend update drift: changes to edge functions may not reliably go live until the deploy issue is cleaned up.
+
+## Fix plan
+
+### 1. Remove stale function config
+
+Edit `supabase/config.toml` and remove this unused block:
+
+```toml
+[functions.send-custom-invoice-email]
+verify_jwt = false
+```
+
+Reason: there is no matching function folder and no code references it.
+
+### 2. Re-check for missing configured functions
+
+Run the config-vs-folder audit again and confirm there are no configured functions without a matching folder.
+
+Expected result:
+
+```text
+Configured functions without folder: none
+```
+
+### 3. Deploy only the affected function first
+
+Deploy `unified-reminder-system` directly instead of relying on a broad automatic deploy.
+
+This validates whether the recently edited reminder function can package and upload cleanly after the stale config is removed.
+
+### 4. If targeted deploy succeeds, smoke-test the deployed function
+
+Call `unified-reminder-system` directly and verify it returns a structured JSON response like:
+
+```json
+{
+  "success": true,
+  "workflow": { ... },
+  "reminders": [ ... ],
+  "totalEmailsSent": 0
+}
+```
+
+I will also review the function logs after the call to confirm it reached the deployed runtime.
+
+### 5. If targeted deploy still fails
+
+Then the stale config was not the only problem. Next fallback steps:
+
+- Check whether the deployment is failing on an import/package resolution issue.
+- Review `unified-reminder-system` imports from:
+  - `../_shared/emailTemplates.ts`
+  - `../_shared/dateHelpers.ts`
+  - `https://esm.sh/@supabase/supabase-js@2.52.1`
+- If needed, simplify/remediate the function import surface and redeploy again.
+
+## Verification checklist after approval
+
+- `supabase/config.toml` no longer references missing function folders.
+- `unified-reminder-system` deploys successfully.
+- Direct function call succeeds.
+- Function logs show the new version running.
+- No changes are made to customer quote submission code.
+- No database schema changes required.
