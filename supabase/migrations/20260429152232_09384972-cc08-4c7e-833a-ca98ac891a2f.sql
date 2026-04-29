@@ -1,0 +1,1 @@
+SELECT cron.unschedule('unified-reminder-system-daily');
