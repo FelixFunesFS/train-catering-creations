@@ -12,6 +12,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// ============================================================================
+// KILL SWITCH: Disable all automated reminder emails (set to false to re-enable)
+// Disabled 2026-04-29 per admin request. Workflow automations (Section 1) and
+// manual reminder triggers remain active. Affects:
+//  - 2a overdue_payment, 2b payment_due_soon (milestone)
+//  - 3a event_7_day, 3b event_2_day
+// ============================================================================
+const EMAIL_REMINDERS_DISABLED = true;
+
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[UNIFIED-REMINDERS] ${step}${detailsStr}`);
@@ -178,6 +187,10 @@ const handler = async (req: Request): Promise<Response> => {
     // 2a. Overdue payment reminders
     logStep("Processing overdue payment reminders");
     let overdueReminders = 0;
+    if (EMAIL_REMINDERS_DISABLED) {
+      logStep("Skipping 2a overdue_payment reminders - EMAIL_REMINDERS_DISABLED");
+      reminderResults.push({ type: 'overdue_payment', count: 0, sent: 0, disabled: true } as any);
+    } else {
     const { data: overdueForReminder } = await supabase
       .from('invoices')
       .select(`
@@ -271,10 +284,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
     reminderResults.push({ type: 'overdue_payment', count: overdueForReminder?.length || 0, sent: overdueReminders });
+    } // end EMAIL_REMINDERS_DISABLED gate for 2a
 
     // 2b. Upcoming milestone payment reminders (3 days out)
     logStep("Processing milestone payment reminders");
     let milestoneReminders = 0;
+    if (EMAIL_REMINDERS_DISABLED) {
+      logStep("Skipping 2b payment_due_soon reminders - EMAIL_REMINDERS_DISABLED");
+      reminderResults.push({ type: 'payment_due_soon', count: 0, sent: 0, disabled: true } as any);
+    } else {
     const threeDaysFromNowStr = addDays(todayStr, 3);
 
     const { data: upcomingMilestones } = await supabase
@@ -363,6 +381,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
     reminderResults.push({ type: 'payment_due_soon', count: upcomingMilestones?.length || 0, sent: milestoneReminders });
+    } // end EMAIL_REMINDERS_DISABLED gate for 2b
 
     // ============================================
     // SECTION 3: EVENT REMINDERS
@@ -371,6 +390,10 @@ const handler = async (req: Request): Promise<Response> => {
     // 3a. 7-day event reminder (final details confirmation)
     logStep("Processing 7-day event reminders");
     let sevenDayReminders = 0;
+    if (EMAIL_REMINDERS_DISABLED) {
+      logStep("Skipping 3a event_7_day reminders - EMAIL_REMINDERS_DISABLED");
+      reminderResults.push({ type: 'event_7_day', count: 0, sent: 0, disabled: true } as any);
+    } else {
     const sevenDaysFromNowStr = addDays(todayStr, 7);
 
     const { data: sevenDayEvents } = await supabase
@@ -428,10 +451,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
     reminderResults.push({ type: 'event_7_day', count: sevenDayEvents?.length || 0, sent: sevenDayReminders });
+    } // end EMAIL_REMINDERS_DISABLED gate for 3a
 
     // 3b. 2-day event reminder
     logStep("Processing 2-day event reminders");
     let twoDayReminders = 0;
+    if (EMAIL_REMINDERS_DISABLED) {
+      logStep("Skipping 3b event_2_day reminders - EMAIL_REMINDERS_DISABLED");
+      reminderResults.push({ type: 'event_2_day', count: 0, sent: 0, disabled: true } as any);
+    } else {
     const twoDaysFromNowStr = addDays(todayStr, 2);
 
     const { data: twoDayEvents } = await supabase
@@ -487,6 +515,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
     reminderResults.push({ type: 'event_2_day', count: twoDayEvents?.length || 0, sent: twoDayReminders });
+    } // end EMAIL_REMINDERS_DISABLED gate for 3b
 
     // 3c. Post-event thank you: now manual-only (triggered from admin dashboard)
     logStep("Post-event thank you emails are manual-only - skipping");
