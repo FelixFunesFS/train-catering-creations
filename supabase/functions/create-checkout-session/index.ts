@@ -210,7 +210,12 @@ const handler = async (req: Request): Promise<Response> => {
 
     const sessionParams: Record<string, unknown> = {
       customer: stripeCustomerId,
-      payment_method_types: ["card"],
+      payment_method_types: ["card", "us_bank_account"],
+      payment_method_options: {
+        us_bank_account: {
+          verification_method: "automatic",
+        },
+      },
       line_items: [{
         price_data: {
           currency: "usd",

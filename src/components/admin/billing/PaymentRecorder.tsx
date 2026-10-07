@@ -38,6 +38,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [notes, setNotes] = useState('');
   const [sendConfirmationEmail, setSendConfirmationEmail] = useState(true);
+  const [achConsent, setAchConsent] = useState(false);
 
   // Stripe tab state
   const [stripePaymentType, setStripePaymentType] = useState<'full' | 'deposit' | 'custom'>('full');
@@ -58,15 +59,18 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     e.preventDefault();
     const amountCents = Math.round(parseFloat(amount) * 100);
     if (isNaN(amountCents) || amountCents <= 0) return;
+    if (paymentMethod === 'ach_debit' && !achConsent) return;
     if (amountCents > balanceRemaining && !window.confirm(
       `This amount is more than the remaining balance (${formatCurrency(balanceRemaining)}). Record it anyway?`
     )) return;
     
+    const consentNote = paymentMethod === 'ach_debit' ? 'ACH Direct Debit - written authorization confirmed on file.' : '';
+    const finalNotes = [consentNote, notes].filter(Boolean).join(' ');
     await recordPayment.mutateAsync({
       invoiceId,
       amount: amountCents,
       paymentMethod,
-      notes: notes || undefined,
+      notes: finalNotes || undefined,
       sendConfirmationEmail,
     });
     onClose();
@@ -283,7 +287,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="stripe" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <CreditCard className="h-3.5 w-3.5" />
-              Stripe (Card)
+              Stripe (Card / ACH)
             </TabsTrigger>
             <TabsTrigger value="manual" className="flex items-center gap-1.5 text-xs sm:text-sm">
               <Wallet className="h-3.5 w-3.5" />
@@ -342,6 +346,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     <SelectItem value="cash">Cash</SelectItem>
                     <SelectItem value="check">Check</SelectItem>
                     <SelectItem value="bank_transfer">Bank Transfer / ACH</SelectItem>
+                    <SelectItem value="ach_debit">ACH Direct Debit (Written Consent on File)</SelectItem>
                     <SelectItem value="credit_card">Credit Card (Manual)</SelectItem>
                     <SelectItem value="venmo">Venmo</SelectItem>
                     <SelectItem value="zelle">Zelle</SelectItem>
@@ -349,6 +354,24 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                   </SelectContent>
                 </Select>
               </div>
+
+              {paymentMethod === 'ach_debit' && (
+                <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2 text-sm">
+                  <p className="text-muted-foreground">
+                    ACH debits require the customer's signed or written authorization. Add the consent date and reference in Notes.
+                  </p>
+                  <label className="flex items-start gap-2 min-h-[44px] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-1 h-4 w-4 accent-primary"
+                      checked={achConsent}
+                      onChange={(e) => setAchConsent(e.target.checked)}
+                      required
+                    />
+                    <span>I confirm we have written authorization on file to debit this customer's bank account.</span>
+                  </label>
+                </div>
+              )}
 
               {/* Notes */}
               <div className="space-y-2">
