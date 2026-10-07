@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { X, FileText, ArrowLeft } from 'lucide-react';
 import { CustomerEditor } from './CustomerEditor';
+import { ContactLogCard } from './ContactLogCard';
 import { AddLineItemModal } from '../billing/AddLineItemModal';
 import { EmailPreview } from '../billing/EmailPreview';
 import { LineItemsService } from '@/services/LineItemsService';
@@ -319,6 +320,9 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
               onCancelEvent={handleCancelEvent}
               isCancelling={isCancelling}
             />
+            <div className="p-4 pt-0">
+              <ContactLogCard quoteId={quote.id} invoiceId={invoice?.id} />
+            </div>
           </ScrollArea>
         </ResizablePanel>
         

@@ -61,6 +61,7 @@ import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
 import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
+import { ContactLogCard } from '@/components/admin/events/ContactLogCard';
 
 interface MobileEstimateViewProps {
   quote: any;
@@ -360,6 +361,8 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4 pb-32 w-full">
           
+          <ContactLogCard quoteId={quote.id} invoiceId={invoice?.id} />
+
           {/* Event Summary Section */}
           <Collapsible open={eventOpen} onOpenChange={setEventOpen}>
             <Card>
