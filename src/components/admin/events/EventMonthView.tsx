@@ -180,7 +180,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                         <Shield className="h-2.5 w-2.5 text-blue-600 shrink-0" />
                       )}
                       <span className={`text-[10px] truncate group-hover:text-foreground ${overdueOf(event) ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
-                        {overdueOf(event) && '$! '}{event.contact_name}
+                        {event.contact_name}
                       </span>
                     </div>
                   ))}
