@@ -29,6 +29,7 @@ import { DateNavigation } from './DateNavigation';
 import { EventFilters, StatusFilter, ServiceTypeFilter, SortBy, SortOrder } from './EventFilters';
 import { SortableTableHead } from './SortableTableHead';
 import { QuickEventDialog } from './QuickEventDialog';
+import { MobileFilterSheet } from './MobileFilterSheet';
 import { Plus } from 'lucide-react';
 import { formatDateTimeShortET } from '@/utils/formatters';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
@@ -334,39 +335,59 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   return (
     <TooltipProvider>
       <div className="space-y-4">
-        {/* Controls Row */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, email, or event..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+        {/* Controls: 2 rows on mobile, 1 row on desktop */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+          <div className="flex gap-2 flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search name, email, event..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+                aria-label="Search events"
+              />
+            </div>
+            <Button onClick={() => setQuickOpen(true)} className="h-10 px-3 gap-1 shrink-0 sm:hidden" aria-label="New event">
+              <Plus className="h-4 w-4" /> New
+            </Button>
           </div>
-          
-          {/* View Toggle */}
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
-            <TabsList className="h-9">
-              <TabsTrigger value="list" className="gap-1.5 px-3">
-                <List className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">List</span>
-              </TabsTrigger>
-              <TabsTrigger value="week" className="gap-1.5 px-3">
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Week</span>
-              </TabsTrigger>
-              <TabsTrigger value="month" className="gap-1.5 px-3">
-                <CalendarRange className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Month</span>
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <Button onClick={() => setQuickOpen(true)} className="h-9 gap-1.5">
-            <Plus className="h-4 w-4" /> New Event
-          </Button>
+
+          <div className="flex items-center justify-between gap-2">
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+              <TabsList className="h-9">
+                <TabsTrigger value="list" className="gap-1.5 px-3" aria-label="List view">
+                  <List className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">List</span>
+                </TabsTrigger>
+                <TabsTrigger value="week" className="gap-1.5 px-3" aria-label="Week view">
+                  <CalendarDays className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Week</span>
+                </TabsTrigger>
+                <TabsTrigger value="month" className="gap-1.5 px-3" aria-label="Month view">
+                  <CalendarRange className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Month</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {viewMode === 'list' && (
+              <div className="sm:hidden">
+                <MobileFilterSheet
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  serviceTypeFilter={serviceTypeFilter}
+                  setServiceTypeFilter={setServiceTypeFilter}
+                  sortBy={sortBy}
+                  setSortBy={setSortBy}
+                  sortOrder={sortOrder}
+                  setSortOrder={setSortOrder}
+                />
+              </div>
+            )}
+            <Button onClick={() => setQuickOpen(true)} className="h-9 gap-1.5 hidden sm:inline-flex">
+              <Plus className="h-4 w-4" /> New Event
+            </Button>
+          </div>
         </div>
         <QuickEventDialog open={quickOpen} onOpenChange={setQuickOpen} />
 
@@ -379,18 +400,20 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           />
         )}
 
-        {/* Filters (only for list view) */}
+        {/* Filters (desktop inline; mobile uses the sheet) */}
         {viewMode === 'list' && (
-          <EventFilters
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            serviceTypeFilter={serviceTypeFilter}
-            setServiceTypeFilter={setServiceTypeFilter}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-          />
+          <div className="hidden sm:block">
+            <EventFilters
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              serviceTypeFilter={serviceTypeFilter}
+              setServiceTypeFilter={setServiceTypeFilter}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              sortOrder={sortOrder}
+              setSortOrder={setSortOrder}
+            />
+          </div>
         )}
 
         {viewMode === 'list' && overdueEvents.length > 0 && (
