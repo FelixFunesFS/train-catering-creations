@@ -58,6 +58,9 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
     e.preventDefault();
     const amountCents = Math.round(parseFloat(amount) * 100);
     if (isNaN(amountCents) || amountCents <= 0) return;
+    if (amountCents > balanceRemaining && !window.confirm(
+      `This amount is more than the remaining balance (${formatCurrency(balanceRemaining)}). Record it anyway?`
+    )) return;
     
     await recordPayment.mutateAsync({
       invoiceId,
@@ -310,6 +313,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                   <Input
                     id="amount"
                     type="number"
+                    inputMode="decimal"
                     step="0.01"
                     min="0.01"
                     value={amount}
@@ -319,6 +323,12 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     required
                   />
                 </div>
+                {Math.round(parseFloat(amount) * 100) > balanceRemaining && balanceRemaining > 0 && (
+                  <p className="text-xs text-destructive flex items-center gap-1" role="alert">
+                    <AlertCircle className="h-3 w-3" />
+                    This is more than the remaining balance of {formatCurrency(balanceRemaining)}.
+                  </p>
+                )}
               </div>
 
               {/* Payment Method */}
