@@ -5,7 +5,6 @@ import buffetFallDecor from '@/assets/gallery/buffet-fall-decor.jpg';
 import buffetHolidayWings from '@/assets/gallery/buffet-holiday-wings.jpg';
 import foodJerkChicken from '@/assets/gallery/food-jerk-chicken.jpg';
 import foodGreenBeans from '@/assets/gallery/food-green-beans.jpg';
-import foodMacCheese from '@/assets/gallery/food-mac-cheese.jpg';
 import foodSalmon from '@/assets/gallery/food-salmon.jpg';
 import foodGreenBeansPeppers from '@/assets/gallery/food-green-beans-peppers.jpg';
 import buffetLabeledPatriotic from '@/assets/gallery/buffet-labeled-patriotic.jpg';
@@ -207,13 +206,6 @@ export const buffetImages: GalleryImage[] = [
     title: "Southern-Style Green Beans",
     description: "Slow-simmered green beans with potatoes, a true Southern comfort classic",
     quality: 7
-  },
-  {
-    src: foodMacCheese,
-    category: "buffet",
-    title: "Golden Baked Mac & Cheese",
-    description: "Creamy, bubbly mac and cheese with a perfectly golden herbed crust",
-    quality: 9
   },
   {
     src: foodSalmon,

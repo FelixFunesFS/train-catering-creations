@@ -18,7 +18,6 @@ import imgHolidayMeats from "@/assets/gallery/holiday-meats.jpg";
 import imgFallDecor from "@/assets/gallery/buffet-fall-decor.jpg";
 import imgBreakfast from "@/assets/gallery/breakfast-spread.jpg";
 import imgGuestsServing from "@/assets/gallery/buffet-guests-serving.jpg";
-import imgMacCheese from "@/assets/gallery/food-mac-cheese.jpg";
 import imgJerkChicken from "@/assets/gallery/food-jerk-chicken.jpg";
 import imgSalmon from "@/assets/gallery/food-salmon.jpg";
 import imgCharcuterie from "@/assets/gallery/charcuterie-spread.jpg";
@@ -95,7 +94,7 @@ export const corporatePage: SeoPageData = {
   heroImageAlt: "Soul Train's Eatery team serving a corporate buffet lunch in Charleston",
   gallery: [
     { src: imgTeamServiceAction, alt: "Catering team serving hot soul food at a Charleston corporate event" },
-    { src: imgMacCheese, alt: "Macaroni and cheese tray for a Charleston office catering order" },
+    { src: imgSalmon, alt: "Glazed salmon prepared for a Charleston office catering order" },
     { src: imgGuestsServing, alt: "Office team enjoying a Soul Train's Eatery buffet lunch" },
   ],
   ctaBackgroundImage: imgBuffetLine,

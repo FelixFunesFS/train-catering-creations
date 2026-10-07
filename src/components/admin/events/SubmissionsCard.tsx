@@ -1,14 +1,14 @@
 import { useMemo } from 'react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useQuotes } from '@/hooks/useQuotes';
+import { useQuotes, useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Inbox, Clock, ArrowRight, Loader2, Users, MapPin } from 'lucide-react';
+import { Inbox, Clock, ArrowRight, Loader2, Users, MapPin, XCircle } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -32,6 +32,16 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   const isMobile = useMediaQuery('(max-width: 640px)');
   
   const { data: quotes, isLoading } = useQuotes();
+  const updateStatus = useUpdateQuoteStatus();
+
+  const handleCancel = (e: React.MouseEvent, event: QuoteRequest) => {
+    e.stopPropagation();
+    const ok = window.confirm(
+      `Cancel "${event.event_name}" for ${event.contact_name}?\n\nIt moves to the Cancelled tab. The customer will NOT be emailed.`
+    );
+    if (!ok) return;
+    updateStatus.mutate({ quoteId: event.id, status: 'cancelled', reason: 'Dismissed from New Submissions' });
+  };
 
   // Filter for pending and under_review only
   const submissions = useMemo(() => {
@@ -137,6 +147,19 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                     {event.guest_count}
                   </span>
                 </div>
+                <div className="mt-3 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="min-h-[44px] gap-1.5 text-destructive border-destructive/30"
+                    onClick={(e) => handleCancel(e, event)}
+                    disabled={updateStatus.isPending}
+                    aria-label={`Cancel submission from ${event.contact_name}`}
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -156,7 +179,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                 <TableHead className="hidden md:table-cell">Date</TableHead>
                 <TableHead className="hidden sm:table-cell text-center">Guests</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="w-[100px]"></TableHead>
+                <TableHead className="w-[180px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -200,6 +223,18 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                     </Badge>
                   </TableCell>
                   <TableCell>
+                    <div className="flex items-center justify-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:bg-destructive/10"
+                      onClick={(e) => handleCancel(e, event)}
+                      disabled={updateStatus.isPending}
+                      title="Cancel submission (no email sent)"
+                      aria-label={`Cancel submission from ${event.contact_name}`}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -212,6 +247,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                       Review
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

@@ -8,7 +8,6 @@ import { dessertImages } from './gallery/dessertImages';
 import militaryCateringService from '@/assets/military-catering-service.jpg';
 import dessertParfaitDisplay from '@/assets/gallery/dessert-parfait-display.jpg';
 import formalGoldReception from '@/assets/gallery/formal-gold-reception.jpg';
-import foodMacCheese from '@/assets/gallery/food-mac-cheese.jpg';
 
 // Re-export the interface for backward compatibility
 export type { GalleryImage } from './gallery/types';
@@ -51,13 +50,6 @@ export const showcaseImages: GalleryImage[] = [
     category: "formal",
     title: "Gold & White Reception Hall",
     description: "Elegant gold-sashed chairs and sparkling fairy lights for a stunning formal event",
-    quality: 9
-  },
-  {
-    src: foodMacCheese,
-    category: "buffet",
-    title: "Golden Baked Mac & Cheese",
-    description: "Creamy, bubbly mac and cheese with a perfectly golden herbed crust",
     quality: 9
   },
   {
