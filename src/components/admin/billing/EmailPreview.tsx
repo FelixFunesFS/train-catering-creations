@@ -170,7 +170,7 @@ export function EmailPreview({
           </p>
           
           {/* Buttons - stack on mobile, row on desktop */}
-          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+          <div className="flex flex-row flex-wrap sm:justify-end gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
             <Button variant="outline" onClick={onClose} className="w-full sm:w-auto min-h-[44px]">
               <X className="h-4 w-4 mr-2" />
               Cancel

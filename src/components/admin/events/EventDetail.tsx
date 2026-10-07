@@ -440,7 +440,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
         {/* Sticky footer - always visible */}
         <div className="sticky bottom-0 bg-background pt-4 border-t mt-auto -mx-4 px-4 pb-[env(safe-area-inset-bottom)]">
-          <div className="flex flex-col sm:flex-row justify-end gap-2">
+          <div className="flex flex-row flex-wrap justify-end gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
             <Button variant="outline" onClick={onClose} className="min-h-[44px]">
               Close
             </Button>
