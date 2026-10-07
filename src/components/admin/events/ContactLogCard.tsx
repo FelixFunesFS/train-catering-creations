@@ -8,6 +8,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { saveAgreedDueDate, todayStr } from './AdjustDueDateDialog';
+import { getMilestoneLabel } from '@/utils/paymentFormatters';
+import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 
 export const CONTACT_TYPES = {
@@ -30,7 +35,20 @@ export function ContactLogCard({ quoteId, invoiceId }: Props) {
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<ContactType>('call');
   const [text, setText] = useState('');
+  const [newDue, setNewDue] = useState('');
   const key = ['contact-log', quoteId];
+
+  const { data: nextMilestone } = useQuery({
+    queryKey: ['contact-log-next-milestone', invoiceId],
+    enabled: !!invoiceId && open,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('payment_milestones')
+        .select('id, milestone_type, due_date, status').eq('invoice_id', invoiceId!)
+        .neq('status', 'paid').order('due_date', { ascending: true, nullsFirst: true }).limit(1);
+      if (error) throw error;
+      return data?.[0] ?? null;
+    },
+  });
 
   const { data: logs = [], isLoading } = useQuery({
     queryKey: key,
@@ -59,12 +77,17 @@ export function ContactLogCard({ quoteId, invoiceId }: Props) {
           .update({ last_customer_interaction: new Date().toISOString() }).eq('id', invoiceId);
         if (e2) throw e2;
       }
+      if (newDue && nextMilestone) {
+        await saveAgreedDueDate({ milestone: nextMilestone, newDate: newDue, quoteId, invoiceId,
+          reason: `agreed during ${CONTACT_TYPES[type].label.toLowerCase()}`, author: user?.email || 'admin' });
+      }
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: key });
-      qc.invalidateQueries({ queryKey: ['invoices'] });
-      toast({ title: 'Contact logged', description: `Follow-ups paused for ${FOLLOW_UP_SNOOZE_DAYS} days.` });
-      setOpen(false); setText(''); setType('call');
+      qc.invalidateQueries();
+      toast({ title: 'Contact logged', description: newDue
+        ? `Payment now due ${format(parseDateFromLocalString(newDue), 'MMM d')}. Follow-ups paused ${FOLLOW_UP_SNOOZE_DAYS} days.`
+        : `Follow-ups paused for ${FOLLOW_UP_SNOOZE_DAYS} days.` });
+      setOpen(false); setText(''); setType('call'); setNewDue('');
     },
     onError: (e: any) => toast({ title: 'Could not save', description: e.message, variant: 'destructive' }),
   });
@@ -122,9 +145,18 @@ export function ContactLogCard({ quoteId, invoiceId }: Props) {
           </div>
           <Textarea value={text} onChange={e => setText(e.target.value)} rows={4} maxLength={1000}
             placeholder="What was discussed? e.g. Will confirm menu by Friday" aria-label="Notes" />
+          {nextMilestone && (
+            <div className="space-y-1.5 rounded-md border p-3">
+              <Label htmlFor="contact-new-due">Agreed on a new payment date? (optional)</Label>
+              <p className="text-xs text-muted-foreground">
+                {getMilestoneLabel(nextMilestone.milestone_type as any) || nextMilestone.milestone_type} — currently {nextMilestone.due_date ? `due ${format(parseDateFromLocalString(nextMilestone.due_date), 'MMM d, yyyy')}` : 'due now'}
+              </p>
+              <Input id="contact-new-due" type="date" min={todayStr()} value={newDue} onChange={e => setNewDue(e.target.value)} className="h-11" />
+            </div>
+          )}
           <DialogFooter className="flex-row gap-2">
             <Button variant="outline" className="flex-1 h-11" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button className="flex-1 h-11" disabled={save.isPending} onClick={() => save.mutate()}>
+            <Button className="flex-1 h-11" disabled={save.isPending || (!!newDue && newDue < todayStr())} onClick={() => save.mutate()}>
               {save.isPending && <Loader2 className="h-4 w-4 animate-spin mr-1" />} Save
             </Button>
           </DialogFooter>

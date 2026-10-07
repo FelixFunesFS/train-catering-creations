@@ -96,7 +96,7 @@ function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () =>
       
       {event.invoice && (
         snapshot ? (
-          <div className="mt-1.5 pt-1.5 border-t"><PaymentSnapshotCompact snapshot={snapshot} overdue={overdue} /></div>
+          <div className="mt-1.5 pt-1.5 border-t"><PaymentSnapshotCompact snapshot={snapshot} overdue={overdue} eventDate={event.event_date} /></div>
         ) : (
           <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
             ${(event.invoice.total_amount / 100).toLocaleString()}

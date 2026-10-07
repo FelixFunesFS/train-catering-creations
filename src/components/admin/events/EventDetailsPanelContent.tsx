@@ -422,6 +422,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
       <Separator />
       <PaymentScheduleSection 
         invoiceId={invoice?.id} 
+        quoteId={quote?.id}
         milestones={milestones}
         totalAmount={totalAmount}
         isGovernment={isGovernment}

@@ -52,7 +52,8 @@ export function getEstimateStatus(workflowStatus: string): EstimateStatusInfo {
 export function getPaymentStatus(
   workflowStatus: string, 
   nextMilestoneType?: string | null,
-  nextMilestoneDueDate?: string | null
+  nextMilestoneDueDate?: string | null,
+  eventDate?: string | null
 ): PaymentStatusInfo | null {
   // Only show payment status for approved+ states
   const paymentStates = ['approved', 'payment_pending', 'partially_paid', 'awaiting_payment', 'paid', 'overdue'];
@@ -66,6 +67,26 @@ export function getPaymentStatus(
       icon: 'CheckCircle2',
       showBadge: true 
     };
+  }
+
+  // Date context: an admin-agreed future due date is a grace period; after the
+  // event the whole balance is owed, so never show "Deposit"/"Booking" labels.
+  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  const toLocal = (d: string) => { const [y, m, dd] = d.slice(0, 10).split('-').map(Number); return new Date(y, m - 1, dd); };
+  const agreedFuture = !!nextMilestoneDueDate && toLocal(nextMilestoneDueDate) >= today0;
+  const eventPast = !!eventDate && toLocal(eventDate) < today0;
+  const arranged: PaymentStatusInfo = { label: 'Payment Arranged', color: 'bg-amber-100 text-amber-700 border-amber-200', icon: 'Clock', showBadge: true };
+  if (eventPast) {
+    if (agreedFuture) return arranged;
+    return { label: 'Past Due', color: 'bg-red-100 text-red-700 border-red-200', icon: 'AlertTriangle', showBadge: true };
+  }
+  if (workflowStatus === 'overdue' && agreedFuture) return arranged;
+  if (eventDate && !['partially_paid', 'awaiting_payment'].includes(workflowStatus)) {
+    const daysToEvent = Math.round((toLocal(eventDate).getTime() - today0.getTime()) / 86400000);
+    const t = (nextMilestoneType || '').toLowerCase();
+    if (daysToEvent <= 14 && (t === 'deposit' || t === 'combined')) {
+      return { label: 'Full Payment Due', color: 'bg-orange-100 text-orange-700 border-orange-200', icon: 'AlertCircle', showBadge: true };
+    }
   }
 
   // Overdue
@@ -82,7 +103,7 @@ export function getPaymentStatus(
   // If deposit is paid and next milestone isn't due soon, show "Deposit Paid"
   const isPartiallyPaid = workflowStatus === 'partially_paid' || workflowStatus === 'awaiting_payment';
   if (isPartiallyPaid && nextMilestoneDueDate) {
-    const dueDate = new Date(nextMilestoneDueDate);
+    const dueDate = toLocal(nextMilestoneDueDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);

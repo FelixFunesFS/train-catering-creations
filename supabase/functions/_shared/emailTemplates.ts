@@ -2148,8 +2148,17 @@ export function getEmailContentBlocks(
       const unpaidMilestones = (milestones || []).filter((m: any) => m.status !== 'paid');
       const isFullPaymentDue = unpaidMilestones.length === 1 && Number(unpaidMilestones[0].percentage) === 100;
 
+      // Event timing: after the event (or within 14 days with nothing paid) the whole balance is due — no deposit wording.
+      const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+      const evDate = quote.event_date ? new Date(quote.event_date + 'T00:00:00') : null;
+      const daysToEvent = evDate ? Math.round((evDate.getTime() - today0.getTime()) / 86400000) : null;
+      const eventHasPassed = daysToEvent !== null && daysToEvent < 0;
+      const eventIsClose = daysToEvent !== null && daysToEvent >= 0 && daysToEvent <= 14;
+
       let greetingHtml: string;
-      if (isFirstPayment && isFullPaymentDue) {
+      if (eventHasPassed) {
+        greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">Thank you for letting us be part of <strong>${quote.event_name}</strong>${eventDateStr ? ` on ${eventDateStr}` : ''}. Our records show ${isFirstPayment ? 'the full balance' : 'a remaining balance'} is still outstanding. Here's a summary of what's due:</p>`;
+      } else if (isFirstPayment && (isFullPaymentDue || eventIsClose)) {
         greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! With your event just around the corner, full payment is due to finalize everything. Here's a summary of what's due:</p>`;
       } else if (isFirstPayment) {
         greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! To secure your date and lock everything in, the next step is a quick deposit. Here's a summary of what's due:</p>`;
