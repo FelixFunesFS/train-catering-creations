@@ -98,8 +98,6 @@ export function getGovernmentTerms(): TermsSection {
   return {
     title: "Government Contract Terms",
     items: [
-      "Payment terms: Net 30 days after event completion.",
-      "No deposit required for government contracts.",
       "Tax-exempt status honored with valid documentation.",
       "Purchase Order (PO) number required for invoicing."
     ]

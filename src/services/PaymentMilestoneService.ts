@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { buildPaymentSchedule, determineCustomerType, calculatePaymentAmounts } from '@/utils/paymentScheduling';
+import { buildPaymentSchedule, calculatePaymentAmounts } from '@/utils/paymentScheduling';
 import { parseDateFromLocalString, formatDateToLocalString } from '@/utils/dateHelpers';
 
 export class PaymentMilestoneService {
@@ -11,7 +11,7 @@ export class PaymentMilestoneService {
       // Fetch invoice data
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
-        .select('id, total_amount, quote_request_id')
+        .select('id, total_amount, quote_request_id, payment_schedule_type')
         .eq('id', invoiceId)
         .single();
 
@@ -41,7 +41,8 @@ export class PaymentMilestoneService {
       }
 
       // Determine customer type
-      const customerType = determineCustomerType(quote.email, quote.requires_po_number);
+      // Net 30 only when the admin selected it; email domain never decides
+      const customerType = (invoice as any).payment_schedule_type === 'net30' ? 'GOV' : 'PERSON';
 
       // Build payment schedule
       const schedule = buildPaymentSchedule(

@@ -26,7 +26,7 @@ export function StandardTermsAndConditions({
   const sections = eventType === 'government' 
     ? [...agreementTerms.sections, {
         title: "Government Contract Compliance",
-        description: "Payment terms follow Net 30 schedule (100% due 30 days after event completion). Tax-exempt status applies. PO number required for billing."
+        description: "Tax-exempt status applies. PO number required for billing."
       }]
     : agreementTerms.sections;
   
@@ -126,7 +126,7 @@ export function StandardTermsHTML(eventType: 'standard' | 'wedding' | 'governmen
   const sections = eventType === 'government' 
     ? [...terms.sections, {
         title: "Government Contract Compliance",
-        description: "Payment terms follow Net 30 schedule (100% due 30 days after event completion). Tax-exempt status applies. PO number required for billing."
+        description: "Tax-exempt status applies. PO number required for billing."
       }]
     : terms.sections;
   

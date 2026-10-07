@@ -123,6 +123,11 @@ export function useEstimateActions({
         .eq('id', quoteId);
         
       if (error) throw error;
+
+      // Turning government off also clears any manual Net 30 selection
+      if (!checked && invoiceId) {
+        await supabase.from('invoices').update({ payment_schedule_type: 'standard' }).eq('id', invoiceId);
+      }
       
       // 2. Force recalculate invoice totals (single source of truth)
       if (invoiceId) {
@@ -143,7 +148,7 @@ export function useEstimateActions({
       
       toast({ 
         title: checked ? 'Government Contract Enabled' : 'Government Contract Disabled',
-        description: checked ? 'Tax exemption and Net 30 terms applied.' : 'Standard payment terms applied.',
+        description: checked ? 'Tax exemption applied. Net 30 stays off unless you turn it on.' : 'Standard tax and payment terms applied.',
       });
       
       // 4. Regenerate milestones with new government status

@@ -463,7 +463,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       <Building2 className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <Label className="text-sm font-medium">Government Contract</Label>
-                        <p className="text-xs text-muted-foreground">Tax exempt, Net 30 terms</p>
+                        <p className="text-xs text-muted-foreground">Tax exempt</p>
                       </div>
                     </div>
                     <Switch
