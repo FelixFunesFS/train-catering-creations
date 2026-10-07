@@ -22,7 +22,7 @@ import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
-import { PaymentSnapshotCompact } from './PaymentSnapshotView';
+import { PaymentSnapshotCompact, getOverdueInfo, OverdueBadge } from './PaymentSnapshotView';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -60,6 +60,8 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventWithInvoice | null>(null);
   const snapshots = usePaymentSnapshots();
+  const overdueOf = (e: EventWithInvoice) =>
+    e.invoice ? getOverdueInfo(snapshots.get(e.invoice.id), e.invoice.workflow_status, e.event_date) : null;
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -155,6 +157,9 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                   isCurrentDay ? 'text-primary' : ''
                 }`}>
                   {format(day, 'd')}
+                  {dayEvents.some(e => overdueOf(e)) && (
+                    <span className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-destructive align-middle" aria-label="Payment overdue" />
+                  )}
                 </div>
                 
                 {/* Event dots/previews */}
@@ -174,8 +179,8 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                       {isMilitaryEvent(event.event_type) && (
                         <Shield className="h-2.5 w-2.5 text-blue-600 shrink-0" />
                       )}
-                      <span className="text-[10px] truncate text-muted-foreground group-hover:text-foreground">
-                        {event.contact_name}
+                      <span className={`text-[10px] truncate group-hover:text-foreground ${overdueOf(event) ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
+                        {overdueOf(event) && '$! '}{event.contact_name}
                       </span>
                     </div>
                   ))}
@@ -230,7 +235,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                       <div
                         key={event.id}
                         onClick={() => setSelectedEvent(event)}
-                        className="p-3 rounded-lg border bg-muted/20 cursor-pointer hover:bg-muted/40 transition-colors"
+                        className={`p-3 rounded-lg border cursor-pointer transition-colors ${overdueOf(event) ? 'border-destructive/40 bg-destructive/5 hover:bg-destructive/10' : 'bg-muted/20 hover:bg-muted/40'}`}
                       >
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div className="flex items-center gap-1.5">
@@ -243,6 +248,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                             statusDotColors[event.workflow_status] || 'bg-gray-400'
                           }`} />
                         </div>
+                        {overdueOf(event) && <OverdueBadge className="mb-1 text-[10px] px-1.5 py-0" />}
                         <p className="text-xs text-muted-foreground">{event.event_name}</p>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1">
                           <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
@@ -250,7 +256,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                         </div>
                         {event.invoice && (
                           snapshots.get(event.invoice.id) ? (
-                            <div className="mt-2 pt-2 border-t"><PaymentSnapshotCompact snapshot={snapshots.get(event.invoice.id)} /></div>
+                            <div className="mt-2 pt-2 border-t"><PaymentSnapshotCompact snapshot={snapshots.get(event.invoice.id)} overdue={overdueOf(event)} /></div>
                           ) : (
                             <Badge variant="outline" className="mt-2 text-xs">
                               ${(event.invoice.total_amount / 100).toLocaleString()}
