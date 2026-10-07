@@ -27,8 +27,45 @@ function status(s: PaymentSnapshot) {
   return { label: 'No Payments Yet', cls: 'bg-amber-500/10 text-amber-700 border-amber-500/20' };
 }
 
+const PAYMENT_ACTIVE = ['approved', 'payment_pending', 'partially_paid', 'awaiting_payment', 'overdue'];
+
+export interface OverdueInfo { since: string; days: number; amountCents: number }
+
+/**
+ * Overdue only for approved/payment-active invoices with a balance, when the next
+ * milestone due date OR the event date has passed. Unapproved quotes never count.
+ */
+export function getOverdueInfo(
+  snapshot: PaymentSnapshot | undefined,
+  invoiceStatus: string | null | undefined,
+  eventDate: string | null | undefined,
+): OverdueInfo | null {
+  if (!snapshot || !invoiceStatus || !PAYMENT_ACTIVE.includes(invoiceStatus)) return null;
+  if (snapshot.balanceCents <= 0) return null;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const past: Date[] = [];
+  const due = snapshot.nextMilestone?.dueDate;
+  if (due) { const d = parseDateFromLocalString(due); if (d < today) past.push(d); }
+  if (eventDate) { const d = parseDateFromLocalString(eventDate); if (d < today) past.push(d); }
+  if (past.length === 0) return null;
+  const since = past.sort((a, b) => a.getTime() - b.getTime())[0];
+  const days = Math.max(1, Math.round((today.getTime() - since.getTime()) / 86400000));
+  return { since: format(since, 'yyyy-MM-dd'), days, amountCents: snapshot.balanceCents };
+}
+
+export function OverdueBadge({ className = '' }: { className?: string }) {
+  return (
+    <Badge variant="outline" className={`border-destructive/40 bg-destructive/10 text-destructive ${className}`}>
+      Payment Overdue
+    </Badge>
+  );
+}
+
+const overdueText = (o: OverdueInfo) =>
+  `Past due: ${money(o.amountCents)} since ${format(parseDateFromLocalString(o.since), 'MMM d')} (${o.days} day${o.days === 1 ? '' : 's'})`;
+
 /** Compact 2-line summary for list cards and calendar tiles. */
-export function PaymentSnapshotCompact({ snapshot }: { snapshot?: PaymentSnapshot }) {
+export function PaymentSnapshotCompact({ snapshot, overdue }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null }) {
   if (!snapshot) return null;
   const next = dueText(snapshot);
   const last = snapshot.recentPayments[0];
@@ -39,7 +76,8 @@ export function PaymentSnapshotCompact({ snapshot }: { snapshot?: PaymentSnapsho
         <span className="text-muted-foreground"> of {money(snapshot.totalCents)}</span>
         {snapshot.balanceCents > 0 && <span className="text-muted-foreground"> · {money(snapshot.balanceCents)} left</span>}
       </p>
-      {next ? <p className="text-amber-700 dark:text-amber-400">Next — {next}</p>
+      {overdue ? <p className="font-medium text-destructive">{overdueText(overdue)}</p>
+        : next ? <p className="text-amber-700 dark:text-amber-400">Next — {next}</p>
         : snapshot.balanceCents <= 0 && snapshot.totalCents > 0 ? <p className="text-success">Paid in full</p> : null}
       {last && <p className="text-muted-foreground">Last: {money(last.amount)} on {format(new Date(last.at), 'MMM d, h:mm a')}</p>}
     </div>
