@@ -438,10 +438,10 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     </p>
                   </div>
 
-                  <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button onClick={handleOpenCheckout} className="w-full">
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      Open Checkout Page
+                      Open Checkout
                     </Button>
                     <Button variant="outline" onClick={handleCopyLink} className="w-full">
                       {linkCopied ? (
