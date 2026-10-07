@@ -331,8 +331,17 @@ serve(async (req) => {
     y = pageHeight - headerHeight - 10;
     
     // Title row
-    page.drawRectangle({ x: margin, y: y - 16, width: 130, height: 20, color: rgb(0.95, 0.95, 0.95) });
-    drawText("CATERING ESTIMATE", margin + 8, y - 11, { font: helveticaBold, size: 10, color: CRIMSON });
+    // Document lifecycle label (keep in sync with src/utils/documentLabel.ts)
+    const docStatus = String((invoiceData as any).workflow_status || '');
+    const docTitle = docStatus === 'paid'
+      ? 'INVOICE & RECEIPT - PAID IN FULL'
+      : ['approved', 'payment_pending', 'partially_paid', 'overdue'].includes(docStatus)
+        ? 'CATERING INVOICE'
+        : 'CATERING QUOTE';
+    const docFileLabel = docStatus === 'paid' ? 'Receipt' : docTitle === 'CATERING INVOICE' ? 'Invoice' : 'Quote';
+    const docTitleWidth = helveticaBold.widthOfTextAtSize(docTitle, 10) + 16;
+    page.drawRectangle({ x: margin, y: y - 16, width: docTitleWidth, height: 20, color: rgb(0.95, 0.95, 0.95) });
+    drawText(docTitle, margin + 8, y - 11, { font: helveticaBold, size: 10, color: CRIMSON });
     
     const estNumText = `#${invoiceData.invoice_number || 'DRAFT'}`;
     const estNumWidth = helveticaBold.widthOfTextAtSize(estNumText, 12);
@@ -684,7 +693,7 @@ serve(async (req) => {
       success: true,
       pdf_base64: base64Pdf,
       invoice_number: invoiceData.invoice_number,
-      filename: `Soul-Trains-Estimate-${invoiceData.invoice_number || 'draft'}.pdf`
+      filename: `Soul-Trains-${docFileLabel}-${invoiceData.invoice_number || 'draft'}.pdf`
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

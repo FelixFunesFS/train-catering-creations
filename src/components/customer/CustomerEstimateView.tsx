@@ -1,3 +1,4 @@
+import { getDocumentLabel } from '@/utils/documentLabel';
 /**
  * SYNC: Customer Portal Estimate View
  * 
@@ -152,7 +153,7 @@ export function CustomerEstimateView() {
   const HeaderSection = () => (
     <div className="text-center space-y-2">
       <h1 className="text-3xl font-bold text-foreground">Soul Train's Eatery</h1>
-      <p className="text-muted-foreground">Your Custom Catering Estimate</p>
+      <p className="text-muted-foreground">Your {getDocumentLabel(invoice.workflow_status).title}</p>
       {/* Status Badges */}
       <div className="flex flex-wrap justify-center gap-2 pt-2">
         <Badge variant="outline" className={`${estimateStatus.color} border`}>
@@ -502,6 +503,7 @@ export function CustomerEstimateView() {
                 invoiceId={invoice.id}
                 invoiceNumber={invoice.invoice_number}
                 accessToken={token}
+                status={invoice.workflow_status}
               />
 
               {/* Help Section */}

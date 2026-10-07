@@ -1,3 +1,4 @@
+import { getDocumentLabel } from '@/utils/documentLabel';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -217,7 +218,7 @@ export default function EstimatePrintView() {
               <p className="text-sm text-gray-500">soultrainseatery@gmail.com</p>
             </div>
             <div className="text-right">
-              <h2 className="text-2xl font-bold text-gray-800">ESTIMATE</h2>
+              <h2 className="text-2xl font-bold text-gray-800 uppercase">{getDocumentLabel(estimate.workflow_status).title}</h2>
               <p className="text-lg text-gray-600 mt-1">#{estimate.invoice_number || 'DRAFT'}</p>
               <p className="text-sm text-gray-500 mt-2">Date: {formatDate(estimate.created_at)}</p>
               {estimate.due_date && (

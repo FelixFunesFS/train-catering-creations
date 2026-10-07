@@ -1,3 +1,4 @@
+import { getDocumentLabel } from '@/utils/documentLabel';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChangeRequestModal } from './ChangeRequestModal';
@@ -26,12 +27,15 @@ interface CustomerActionsProps {
 export function DownloadPdfButton({ 
   invoiceId, 
   invoiceNumber, 
-  accessToken 
+  accessToken,
+  status,
 }: {
   invoiceId: string;
   invoiceNumber?: string;
   accessToken?: string;
+  status?: string;
 }) {
+  const docLabel = getDocumentLabel(status);
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
@@ -65,13 +69,13 @@ export function DownloadPdfButton({
 
       const a = document.createElement('a');
       a.href = url;
-      a.download = `estimate-${invoiceNumber || 'document'}.pdf`;
+      a.download = `${docLabel.file}-${invoiceNumber || 'document'}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({ title: 'PDF Downloaded', description: 'Your estimate has been saved.' });
+      toast({ title: 'PDF Downloaded', description: `Your ${docLabel.short.toLowerCase()} has been saved.` });
     } catch (err: any) {
       console.error('PDF download error:', err);
       toast({
@@ -96,7 +100,7 @@ export function DownloadPdfButton({
       ) : (
         <Download className="mr-2 h-4 w-4" />
       )}
-      {isDownloading ? 'Generating...' : 'Download Estimate PDF'}
+      {isDownloading ? 'Generating...' : `Download ${docLabel.short} PDF`}
     </Button>
   );
 }
