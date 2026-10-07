@@ -2144,8 +2144,14 @@ export function getEmailContentBlocks(
         m.status !== 'paid' && m.due_date && new Date(m.due_date) < new Date()
       );
 
+      // Full-payment schedule: a single 100% milestone (rush / short-notice events)
+      const unpaidMilestones = (milestones || []).filter((m: any) => m.status !== 'paid');
+      const isFullPaymentDue = unpaidMilestones.length === 1 && Number(unpaidMilestones[0].percentage) === 100;
+
       let greetingHtml: string;
-      if (isFirstPayment) {
+      if (isFirstPayment && isFullPaymentDue) {
+        greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! With your event just around the corner, full payment is due to finalize everything. Here's a summary of what's due:</p>`;
+      } else if (isFirstPayment) {
         greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">We're so excited to be part of your upcoming event, <strong>${quote.event_name}</strong>! To secure your date and lock everything in, the next step is a quick deposit. Here's a summary of what's due:</p>`;
       } else if (hasOverdueMilestones) {
         greetingHtml = `<p style="font-size:16px;margin:0 0 16px 0;">Hi ${quote.contact_name},</p><p style="font-size:15px;margin:0 0 16px 0;line-height:1.6;">This is a friendly reminder about the remaining balance for <strong>${quote.event_name}</strong>. We want to make sure everything is set for your big day!</p>`;
