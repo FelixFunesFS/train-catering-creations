@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Calendar, MapPin, Users, MessageSquare, 
   PartyPopper, Heart, Pencil, Utensils, Phone, ExternalLink,
-  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail, AlertTriangle, XCircle
+  Clock, Truck, Palette, Info, Shield, CheckCircle2, Loader2, Mail, AlertTriangle, XCircle, CreditCard
 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType, formatEventType, formatReferralSource, getStatusColor } from '@/utils/formatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
