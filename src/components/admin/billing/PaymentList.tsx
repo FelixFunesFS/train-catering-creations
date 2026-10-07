@@ -3,7 +3,7 @@ import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFo
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { format, isAfter, startOfDay, addDays, isEqual } from 'date-fns';
-import { useInvoices } from '@/hooks/useInvoices';
+import { useInvoices, usePaymentTransactions } from '@/hooks/useInvoices';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ViewHelpCard } from '../help/ViewHelpCard';
@@ -42,6 +42,19 @@ type StatusFilter = 'all' | 'awaiting' | 'partial' | 'overdue' | 'paid';
 
 export function PaymentList() {
   const { data: invoices, isLoading } = useInvoices();
+  const { data: allTransactions } = usePaymentTransactions();
+
+  // Most recent completed payment per invoice
+  const lastPaymentByInvoice = useMemo(() => {
+    const map = new Map<string, { amount: number; at: string }>();
+    (allTransactions || []).forEach((t: any) => {
+      if (!['completed', 'succeeded'].includes(t.status) || !t.invoice_id) return;
+      const at = t.processed_at || t.created_at;
+      const prev = map.get(t.invoice_id);
+      if (!prev || new Date(at) > new Date(prev.at)) map.set(t.invoice_id, { amount: t.amount, at });
+    });
+    return map;
+  }, [allTransactions]);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [historyInvoiceId, setHistoryInvoiceId] = useState<string | undefined>(undefined);
@@ -311,6 +324,22 @@ export function PaymentList() {
                     <span>Paid: {formatCurrency(totalPaid)}</span>
                     <span>Remaining: {formatCurrency(balanceRemaining)}</span>
                   </div>
+                  {(() => {
+                    const last = lastPaymentByInvoice.get(invoice.invoice_id || '');
+                    return (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {last ? (
+                          <span>
+                            Last payment: <span className="font-medium text-foreground">{formatCurrency(last.amount)}</span> on{' '}
+                            {format(new Date(last.at), "MMM d, yyyy 'at' h:mm a")}
+                          </span>
+                        ) : (
+                          <span>No payments yet</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Actions */}
