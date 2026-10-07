@@ -43,6 +43,7 @@ function formatPaymentMethod(method: string | null): string {
     credit_card: 'Credit Card',
     venmo: 'Venmo',
     zelle: 'Zelle',
+    waveapp: 'WaveApp',
     stripe: 'Stripe',
     other: 'Other',
   };
