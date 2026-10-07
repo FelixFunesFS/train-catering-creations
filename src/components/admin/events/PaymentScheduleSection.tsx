@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -46,8 +47,8 @@ const formatCurrency = (cents: number) => {
 };
 
 
-const getScheduleTierLabel = (milestones: PaymentMilestone[], isGovernment: boolean): string => {
-  if (isGovernment) return 'NET 30';
+const getScheduleTierLabel = (milestones: PaymentMilestone[], _isGovernment: boolean): string => {
+  if (milestones.some(m => m.is_net30)) return 'NET 30';
   if (milestones.length === 1) return 'RUSH (100%)';
   if (milestones.length === 2) {
     const deposit = milestones.find(m => m.milestone_type === 'DEPOSIT');
@@ -121,6 +122,24 @@ export function PaymentScheduleSection({
   }, [transactions]);
 
   const tierLabel = getScheduleTierLabel(milestones, isGovernment);
+  const isNet30 = milestones.some(m => m.is_net30);
+  const [isSavingNet30, setIsSavingNet30] = useState(false);
+
+  // Net 30 is a manual, admin-only choice (default off). Saves the choice, then rebuilds the schedule.
+  const handleToggleNet30 = async (checked: boolean) => {
+    if (!invoiceId) return;
+    setIsSavingNet30(true);
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ payment_schedule_type: checked ? 'net30' : 'standard' })
+        .eq('id', invoiceId);
+      if (error) throw error;
+      onRegenerate();
+    } finally {
+      setIsSavingNet30(false);
+    }
+  };
 
   return (
     <section className="space-y-4">
@@ -155,7 +174,7 @@ export function PaymentScheduleSection({
               Government Contract
             </Label>
             <p className="text-xs text-muted-foreground">
-              Tax exempt • Net 30 payment terms
+              Tax exempt
             </p>
           </div>
         </div>
@@ -163,6 +182,24 @@ export function PaymentScheduleSection({
           id="government-toggle"
           checked={isGovernment}
           onCheckedChange={onToggleGovernment}
+        />
+      </div>
+
+      {/* Net 30 Toggle - manual only, default off */}
+      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border">
+        <div>
+          <Label htmlFor="net30-toggle" className="text-sm font-medium cursor-pointer">
+            Net 30 Payment Terms
+          </Label>
+          <p className="text-xs text-muted-foreground">
+            100% due 30 days after the event. Off = standard schedule.
+          </p>
+        </div>
+        <Switch
+          id="net30-toggle"
+          checked={isNet30}
+          disabled={!invoiceId || isSavingNet30 || isRegenerating}
+          onCheckedChange={handleToggleNet30}
         />
       </div>
 
