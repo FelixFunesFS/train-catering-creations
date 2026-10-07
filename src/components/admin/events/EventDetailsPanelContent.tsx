@@ -1,4 +1,5 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
+import { PaymentRecorder } from '@/components/admin/billing/PaymentRecorder';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -54,6 +55,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
   onCancelEvent,
   isCancelling,
 }: EventDetailsPanelContentProps) {
+  const [showPaymentRecorder, setShowPaymentRecorder] = useState(false);
   const formatMenuItems = (items: unknown): string => {
     if (!items || !Array.isArray(items) || items.length === 0) return '';
     return items.map((item: string) => 
@@ -150,7 +152,17 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </div>
         <p className="font-medium">{quote?.contact_name}</p>
         <p className="text-sm text-muted-foreground">{quote?.email}</p>
-        <div className="pt-1"><CopyPortalLinkButton token={invoice?.customer_access_token} /></div>
+        <div className="pt-1 flex flex-wrap gap-2">
+          <CopyPortalLinkButton token={invoice?.customer_access_token} />
+          {invoice?.id && (
+            <Button size="sm" className="h-8 gap-1.5" onClick={() => setShowPaymentRecorder(true)} aria-label="Take or record a payment">
+              <CreditCard className="h-4 w-4" /> Take Payment
+            </Button>
+          )}
+        </div>
+        {showPaymentRecorder && invoice?.id && (
+          <PaymentRecorder invoiceId={invoice.id} onClose={() => setShowPaymentRecorder(false)} />
+        )}
         {quote?.phone && (
           <a 
             href={formatPhoneLink(quote.phone) || '#'} 
