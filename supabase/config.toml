@@ -151,3 +151,6 @@ verify_jwt = false
 [edge-runtime]
 enabled = true
 ip_version = "dual"
+
+[functions.admin-assistant]
+verify_jwt = false

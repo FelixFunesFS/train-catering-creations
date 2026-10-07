@@ -164,7 +164,7 @@ export function AdminAssistant() {
                   </div>
                 </div>
               ) : (
-                <div key={i} className="prose prose-sm dark:prose-invert max-w-none text-sm text-foreground">
+                <div key={i} className="text-sm text-foreground leading-relaxed [&_p]:my-1.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:my-0.5 [&_strong]:font-semibold [&_h3]:font-semibold [&_h3]:mt-2">
                   {m.content ? (
                     <ReactMarkdown>{m.content}</ReactMarkdown>
                   ) : (
