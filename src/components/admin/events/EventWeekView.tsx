@@ -11,6 +11,8 @@ import { Database } from '@/integrations/supabase/types';
 import { formatLocationLink } from '@/utils/linkFormatters';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
+import { PaymentSnapshotCompact } from './PaymentSnapshotView';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -43,6 +45,8 @@ const statusColors: Record<string, string> = {
 };
 
 function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () => void }) {
+  const snapshots = usePaymentSnapshots();
+  const snapshot = event.invoice ? snapshots.get(event.invoice.id) : undefined;
   return (
     <div
       onClick={onClick}
@@ -89,12 +93,13 @@ function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () =>
       )}
       
       {event.invoice && (
-        <Badge 
-          variant="outline" 
-          className="mt-1.5 text-[10px] px-1.5 py-0"
-        >
-          ${(event.invoice.total_amount / 100).toLocaleString()}
-        </Badge>
+        snapshot ? (
+          <div className="mt-1.5 pt-1.5 border-t"><PaymentSnapshotCompact snapshot={snapshot} /></div>
+        ) : (
+          <Badge variant="outline" className="mt-1.5 text-[10px] px-1.5 py-0">
+            ${(event.invoice.total_amount / 100).toLocaleString()}
+          </Badge>
+        )
       )}
     </div>
   );

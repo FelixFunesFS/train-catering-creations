@@ -184,6 +184,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   
   const { data: quotes, isLoading: quotesLoading, error: quotesError } = useQuotes({ search: search || undefined });
   const { data: invoices, isLoading: invoicesLoading } = useRawInvoices();
+  const snapshots = usePaymentSnapshots();
 
   // Join quotes with their invoices and apply filters/sorting
   const eventsWithInvoices = useMemo((): EventWithInvoice[] => {
@@ -425,6 +426,11 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           </span>
                         )}
                       </div>
+                      {invoice && snapshots.get(invoice.id) && (
+                        <div className="mb-3 rounded-md bg-muted/40 px-3 py-2">
+                          <PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} />
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground mb-2">
                         <span>Submitted: {formatDateTimeShortET(event.created_at!)}</span>
                         {event.updated_at && event.updated_at !== event.created_at && (

@@ -21,6 +21,8 @@ import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
+import { PaymentSnapshotCompact } from './PaymentSnapshotView';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -57,6 +59,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventWithInvoice | null>(null);
+  const snapshots = usePaymentSnapshots();
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -246,9 +249,13 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                           <span>{event.guest_count} guests</span>
                         </div>
                         {event.invoice && (
-                          <Badge variant="outline" className="mt-2 text-xs">
-                            ${(event.invoice.total_amount / 100).toLocaleString()}
-                          </Badge>
+                          snapshots.get(event.invoice.id) ? (
+                            <div className="mt-2 pt-2 border-t"><PaymentSnapshotCompact snapshot={snapshots.get(event.invoice.id)} /></div>
+                          ) : (
+                            <Badge variant="outline" className="mt-2 text-xs">
+                              ${(event.invoice.total_amount / 100).toLocaleString()}
+                            </Badge>
+                          )
                         )}
                       </div>
                     ))}
