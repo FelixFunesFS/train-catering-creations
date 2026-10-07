@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useQuotes, useUpdateQuoteStatus } from '@/hooks/useQuotes';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Inbox, Clock, ArrowRight, Loader2, Users, MapPin, XCircle } from 'lucide-react';
+import { Inbox, Clock, ArrowRight, Loader2, Users, MapPin, XCircle, ChevronDown } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -34,13 +35,34 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   const { data: quotes, isLoading } = useQuotes();
   const updateStatus = useUpdateQuoteStatus();
 
+  const [pendingCancel, setPendingCancel] = useState<QuoteRequest | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [expanded, setExpanded] = useState<boolean>(() => {
+    try { return localStorage.getItem('admin.submissions.expanded') !== 'false'; } catch { return true; }
+  });
+  const toggleExpanded = () => setExpanded(v => {
+    try { localStorage.setItem('admin.submissions.expanded', String(!v)); } catch {}
+    return !v;
+  });
+
   const handleCancel = (e: React.MouseEvent, event: QuoteRequest) => {
+    e.preventDefault();
     e.stopPropagation();
-    const ok = window.confirm(
-      `Cancel "${event.event_name}" for ${event.contact_name}?\n\nIt moves to the Cancelled tab. The customer will NOT be emailed.`
-    );
-    if (!ok) return;
-    updateStatus.mutate({ quoteId: event.id, status: 'cancelled', reason: 'Dismissed from New Submissions' });
+    setPendingCancel(event);
+  };
+
+  const confirmCancel = async () => {
+    const event = pendingCancel;
+    setPendingCancel(null);
+    if (!event) return;
+    setCancellingId(event.id);
+    try {
+      await updateStatus.mutateAsync({ quoteId: event.id, status: 'cancelled', reason: 'Dismissed from New Submissions' });
+    } catch {
+      // error toast is shown by the mutation hook
+    } finally {
+      setCancellingId(null);
+    }
   };
 
   // Filter for pending and under_review only
@@ -60,6 +82,14 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   };
 
   const submissionCount = submissions.length;
+
+  // Auto-expand when a new submission arrives
+  const prevCount = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevCount.current !== null && submissionCount > prevCount.current) setExpanded(true);
+    prevCount.current = submissionCount;
+  }, [submissionCount]);
+  const latest = submissions[0];
 
   if (isLoading) {
     return (
@@ -99,17 +129,34 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
 
   return (
     <Card className="border-amber-200 bg-amber-50/30 dark:bg-amber-950/10 dark:border-amber-800/30">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Inbox className="h-5 w-5 text-amber-600" />
-            New Submissions
-            <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
-              {submissionCount}
-            </Badge>
-          </CardTitle>
-        </div>
+      <CardHeader className="p-0">
+        <button
+          type="button"
+          onClick={toggleExpanded}
+          aria-expanded={expanded}
+          className="w-full flex items-center justify-between gap-3 p-4 sm:px-6 text-left min-h-[56px]"
+        >
+          <div className="min-w-0">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Inbox className="h-5 w-5 text-amber-600 shrink-0" />
+              New Submissions
+              <Badge variant="secondary" className="bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                {submissionCount}
+              </Badge>
+            </CardTitle>
+            {!expanded && latest && (
+              <p className="text-xs text-muted-foreground truncate mt-1">
+                Latest: {latest.contact_name} · {latest.event_name} ({format(parseDateFromLocalString(latest.event_date), 'MMM d')})
+              </p>
+            )}
+          </div>
+          <span className="flex items-center gap-1 text-xs font-medium text-amber-700 dark:text-amber-400 shrink-0">
+            {expanded ? 'Hide' : 'Show'}
+            <ChevronDown className={`h-5 w-5 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+          </span>
+        </button>
       </CardHeader>
+      {expanded && (
       <CardContent className="p-3 sm:p-6">
         {isMobile ? (
           /* Mobile Card Layout */
@@ -153,7 +200,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                     size="sm"
                     className="h-10 text-xs font-medium gap-1.5 px-3 text-muted-foreground hover:text-destructive"
                     onClick={(e) => handleCancel(e, event)}
-                    disabled={updateStatus.isPending}
+                    disabled={cancellingId === event.id}
                     aria-label={`Cancel submission from ${event.contact_name}`}
                   >
                     <XCircle className="h-4 w-4" />
@@ -229,7 +276,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                       size="icon"
                       className="text-destructive hover:bg-destructive/10"
                       onClick={(e) => handleCancel(e, event)}
-                      disabled={updateStatus.isPending}
+                      disabled={cancellingId === event.id}
                       title="Cancel submission (no email sent)"
                       aria-label={`Cancel submission from ${event.contact_name}`}
                     >
@@ -255,6 +302,23 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
           </Table>
         )}
       </CardContent>
+      )}
+      <AlertDialog open={!!pendingCancel} onOpenChange={(o) => !o && setPendingCancel(null)}>
+        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel this submission?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{pendingCancel?.event_name}" for {pendingCancel?.contact_name} moves to the Cancelled tab. The customer will NOT be emailed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="min-h-[44px]">Keep it</AlertDialogCancel>
+            <AlertDialogAction className="min-h-[44px] bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={confirmCancel}>
+              Cancel submission
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
