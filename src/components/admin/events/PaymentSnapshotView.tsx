@@ -85,17 +85,22 @@ export function PaymentSnapshotCompact({ snapshot, overdue }: { snapshot?: Payme
 }
 
 /** Full summary with progress bar + recent history for the event drawer. */
-export function PaymentSnapshotFull({ snapshot }: { snapshot?: PaymentSnapshot }) {
+export function PaymentSnapshotFull({ snapshot, overdue }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null }) {
   if (!snapshot) return null;
-  const st = status(snapshot);
+  const st = overdue ? { label: 'Payment Overdue', cls: 'bg-destructive/10 text-destructive border-destructive/40' } : status(snapshot);
   const pct = snapshot.totalCents ? Math.min(100, Math.round((snapshot.paidCents / snapshot.totalCents) * 100)) : 0;
-  const next = dueText(snapshot);
+  const next = overdue ? null : dueText(snapshot);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <h4 className="text-xs font-medium text-muted-foreground uppercase">Payments</h4>
         <Badge variant="outline" className={`text-xs ${st.cls}`}>{st.label}</Badge>
       </div>
+      {overdue && (
+        <p role="alert" className="text-sm rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-3 py-2 font-medium">
+          {overdueText(overdue)}
+        </p>
+      )}
       <Progress value={pct} className="h-2" />
       <div className="grid grid-cols-3 gap-2 text-center">
         <div><p className="text-[10px] uppercase text-muted-foreground">Total</p><p className="text-sm font-semibold">{money(snapshot.totalCents)}</p></div>
