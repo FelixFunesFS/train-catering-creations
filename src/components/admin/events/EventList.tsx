@@ -265,15 +265,44 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const isLoading = quotesLoading || invoicesLoading;
   const isMobile = useMediaQuery('(max-width: 640px)');
 
+  // Past events collapse: hide past events unless they still owe money.
+  // Searching or picking a status filter shows everything.
+  const [showPast, setShowPast] = useState<boolean>(() => {
+    try { return localStorage.getItem('admin.events.showPast') === 'true'; } catch { return false; }
+  });
+  const toggleShowPast = () => setShowPast(v => {
+    try { localStorage.setItem('admin.events.showPast', String(!v)); } catch {}
+    return !v;
+  });
+  const { listEvents, hiddenPastCount } = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const owesMoney = (e: EventWithInvoice) => {
+      if (!e.invoice || e.workflow_status === 'cancelled') return false;
+      if (!['approved', 'payment_pending', 'partially_paid', 'overdue'].includes(e.invoice.workflow_status)) return false;
+      const snap = snapshots.get(e.invoice.id);
+      const balance = snap ? snap.balanceCents : ((e.invoice as any).balance_remaining ?? e.invoice.total_amount ?? 0);
+      return balance > 0;
+    };
+    if (showPast || search || statusFilter !== 'all') return { listEvents: eventsWithInvoices, hiddenPastCount: 0 };
+    let hidden = 0;
+    const kept = eventsWithInvoices.filter(e => {
+      const isPast = parseDateFromLocalString(e.event_date).getTime() < today.getTime();
+      if (!isPast || owesMoney(e)) return true;
+      hidden++;
+      return false;
+    });
+    return { listEvents: kept, hiddenPastCount: hidden };
+  }, [eventsWithInvoices, snapshots, showPast, search, statusFilter]);
+
   // Pagination for list view (15 per page)
   const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
-    eventsWithInvoices.length,
+    listEvents.length,
     15,
-    [search, statusFilter, serviceTypeFilter, sortBy, sortOrder]
+    [search, statusFilter, serviceTypeFilter, sortBy, sortOrder, showPast]
   );
   const paginatedEvents = useMemo(
-    () => eventsWithInvoices.slice(startIndex, endIndex),
-    [eventsWithInvoices, startIndex, endIndex]
+    () => listEvents.slice(startIndex, endIndex),
+    [listEvents, startIndex, endIndex]
   );
 
   const paymentReminderStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue'];
@@ -364,10 +393,20 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
         {/* Content */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">
-              {viewMode === 'list' ? 'All Events' : 
-               viewMode === 'week' ? 'Week View' : 'Month View'}
-            </CardTitle>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <CardTitle className="text-lg">
+                {viewMode === 'list' ? (showPast || search || statusFilter !== 'all' ? 'All Events' : 'Upcoming & Balances Due') :
+                 viewMode === 'week' ? 'Week View' : 'Month View'}
+              </CardTitle>
+              {viewMode === 'list' && !search && statusFilter === 'all' && (showPast || hiddenPastCount > 0) && (
+                <Button variant="outline" size="sm" className="h-10 sm:h-9" onClick={toggleShowPast} aria-expanded={showPast}>
+                  {showPast ? 'Hide past events' : `Show past events (${hiddenPastCount})`}
+                </Button>
+              )}
+            </div>
+            {viewMode === 'list' && !showPast && hiddenPastCount > 0 && !search && statusFilter === 'all' && (
+              <p className="text-xs text-muted-foreground mt-1">Past events that still owe money stay in the list.</p>
+            )}
           </CardHeader>
           <CardContent className="p-3 sm:p-6">
             {isLoading ? (
