@@ -1308,7 +1308,7 @@ export function generateCateringAgreementHTML(eventType: 'standard' | 'wedding' 
   const sections = eventType === 'government' 
     ? [...terms.sections, {
         title: "Government Contract Compliance",
-        description: "Payment terms follow Net 30 schedule (100% due 30 days after event completion). Tax-exempt status applies. PO number required for billing."
+        description: "Tax-exempt status applies. PO number required for billing."
       }]
     : terms.sections;
   
@@ -1764,8 +1764,9 @@ export function getEmailContentBlocks(
 
       const isGovernment = String(quote?.compliance_level || '').toLowerCase() === 'government';
       const firstMilestone = milestones?.[0];
-      const depositText = isGovernment
-        ? `Government contract terms apply. Payment is due Net 30 (after services are completed).`
+      const isNet30Schedule = Array.isArray(milestones) && milestones.some((m: any) => m?.is_net30);
+      const depositText = isNet30Schedule
+        ? `Payment is due Net 30 (after services are completed).`
         : (firstMilestone
             ? `To secure your date, your first payment is <strong>${formatCurrency(firstMilestone.amount_cents)}</strong>${firstMilestone.percentage != null ? ` (${firstMilestone.percentage}%)` : ''}.`
             : `To secure your date, a deposit is required after you approve your estimate.`);

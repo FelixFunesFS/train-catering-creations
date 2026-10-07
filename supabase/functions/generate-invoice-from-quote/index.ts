@@ -44,11 +44,10 @@ const getChaferSupplyLabel = (serviceType?: string): string => {
   return isFullService ? 'Chafing Dishes with Fuel' : 'Food Warmers with Fuel';
 };
 
-// Helper: detect government customer (tax exempt)
-const isGovernmentCustomer = (email: string): boolean => {
-  const govDomains = ['.gov', '.mil', '.state.'];
-  return govDomains.some(domain => email.toLowerCase().includes(domain));
-};
+// Government (tax exempt) status comes ONLY from the admin toggle on the quote.
+// Email domains (.gov/.mil) are never used to auto-detect it.
+const isGovernmentQuote = (quote: any): boolean =>
+  quote?.compliance_level === 'government' || quote?.requires_po_number === true;
 
 // Generate line items using proteins JSONB array - aligned with frontend 5-tier structure
 // All items initialize at $0 for manual admin pricing
@@ -349,7 +348,7 @@ const handler = async (req: Request): Promise<Response> => {
     const subtotal = 0;
     
     // Use TaxCalculationService with correct 9% rate (2% hospitality + 7% service)
-    const isGovCustomer = isGovernmentCustomer(quote.email);
+    const isGovCustomer = isGovernmentQuote(quote);
     const taxCalculation = TaxCalculationService.calculateTax(subtotal, isGovCustomer);
     
     console.log(`Customer type: ${isGovCustomer ? 'GOV (tax exempt)' : 'Standard'}, Tax rate: ${TaxCalculationService.formatTaxRate()}`);
@@ -422,8 +421,9 @@ const handler = async (req: Request): Promise<Response> => {
     let milestones: any[] = [];
     
     // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
-    if (isGovCustomer) {
-      // Government: Net 30 (100% due 30 days after event)
+    // Net 30 is never applied automatically; admins enable it manually later.
+    if (false) {
+      // Net 30 (100% due 30 days after event)
       const dueDate = new Date(eventDate);
       dueDate.setDate(dueDate.getDate() + 30);
       milestones = [{

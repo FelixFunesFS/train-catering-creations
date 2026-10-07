@@ -79,6 +79,7 @@ const handler = async (req: Request): Promise<Response> => {
         id,
         total_amount,
         quote_request_id,
+        payment_schedule_type,
         quote_requests (
           id,
           email,
@@ -103,8 +104,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Determine customer type
     const isGovernment = quote?.compliance_level === 'government' || quote?.requires_po_number;
+    // Net 30 is a separate, admin-selected option (default off). Government = tax exempt only.
+    const isNet30 = (invoice as any).payment_schedule_type === 'net30';
 
-    logStep("Calculating schedule", { daysUntilEvent, isGovernment, totalAmountCents });
+    logStep("Calculating schedule", { daysUntilEvent, isGovernment, isNet30, totalAmountCents });
 
     // Guard: Cannot create milestones for zero or negative totals
     if (!totalAmountCents || totalAmountCents <= 0) {
@@ -122,8 +125,8 @@ const handler = async (req: Request): Promise<Response> => {
     const milestones: any[] = [];
 
     // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
-    if (isGovernment) {
-      // Government: Net 30 after event
+    if (isNet30) {
+      // Net 30 after event (admin-selected only)
       const dueDate = new Date(eventDate);
       dueDate.setDate(dueDate.getDate() + 30);
 

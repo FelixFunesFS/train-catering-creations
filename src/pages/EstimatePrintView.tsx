@@ -253,7 +253,7 @@ export default function EstimatePrintView() {
           {/* Government Badge */}
           {isGovernment && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-blue-700 font-medium text-sm">🏛️ Government Contract • Tax Exempt • Net 30 Payment Terms</p>
+              <p className="text-blue-700 font-medium text-sm">🏛️ Government Contract • Tax Exempt{milestones.some((m: any) => m.is_net30) ? ' • Net 30 Payment Terms' : ''}</p>
             </div>
           )}
 
@@ -439,7 +439,6 @@ export default function EstimatePrintView() {
             <div className="mb-6 avoid-break bg-blue-50 p-4 rounded-lg">
               <h3 className="font-semibold text-blue-900 mb-2 text-base">Government Contract Compliance</h3>
               <p className="text-blue-700 text-sm leading-relaxed">
-                Payment terms follow Net 30 schedule (100% due 30 days after event completion). 
                 Tax-exempt status applies. PO number required for billing.
               </p>
             </div>
