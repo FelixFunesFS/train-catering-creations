@@ -38,7 +38,11 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
   const [pendingCancel, setPendingCancel] = useState<QuoteRequest | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(() => {
-    try { return localStorage.getItem('admin.submissions.expanded') !== 'false'; } catch { return true; }
+    try {
+      const saved = localStorage.getItem('admin.submissions.expanded');
+      if (saved !== null) return saved !== 'false';
+      return !window.matchMedia('(max-width: 640px)').matches;
+    } catch { return true; }
   });
   const toggleExpanded = () => setExpanded(v => {
     try { localStorage.setItem('admin.submissions.expanded', String(!v)); } catch {}

@@ -274,7 +274,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     try { localStorage.setItem('admin.events.showPast', String(!v)); } catch {}
     return !v;
   });
-  const { listEvents, hiddenPastCount } = useMemo(() => {
+  const [overdueOpen, setOverdueOpen] = useState(false);
+  const { listEvents, hiddenPastCount, overdueEvents } = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const owesMoney = (e: EventWithInvoice) => {
       if (!e.invoice || e.workflow_status === 'cancelled') return false;
@@ -283,15 +284,17 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
       const balance = snap ? snap.balanceCents : ((e.invoice as any).balance_remaining ?? e.invoice.total_amount ?? 0);
       return balance > 0;
     };
-    if (showPast || search || statusFilter !== 'all') return { listEvents: eventsWithInvoices, hiddenPastCount: 0 };
+    if (showPast || search || statusFilter !== 'all') return { listEvents: eventsWithInvoices, hiddenPastCount: 0, overdueEvents: [] as EventWithInvoice[] };
     let hidden = 0;
+    const overdue: EventWithInvoice[] = [];
     const kept = eventsWithInvoices.filter(e => {
       const isPast = parseDateFromLocalString(e.event_date).getTime() < today.getTime();
-      if (!isPast || owesMoney(e)) return true;
+      if (!isPast) return true;
+      if (owesMoney(e)) { overdue.push(e); return false; }
       hidden++;
       return false;
     });
-    return { listEvents: kept, hiddenPastCount: hidden };
+    return { listEvents: kept, hiddenPastCount: hidden, overdueEvents: overdue };
   }, [eventsWithInvoices, snapshots, showPast, search, statusFilter]);
 
   // Pagination for list view (15 per page)
@@ -390,12 +393,60 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           />
         )}
 
+        {viewMode === 'list' && overdueEvents.length > 0 && (
+          <Card className="border-destructive/30 bg-destructive/5">
+            <button type="button" onClick={() => setOverdueOpen(o => !o)} aria-expanded={overdueOpen}
+              className="w-full flex items-center justify-between gap-3 p-4 sm:px-6 text-left min-h-[56px]">
+              <div className="min-w-0">
+                <p className="text-lg font-semibold flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-destructive shrink-0" />
+                  Past-Due Balances
+                  <Badge variant="outline" className="border-destructive/30 text-destructive">{overdueEvents.length}</Badge>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Past events with {formatCurrency(overdueEvents.reduce((t, e) => t + (snapshots.get(e.invoice!.id)?.balanceCents ?? 0), 0))} still owed
+                </p>
+              </div>
+              <span className="text-xs font-medium text-destructive shrink-0">{overdueOpen ? 'Hide' : 'Show'}</span>
+            </button>
+            {overdueOpen && (
+              <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3">
+                {overdueEvents.map(event => {
+                  const invoice = event.invoice!;
+                  return (
+                    <div key={event.id} className="p-4 border rounded-lg bg-card cursor-pointer" onClick={() => navigate(`/admin/event/${event.id}`)}>
+                      <div className="flex flex-wrap justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{event.contact_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{event.event_name} · {format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</p>
+                        </div>
+                        <Badge variant="outline" className="h-6 text-xs border-destructive/30 bg-destructive/10 text-destructive">Payment Overdue</Badge>
+                      </div>
+                      {snapshots.get(invoice.id) && <div className="mb-3 rounded-md bg-muted/40 px-3 py-2"><PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} /></div>}
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" className="h-10 text-xs gap-1.5 px-3 bg-success text-success-foreground hover:bg-success/90"
+                          onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}>
+                          <CreditCard className="h-4 w-4" /> Record Payment
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3 border-amber-500/40 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 hover:text-amber-900 dark:text-amber-300"
+                          onClick={(e) => handleOpenReminderDialog(e, event)}>
+                          <DollarSign className="h-4 w-4" /> Remind
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            )}
+          </Card>
+        )}
+
         {/* Content */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-lg">
-                {viewMode === 'list' ? (showPast || search || statusFilter !== 'all' ? 'All Events' : 'Upcoming & Balances Due') :
+                {viewMode === 'list' ? (showPast || search || statusFilter !== 'all' ? 'All Events' : 'Upcoming Events') :
                  viewMode === 'week' ? 'Week View' : 'Month View'}
               </CardTitle>
               {viewMode === 'list' && !search && statusFilter === 'all' && (showPast || hiddenPastCount > 0) && (
@@ -405,7 +456,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               )}
             </div>
             {viewMode === 'list' && !showPast && hiddenPastCount > 0 && !search && statusFilter === 'all' && (
-              <p className="text-xs text-muted-foreground mt-1">Past events that still owe money stay in the list.</p>
+              <p className="text-xs text-muted-foreground mt-1">Past events that still owe money are in the Past-Due Balances card above.</p>
             )}
           </CardHeader>
           <CardContent className="p-3 sm:p-6">
@@ -492,9 +543,11 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <>
                             <Badge 
                               variant="outline" 
-                              className={`text-xs ${estimateStatusColors[invoice.workflow_status] || ''}`}
+                              className={`text-xs ${['overdue','payment_pending','partially_paid','paid'].includes(invoice.workflow_status) ? (eventStatusColors[event.workflow_status] || '') : (estimateStatusColors[invoice.workflow_status] || '')}`}
                             >
-                              {formatStatus(invoice.workflow_status)}
+                              {['overdue','payment_pending','partially_paid','paid'].includes(invoice.workflow_status)
+                                ? (['confirmed','completed'].includes(event.workflow_status) ? formatStatus(event.workflow_status) : 'Approved')
+                                : formatStatus(invoice.workflow_status)}
                             </Badge>
                             {(() => {
                               const nextMilestone = invoice.payment_milestones 
@@ -505,7 +558,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                               return (
                                 <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
                                   <CreditCard className="h-3 w-3 mr-0.5" />
-                                  {paymentStatus.label}
+                                  {/^overdue$/i.test(paymentStatus.label) ? 'Payment Overdue' : paymentStatus.label}
                                 </Badge>
                               );
                             })()}
@@ -521,7 +574,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-10 text-xs font-medium gap-1.5 px-3"
+                            className="h-10 text-xs font-medium gap-1.5 px-3 border-border text-foreground hover:bg-muted hover:text-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
                               window.location.href = `tel:${event.phone}`;
@@ -548,7 +601,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-10 text-xs font-medium gap-1.5 px-3"
+                            className="h-10 text-xs font-medium gap-1.5 px-3 border-amber-500/40 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 hover:text-amber-900 dark:text-amber-300"
                             onClick={(e) => handleOpenReminderDialog(e, event)}
                           >
                             <DollarSign className="h-4 w-4" />
@@ -557,9 +610,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         )}
                         
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
-                          className="h-10 text-xs font-medium gap-1.5 px-3"
+                          className="h-10 text-xs font-medium gap-1.5 px-3 bg-muted/60 text-foreground hover:bg-muted hover:text-foreground"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/admin/event/${event.id}`);
