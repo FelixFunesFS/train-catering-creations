@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, Plus, X } from 'lucide-react';
+import { Loader2, Send, Plus, X, Eye, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,6 +32,23 @@ export function SendPaymentReminderDialog({
   const [newEmail, setNewEmail] = useState('');
   const [personalNote, setPersonalNote] = useState('');
   const [sending, setSending] = useState(false);
+  const [preview, setPreview] = useState<{ html: string; subject: string } | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  const loadPreview = async () => {
+    setLoadingPreview(true);
+    try {
+      const body: any = { type: 'payment_reminder', quote_request_id: quoteId, preview_only: true };
+      if (personalNote.trim()) body.custom_message = personalNote.trim();
+      const { data, error } = await supabase.functions.invoke('send-customer-portal-email', { body });
+      if (error) throw error;
+      setPreview({ html: data.html, subject: data.subject });
+    } catch (err: any) {
+      toast({ title: 'Could not load preview', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
   const { toast } = useToast();
 
   // Reset state when dialog opens
@@ -41,6 +58,7 @@ export function SendPaymentReminderDialog({
       setAdditionalEmails([]);
       setNewEmail('');
       setPersonalNote('');
+      setPreview(null);
     }
     onOpenChange(value);
   };
@@ -120,7 +138,7 @@ export function SendPaymentReminderDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={preview ? "sm:max-w-2xl max-h-[92vh] flex flex-col" : "sm:max-w-md max-h-[92vh] overflow-y-auto"}>
         <DialogHeader>
           <DialogTitle>Send Payment Reminder</DialogTitle>
           <DialogDescription>
@@ -128,6 +146,13 @@ export function SendPaymentReminderDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {preview ? (
+          <div className="flex-1 min-h-0 flex flex-col gap-2">
+            <p className="text-sm"><span className="text-muted-foreground">Subject:</span> <strong>{preview.subject}</strong></p>
+            <p className="text-xs text-muted-foreground">To: {[email, ...additionalEmails].join(', ')}</p>
+            <iframe title="Email preview" srcDoc={preview.html} sandbox="" className="w-full flex-1 min-h-[55vh] rounded-md border bg-background" />
+          </div>
+        ) : (
         <div className="space-y-4">
           {/* Event Summary */}
           <div className="rounded-lg border bg-muted/50 p-3 text-sm space-y-1">
@@ -194,12 +219,24 @@ export function SendPaymentReminderDialog({
             <p className="text-xs text-muted-foreground">Shown at the top of the email, above the payment details.</p>
           </div>
         </div>
+        )}
 
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={sending}>
-            Cancel
-          </Button>
-          <Button onClick={handleSend} disabled={sending || !email.trim()}>
+        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+          {preview ? (
+            <Button variant="outline" className="min-h-[44px]" onClick={() => setPreview(null)} disabled={sending}>
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back to edit
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline" className="min-h-[44px]" onClick={() => handleOpenChange(false)} disabled={sending}>
+                Cancel
+              </Button>
+              <Button variant="outline" className="min-h-[44px]" onClick={loadPreview} disabled={loadingPreview || sending}>
+                {loadingPreview ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />} Preview Email
+              </Button>
+            </>
+          )}
+          <Button className="min-h-[44px]" onClick={handleSend} disabled={sending || !email.trim()}>
             {sending ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending...</>
             ) : (
