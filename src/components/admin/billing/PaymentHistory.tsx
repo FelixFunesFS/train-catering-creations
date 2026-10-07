@@ -39,6 +39,7 @@ function formatPaymentMethod(method: string | null): string {
     cash: 'Cash',
     check: 'Check',
     bank_transfer: 'Bank Transfer',
+    ach_debit: 'ACH Direct Debit',
     credit_card: 'Credit Card',
     venmo: 'Venmo',
     zelle: 'Zelle',
