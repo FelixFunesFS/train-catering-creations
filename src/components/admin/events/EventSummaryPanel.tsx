@@ -443,7 +443,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             <>
               <Separator />
               {snapshots.get(event.invoice.id) ? (
-                <PaymentSnapshotFull snapshot={snapshots.get(event.invoice.id)} overdue={overdue} />
+                <PaymentSnapshotFull snapshot={snapshots.get(event.invoice.id)} overdue={overdue} eventDate={event.event_date} />
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Estimate Total</span>

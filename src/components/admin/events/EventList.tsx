@@ -1,5 +1,5 @@
 import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
-import { PaymentSnapshotCompact } from './PaymentSnapshotView';
+import { PaymentSnapshotCompact, getOverdueInfo } from './PaymentSnapshotView';
 import { useState, useMemo, useCallback } from 'react';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
@@ -291,7 +291,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     const kept = eventsWithInvoices.filter(e => {
       const isPast = parseDateFromLocalString(e.event_date).getTime() < today.getTime();
       if (!isPast) return true;
-      if (owesMoney(e)) { overdue.push(e); return false; }
+      if (owesMoney(e)) {
+        // Agreed future due date = grace period: keep it in the main list, not the past-due card.
+        const due = snapshots.get(e.invoice!.id)?.nextMilestone?.dueDate;
+        if (due && parseDateFromLocalString(due).getTime() >= today.getTime()) return true;
+        overdue.push(e); return false;
+      }
       hidden++;
       return false;
     });
@@ -445,7 +450,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         </div>
                         <Badge variant="outline" className="h-6 text-xs border-destructive/30 bg-destructive/10 text-destructive">Payment Overdue</Badge>
                       </div>
-                      {snapshots.get(invoice.id) && <div className="mb-3 rounded-md bg-muted/40 px-3 py-2"><PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} /></div>}
+                      {snapshots.get(invoice.id) && <div className="mb-3 rounded-md bg-muted/40 px-3 py-2"><PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} eventDate={event.event_date} overdue={getOverdueInfo(snapshots.get(invoice.id), invoice.workflow_status, event.event_date)} /></div>}
                       <div className="flex flex-wrap gap-2">
                         <Button size="sm" className="h-10 text-xs gap-1.5 px-3 bg-success text-success-foreground hover:bg-success/90"
                           onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}>
@@ -550,7 +555,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
                       {invoice && snapshots.get(invoice.id) && (
                         <div className="mb-3 rounded-md bg-muted/40 px-3 py-2">
-                          <PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} />
+                          <PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} eventDate={event.event_date} overdue={getOverdueInfo(snapshots.get(invoice.id), invoice.workflow_status, event.event_date)} />
                         </div>
                       )}
                       <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground mb-2">
@@ -576,7 +581,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                               const nextMilestone = invoice.payment_milestones 
                                 ? getNextUnpaidMilestone(invoice.payment_milestones)
                                 : null;
-                              const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date);
+                              const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date, event.event_date);
                               if (!paymentStatus) return null;
                               return (
                                 <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
@@ -806,7 +811,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           const nextMilestone = invoice.payment_milestones 
                             ? getNextUnpaidMilestone(invoice.payment_milestones)
                             : null;
-                          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date);
+                          const paymentStatus = getPaymentStatus(invoice.workflow_status, nextMilestone?.milestone_type, nextMilestone?.due_date, event.event_date);
                           if (!paymentStatus) return <span className="text-muted-foreground">—</span>;
                           return (
                             <Badge variant="outline" className={`text-xs ${paymentStatus.color} border`}>
