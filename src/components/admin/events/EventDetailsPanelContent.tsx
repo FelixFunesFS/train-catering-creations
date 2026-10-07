@@ -15,6 +15,7 @@ import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
+import { CopyPortalLinkButton } from './AdminQuickTools';
 
 interface EventDetailsPanelContentProps {
   quote: any;
@@ -149,6 +150,7 @@ export const EventDetailsPanelContent = memo(function EventDetailsPanelContent({
         </div>
         <p className="font-medium">{quote?.contact_name}</p>
         <p className="text-sm text-muted-foreground">{quote?.email}</p>
+        <div className="pt-1"><CopyPortalLinkButton token={invoice?.customer_access_token} /></div>
         {quote?.phone && (
           <a 
             href={formatPhoneLink(quote.phone) || '#'} 
