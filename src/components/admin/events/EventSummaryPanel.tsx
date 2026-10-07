@@ -17,7 +17,11 @@ import { StaffAssignmentPanel } from './StaffAssignmentPanel';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
-import { PaymentSnapshotFull } from './PaymentSnapshotView';
+import { PaymentSnapshotFull, getOverdueInfo, OverdueBadge } from './PaymentSnapshotView';
+import { useState } from 'react';
+import { CreditCard } from 'lucide-react';
+import { PaymentRecorder } from '@/components/admin/billing/PaymentRecorder';
+import { SendPaymentReminderDialog } from './SendPaymentReminderDialog';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -73,6 +77,12 @@ function formatServiceType(type: string): string {
 export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPanelProps) {
   const { customItems, hasCustomItems } = useCustomLineItems(event.invoice?.id || null);
   const snapshots = usePaymentSnapshots();
+  const [payOpen, setPayOpen] = useState(false);
+  const [remindOpen, setRemindOpen] = useState(false);
+  const snap = event.invoice ? snapshots.get(event.invoice.id) : undefined;
+  const overdue = getOverdueInfo(snap, event.invoice?.workflow_status, event.event_date);
+  const canCollect = !!snap && snap.balanceCents > 0 &&
+    ['approved', 'payment_pending', 'partially_paid', 'awaiting_payment', 'overdue'].includes(event.invoice?.workflow_status || '');
   
   const proteins = Array.isArray(event.proteins) ? event.proteins as string[] : [];
   const sides = Array.isArray(event.sides) ? event.sides as string[] : [];
@@ -114,7 +124,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             <Badge variant="outline" className={statusColors[event.workflow_status] || ''}>
               {formatStatus(event.workflow_status)}
             </Badge>
-            {event.invoice && (
+            {overdue ? <OverdueBadge /> : event.invoice && (
               <Badge variant="outline" className={estimateStatusColors[event.invoice.workflow_status] || ''}>
                 Est: {formatStatus(event.invoice.workflow_status)}
               </Badge>
@@ -433,7 +443,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             <>
               <Separator />
               {snapshots.get(event.invoice.id) ? (
-                <PaymentSnapshotFull snapshot={snapshots.get(event.invoice.id)} />
+                <PaymentSnapshotFull snapshot={snapshots.get(event.invoice.id)} overdue={overdue} />
               ) : (
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Estimate Total</span>
@@ -442,7 +452,31 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
                   </span>
                 </div>
               )}
+              {canCollect && (
+                <div className="grid grid-cols-2 gap-2">
+                  <Button className="h-11 bg-success text-success-foreground hover:bg-success/90" onClick={() => setPayOpen(true)}>
+                    <CreditCard className="h-4 w-4 mr-1.5" /> Record Payment
+                  </Button>
+                  <Button variant="outline" className="h-11 border-amber-500/40 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 hover:text-amber-900 dark:text-amber-300" onClick={() => setRemindOpen(true)}>
+                    <DollarSign className="h-4 w-4 mr-1.5" /> Send Reminder
+                  </Button>
+                </div>
+              )}
             </>
+          )}
+          {payOpen && event.invoice && (
+            <PaymentRecorder invoiceId={event.invoice.id} onClose={() => setPayOpen(false)} />
+          )}
+          {remindOpen && event.invoice && (
+            <SendPaymentReminderDialog
+              open={remindOpen}
+              onOpenChange={setRemindOpen}
+              quoteId={event.id}
+              eventName={event.event_name}
+              primaryEmail={event.email}
+              invoiceNumber={(event.invoice as any).invoice_number || null}
+              totalAmount={event.invoice.total_amount || 0}
+            />
           )}
         </div>
       </ScrollArea>
