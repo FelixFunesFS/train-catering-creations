@@ -149,9 +149,9 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
                 </div>
                 <div className="mt-3 flex justify-end">
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
-                    className="min-h-[44px] gap-1.5 text-destructive border-destructive/30"
+                    className="h-10 text-xs font-medium gap-1.5 px-3 text-muted-foreground hover:text-destructive"
                     onClick={(e) => handleCancel(e, event)}
                     disabled={updateStatus.isPending}
                     aria-label={`Cancel submission from ${event.contact_name}`}

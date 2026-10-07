@@ -462,18 +462,18 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
 
                       {/* Labeled action buttons for mobile */}
-                      <div className="flex flex-wrap items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
                         {event.phone && (
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs gap-1 px-2"
+                            className="h-10 text-xs font-medium gap-1.5 px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               window.location.href = `tel:${event.phone}`;
                             }}
                           >
-                            <Phone className="h-3 w-3" />
+                            <Phone className="h-4 w-4" />
                             Call
                           </Button>
                         )}
@@ -481,7 +481,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
                           <Button
                             size="sm"
-                            className="min-h-[44px] min-w-[44px] text-xs gap-1 px-3"
+                            className="h-10 text-xs font-medium gap-1.5 px-3 bg-success text-success-foreground hover:bg-success/90"
                             aria-label="Take payment"
                             onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}
                           >
@@ -494,10 +494,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="h-7 text-xs gap-1 px-2"
+                            className="h-10 text-xs font-medium gap-1.5 px-3"
                             onClick={(e) => handleOpenReminderDialog(e, event)}
                           >
-                            <DollarSign className="h-3 w-3" />
+                            <DollarSign className="h-4 w-4" />
                             Remind
                           </Button>
                         )}
@@ -505,13 +505,13 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-7 text-xs gap-1 px-2"
+                          className="h-10 text-xs font-medium gap-1.5 px-3"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/admin/event/${event.id}`);
                           }}
                         >
-                          <ActionIcon className="h-3 w-3" />
+                          <ActionIcon className="h-4 w-4" />
                           {actionLabel.replace('View ', '')}
                         </Button>
                         

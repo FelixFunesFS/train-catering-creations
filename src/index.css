@@ -129,6 +129,8 @@
     --primary-dark: 348 83% 32%;
     --primary-glow: 348 83% 47%;
     --primary-foreground: 0 0% 100%;
+    --success: 152 69% 31%;
+    --success-foreground: 0 0% 100%;
     
     /* Pearl & Platinum Supporting Colors (light gray sections on white) */
     --secondary: 220 14% 96%;
@@ -244,6 +246,8 @@
     --primary-dark: 348 83% 50%;
     --primary-glow: 348 83% 65%;
     --primary-foreground: 0 0% 100%;
+    --success: 152 60% 40%;
+    --success-foreground: 0 0% 100%;
     
     /* Pearl & Platinum - Dark mode variants (clear hierarchy) */
     --secondary: 220 15% 17%;
