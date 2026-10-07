@@ -28,6 +28,8 @@ import { EventMonthView } from './EventMonthView';
 import { DateNavigation } from './DateNavigation';
 import { EventFilters, StatusFilter, ServiceTypeFilter, SortBy, SortOrder } from './EventFilters';
 import { SortableTableHead } from './SortableTableHead';
+import { QuickEventDialog } from './QuickEventDialog';
+import { Plus } from 'lucide-react';
 import { formatDateTimeShortET } from '@/utils/formatters';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Database } from '@/integrations/supabase/types';
@@ -161,6 +163,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reminderDialogEvent, setReminderDialogEvent] = useState<EventWithInvoice | null>(null);
   const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
+  const [quickOpen, setQuickOpen] = useState(false);
   const { toast } = useToast();
   
   // Filter & Sort state - default to newest submissions first
@@ -329,7 +332,11 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </TabsTrigger>
             </TabsList>
           </Tabs>
+          <Button onClick={() => setQuickOpen(true)} className="h-9 gap-1.5">
+            <Plus className="h-4 w-4" /> New Event
+          </Button>
         </div>
+        <QuickEventDialog open={quickOpen} onOpenChange={setQuickOpen} />
 
         {/* Date Navigation (only for week/month views) */}
         {viewMode !== 'list' && (
