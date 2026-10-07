@@ -22,7 +22,6 @@ import Index from "./pages/Index";
 // Lazy loaded utility components - not critical for initial render
 const Footer = lazy(() => import("./components/Footer").then(m => ({ default: m.Footer })));
 const MobileActionBar = lazy(() => import("./components/mobile/MobileActionBar").then(m => ({ default: m.MobileActionBar })));
-const ScrollToTop = lazy(() => import("./components/ui/scroll-to-top").then(m => ({ default: m.ScrollToTop })));
 
 // Lazy loaded pages - CSS code-split for reduced initial bundle
 const About = lazy(() => import("./pages/About"));
@@ -176,7 +175,6 @@ const AppContent = () => {
       <Suspense fallback={null}>
         {!hideChrome && !isAdminRoute && <Footer />}
         {showMobileActionBar && <MobileActionBar />}
-        <ScrollToTop />
       </Suspense>
     </div>;
 };

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { MessageSquareText, Sparkles } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { MessageSquareText, Phone } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
 
 type MobileActionBarProps = {
@@ -20,7 +21,14 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
   const pathname = location.pathname;
   const { isHeroVisible } = useHeroVisibility();
 
-  const isAdmin = pathname.startsWith("/admin");
+  const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/staff");
+  const [pastTop, setPastTop] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setPastTop(window.scrollY > window.innerHeight * 0.6);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pathname]);
   const isMobileQuoteWizard = /^\/request-quote\/(regular|wedding)$/.test(pathname);
   const isHomePage = pathname === "/" || pathname === "";
   
@@ -33,7 +41,7 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
     pathname.startsWith("/invoice/public/");
   
   // Hide on admin, quote wizard, customer portal, or when hero is visible on home page
-  const hidden = isAdmin || isMobileQuoteWizard || isCustomerPortal || (isHomePage && isHeroVisible);
+  const hidden = isAdmin || isMobileQuoteWizard || isCustomerPortal || (isHomePage ? isHeroVisible : !pastTop);
 
   return (
     <div
@@ -67,10 +75,10 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
           className="flex-1"
           tabIndex={hidden ? -1 : 0}
         >
-          <Link to="/request-quote" aria-label="Request a quote">
-            <Sparkles className="h-4 w-4" />
-            Quote
-          </Link>
+          <a href="tel:8439700265" aria-label="Call Soul Train's Eatery">
+            <Phone className="h-4 w-4" />
+            Call
+          </a>
         </Button>
 
         <Button
