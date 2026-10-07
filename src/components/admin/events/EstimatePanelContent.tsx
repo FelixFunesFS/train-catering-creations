@@ -12,6 +12,7 @@ import { LineItemEditor } from '../billing/LineItemEditor';
 import { SortableLineItem } from '../billing/SortableLineItem';
 import { EstimateSummary } from '../billing/EstimateSummary';
 import { DiscountEditor } from '../billing/DiscountEditor';
+import { CopyPortalLinkButton, GuestCountSyncBanner } from './AdminQuickTools';
 
 import {
   DndContext,
@@ -164,6 +165,7 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
         </h2>
         <div className="flex items-center gap-2">
+          <CopyPortalLinkButton token={invoice?.customer_access_token} />
           <Button 
             variant="outline" 
             size="sm" 
@@ -174,6 +176,8 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           </Button>
         </div>
       </div>
+
+      {!hasUnsavedChanges && <GuestCountSyncBanner quote={quote} lineItems={sortedLineItems} />}
 
       {/* Line Items */}
       <div className="space-y-3">
