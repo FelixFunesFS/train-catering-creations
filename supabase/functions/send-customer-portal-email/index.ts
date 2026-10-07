@@ -53,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { quote_request_id, type, preview_only = false, override_email, metadata }: PortalEmailRequest = await req.json();
+    const { quote_request_id, type, preview_only = false, override_email, metadata, custom_message }: PortalEmailRequest & { custom_message?: string } = await req.json();
 
     if (!quote_request_id || !type) {
       throw new Error('Missing required fields: quote_request_id, type');
@@ -172,6 +172,19 @@ const handler = async (req: Request): Promise<Response> => {
       isFullPayment: is_full_payment,
       totalPaid,
     } as any);
+
+    // Optional admin personal note, rendered above the standard content
+    if (typeof custom_message === 'string' && custom_message.trim()) {
+      const safe = custom_message.trim().slice(0, 1000)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\n/g, '<br>');
+      contentBlocks.unshift({
+        type: 'custom_html',
+        data: {
+          html: `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px 0;"><tr><td style="background:#FFF8E1;border-left:4px solid #DC143C;padding:16px;border-radius:6px;font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#333333;"><strong style="display:block;margin-bottom:6px;color:#B01030;">A note from Soul Train's Eatery</strong>${safe}</td></tr></table>`,
+        },
+      } as any);
+    }
 
     // Generate email using standard generator
     let htmlContent = generateStandardEmail({

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Send, Plus, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +30,7 @@ export function SendPaymentReminderDialog({
   const [email, setEmail] = useState(primaryEmail);
   const [additionalEmails, setAdditionalEmails] = useState<string[]>([]);
   const [newEmail, setNewEmail] = useState('');
+  const [personalNote, setPersonalNote] = useState('');
   const [sending, setSending] = useState(false);
   const { toast } = useToast();
 
@@ -38,6 +40,7 @@ export function SendPaymentReminderDialog({
       setEmail(primaryEmail);
       setAdditionalEmails([]);
       setNewEmail('');
+      setPersonalNote('');
     }
     onOpenChange(value);
   };
@@ -65,6 +68,7 @@ export function SendPaymentReminderDialog({
     for (const recipient of allRecipients) {
       try {
         const body: any = { type: 'payment_reminder', quote_request_id: quoteId };
+        if (personalNote.trim()) body.custom_message = personalNote.trim();
         if (recipient !== primaryEmail) {
           body.override_email = recipient;
         }
@@ -174,6 +178,20 @@ export function SendPaymentReminderDialog({
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Personal Note */}
+          <div className="space-y-2">
+            <Label htmlFor="personal-note">Personal Note (optional)</Label>
+            <Textarea
+              id="personal-note"
+              rows={4}
+              maxLength={1000}
+              placeholder="e.g. Hi Iris, here is your updated payment link reflecting 140 guests..."
+              value={personalNote}
+              onChange={(e) => setPersonalNote(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">Shown at the top of the email, above the payment details.</p>
           </div>
         </div>
 
