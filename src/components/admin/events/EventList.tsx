@@ -1,3 +1,5 @@
+import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
+import { PaymentSnapshotCompact } from './PaymentSnapshotView';
 import { useState, useMemo, useCallback } from 'react';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
