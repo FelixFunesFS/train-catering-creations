@@ -20,6 +20,7 @@ import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils'
 import { getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
 import { EventDetail } from './EventDetail';
 import { SendPaymentReminderDialog } from './SendPaymentReminderDialog';
+import { PaymentRecorder } from '@/components/admin/billing/PaymentRecorder';
 import { EventWeekView } from './EventWeekView';
 import { EventMonthView } from './EventMonthView';
 import { DateNavigation } from './DateNavigation';
@@ -157,6 +158,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reminderDialogEvent, setReminderDialogEvent] = useState<EventWithInvoice | null>(null);
+  const [paymentInvoiceId, setPaymentInvoiceId] = useState<string | null>(null);
   const { toast } = useToast();
   
   // Filter & Sort state - default to newest submissions first
@@ -269,6 +271,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   );
 
   const paymentReminderStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue'];
+  // Invoices that can still accept a payment (has remaining balance)
+  const takePaymentStatuses = ['approved', 'payment_pending', 'partially_paid', 'overdue', 'sent', 'viewed'];
   
   const handleOpenReminderDialog = useCallback((e: React.MouseEvent, event: EventWithInvoice) => {
     e.stopPropagation();
@@ -474,6 +478,18 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           </Button>
                         )}
                         
+                        {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
+                          <Button
+                            size="sm"
+                            className="min-h-[44px] min-w-[44px] text-xs gap-1 px-3"
+                            aria-label="Take payment"
+                            onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}
+                          >
+                            <CreditCard className="h-4 w-4" />
+                            Pay
+                          </Button>
+                        )}
+
                         {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
                           <Button
                             variant="outline"
@@ -686,7 +702,23 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden lg:table-cell text-muted-foreground whitespace-nowrap">
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right whitespace-nowrap">
+                        {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                aria-label="Take payment"
+                                onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}
+                              >
+                                <CreditCard className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Take Payment</TooltipContent>
+                          </Tooltip>
+                        )}
                         {invoice && paymentReminderStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -733,6 +765,11 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
             quote={selectedQuote} 
             onClose={() => setSelectedQuote(null)} 
           />
+        )}
+
+        {/* Take Payment dialog (mounted only on demand) */}
+        {paymentInvoiceId && (
+          <PaymentRecorder invoiceId={paymentInvoiceId} onClose={() => setPaymentInvoiceId(null)} />
         )}
 
         {/* Payment Reminder Dialog */}
