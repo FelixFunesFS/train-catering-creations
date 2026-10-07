@@ -413,7 +413,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
-            ) : !eventsWithInvoices?.length ? (
+            ) : (viewMode === 'list' ? !listEvents.length : !eventsWithInvoices?.length) ? (
               <p className="text-center py-8 text-muted-foreground">No events found</p>
             ) : viewMode === 'week' ? (
               <EventWeekView 
@@ -806,7 +806,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                 totalPages={totalPages}
                 startIndex={startIndex}
                 endIndex={endIndex}
-                totalItems={eventsWithInvoices.length}
+                totalItems={listEvents.length}
                 onPageChange={setCurrentPage}
               />
             </div>
