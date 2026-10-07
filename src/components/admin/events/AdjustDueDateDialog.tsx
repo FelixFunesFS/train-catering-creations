@@ -41,9 +41,9 @@ export async function saveAgreedDueDate(opts: {
 export const todayStr = () => format(new Date(), 'yyyy-MM-dd');
 
 export function invalidatePaymentViews(qc: ReturnType<typeof useQueryClient>, quoteId?: string | null) {
-  ['invoices', 'payment-milestones', 'milestones', 'payment-snapshots', 'events', 'quotes'].forEach(k =>
-    qc.invalidateQueries({ queryKey: [k] }));
-  if (quoteId) qc.invalidateQueries({ queryKey: ['contact-log', quoteId] });
+  // Due dates feed lists, calendars, billing, portal previews — refresh everything.
+  void quoteId;
+  qc.invalidateQueries();
 }
 
 interface Props {

@@ -6,7 +6,8 @@ import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { RefreshCw, CheckCircle2, Clock, AlertCircle, DollarSign } from 'lucide-react';
+import { AdjustDueDateDialog, type AdjustableMilestone } from './AdjustDueDateDialog';
+import { RefreshCw, CalendarClock, CheckCircle2, Clock, AlertCircle, DollarSign } from 'lucide-react';
 import { usePaymentTransactions } from '@/hooks/useInvoices';
 import { calculateMilestoneBalances, getMilestoneLabel } from '@/utils/paymentFormatters';
 
@@ -34,6 +35,7 @@ interface PaymentTransaction {
 
 interface PaymentScheduleSectionProps {
   invoiceId: string | undefined;
+  quoteId?: string | null;
   milestones: PaymentMilestone[];
   totalAmount: number;
   isGovernment: boolean;
@@ -72,7 +74,9 @@ export function PaymentScheduleSection({
   isRegenerating,
   onRegenerate,
   onToggleGovernment,
+  quoteId,
 }: PaymentScheduleSectionProps) {
+  const [adjusting, setAdjusting] = useState<AdjustableMilestone | null>(null);
   // Fetch payment transactions for this invoice
   const { data: transactions = [] } = usePaymentTransactions(invoiceId);
   
@@ -294,20 +298,23 @@ export function PaymentScheduleSection({
                     <Badge variant="outline" className="text-green-600 border-green-600 text-xs">
                       Paid
                     </Badge>
-                  ) : milestone.is_due_now ? (
-                    <Badge variant="outline" className="text-amber-600 border-amber-600 text-xs">
-                      Due Now
-                    </Badge>
-                  ) : milestone.due_date ? (
-                    <span className="text-xs text-muted-foreground">
-                      Due {new Date(milestone.due_date).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </span>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Upcoming</span>
+                    <div className="flex items-center gap-1.5">
+                      {milestone.is_due_now ? (
+                        <Badge variant="outline" className="text-amber-600 border-amber-600 text-xs">Due Now</Badge>
+                      ) : milestone.due_date ? (
+                        <span className="text-xs text-muted-foreground">
+                          Due {new Date(milestone.due_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Upcoming</span>
+                      )}
+                      <Button type="button" size="sm" variant="ghost" className="h-9 px-2 gap-1 text-xs"
+                        aria-label={`Change due date for ${getMilestoneLabel(milestone.milestone_type)}`}
+                        onClick={() => setAdjusting({ id: milestone.id, milestone_type: milestone.milestone_type, due_date: milestone.due_date })}>
+                        <CalendarClock className="h-4 w-4" /> <span className="hidden sm:inline">Change date</span>
+                      </Button>
+                    </div>
                   )}
                 </div>
 
@@ -332,6 +339,7 @@ export function PaymentScheduleSection({
           })}
         </div>
       )}
+      <AdjustDueDateDialog open={!!adjusting} onOpenChange={o => !o && setAdjusting(null)} milestone={adjusting} quoteId={quoteId} invoiceId={invoiceId} />
     </section>
   );
 }
