@@ -55,8 +55,25 @@ export const useDocumentHead = ({ title, description, canonical, jsonLd, ogImage
       linkCanonical.setAttribute("href", canonical);
     }
 
-    // OG / Twitter image (absolute URL recommended)
     const ogRestores: Array<() => void> = [];
+    // OG / Twitter text + self-referencing og:url
+    const textTags: Array<[string, "name" | "property", string, string | undefined]> = [
+      ['meta[property="og:title"]', "property", "og:title", title],
+      ['meta[property="og:description"]', "property", "og:description", description],
+      ['meta[name="twitter:title"]', "name", "twitter:title", title],
+      ['meta[name="twitter:description"]', "name", "twitter:description", description],
+      ['meta[property="og:url"]', "property", "og:url", canonical],
+    ];
+    textTags.forEach(([sel, attr, key, value]) => {
+      if (!value) return;
+      const { el, previous } = setMeta(sel, attr, key, value);
+      ogRestores.push(() => {
+        if (previous !== null) el.setAttribute("content", previous);
+        else el.remove();
+      });
+    });
+
+    // OG / Twitter image (absolute URL recommended)
     if (ogImage) {
       const absolute = ogImage.startsWith("http")
         ? ogImage

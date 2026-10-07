@@ -14,6 +14,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeroVisibilityProvider } from "@/contexts/HeroVisibilityContext";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { useRouteMeta } from "@/hooks/useRouteMeta";
 
 // Critical path - eagerly loaded for LCP
 import Index from "./pages/Index";
@@ -89,6 +90,7 @@ const AppContent = () => {
   useAuthRedirect();
   useScrollToAnchor();
   useVisitorTracking(); // Track visitor page views for admin notifications
+  useRouteMeta();
   const location = useLocation();
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/staff';
