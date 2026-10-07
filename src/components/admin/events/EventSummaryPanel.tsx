@@ -16,6 +16,8 @@ import { EventChecklistPanel } from './EventChecklistPanel';
 import { StaffAssignmentPanel } from './StaffAssignmentPanel';
 import { useCustomLineItems } from '@/hooks/useCustomLineItems';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
+import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
+import { PaymentSnapshotFull } from './PaymentSnapshotView';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -70,6 +72,7 @@ function formatServiceType(type: string): string {
 
 export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPanelProps) {
   const { customItems, hasCustomItems } = useCustomLineItems(event.invoice?.id || null);
+  const snapshots = usePaymentSnapshots();
   
   const proteins = Array.isArray(event.proteins) ? event.proteins as string[] : [];
   const sides = Array.isArray(event.sides) ? event.sides as string[] : [];
@@ -425,16 +428,20 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
             />
           </div>
 
-          {/* Invoice Total */}
+          {/* Payments */}
           {event.invoice && (
             <>
               <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Estimate Total</span>
-                <span className="font-semibold">
-                  ${(event.invoice.total_amount / 100).toLocaleString()}
-                </span>
-              </div>
+              {snapshots.get(event.invoice.id) ? (
+                <PaymentSnapshotFull snapshot={snapshots.get(event.invoice.id)} />
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Estimate Total</span>
+                  <span className="font-semibold">
+                    ${(event.invoice.total_amount / 100).toLocaleString()}
+                  </span>
+                </div>
+              )}
             </>
           )}
         </div>

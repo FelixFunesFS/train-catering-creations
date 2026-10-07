@@ -2164,16 +2164,9 @@ export function getEmailContentBlocks(
         { type: 'text', data: { html: greetingHtml }},
         { type: 'custom_html', data: { html: paymentSummaryHtml }},
         { type: 'custom_html', data: { html: milestoneScheduleHtml }},
-        { type: 'custom_html', data: { html: `
-          <div style="background:${BRAND_COLORS.lightGray};padding:15px;border-radius:8px;margin:20px 0;">
-            <p style="margin:0;font-size:14px;color:#555;">
-              <strong>📍 Event:</strong> ${quote.event_name}<br>
-              <strong>📅 Date:</strong> ${eventDateStr}<br>
-              <strong>👥 Guests:</strong> ${quote.guest_count}<br>
-              <strong>📌 Location:</strong> ${quote.location || 'TBD'}
-            </p>
-          </div>
-        ` }},
+        { type: 'event_details' },
+        { type: 'menu_summary' },
+        { type: 'service_addons' },
         { type: 'text', data: { html: `<p style="font-size:15px;margin:20px 0 0 0;"><strong>Need to make changes?</strong> Contact us at <a href="tel:+18439700265" style="color:${BRAND_COLORS.crimson};">(843) 970-0265</a> or reply to this email.</p>` }}
       ];
       ctaButton = { text: 'Complete Payment Now', href: effectivePortalUrl, variant: 'primary' };
