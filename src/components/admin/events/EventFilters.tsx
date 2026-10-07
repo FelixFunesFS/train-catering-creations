@@ -25,14 +25,44 @@ const statusOptions: { value: StatusFilter; label: string }[] = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
+const sortOptions = [
+  { value: 'date:asc', label: 'Event date (soonest)' },
+  { value: 'date:desc', label: 'Event date (latest)' },
+  { value: 'submitted:desc', label: 'Submitted (newest)' },
+  { value: 'submitted:asc', label: 'Submitted (oldest)' },
+];
+
 export function EventFilters({
   statusFilter,
   setStatusFilter,
   serviceTypeFilter,
   setServiceTypeFilter,
+  sortBy,
+  setSortBy,
+  sortOrder,
+  setSortOrder,
 }: EventFiltersProps) {
+  const current = `${sortBy}:${sortOrder}`;
+  const isPreset = sortOptions.some(o => o.value === current);
   return (
     <div className="flex flex-wrap items-center gap-2">
+      <Select
+        value={isPreset ? current : undefined}
+        onValueChange={(v) => {
+          const [by, order] = v.split(':');
+          setSortBy(by as SortBy);
+          setSortOrder(order as SortOrder);
+        }}
+      >
+        <SelectTrigger className="w-[170px] h-8 text-xs" aria-label="Sort events">
+          <SelectValue placeholder="Custom sort" />
+        </SelectTrigger>
+        <SelectContent>
+          {sortOptions.map(o => (
+            <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       {/* Mobile: Status Dropdown */}
       <div className="sm:hidden">
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
