@@ -13,9 +13,25 @@ const METHODS: Record<string, string> = {
   credit_card: 'Card', stripe: 'Card', venmo: 'Venmo', zelle: 'Zelle', waveapp: 'WaveApp', other: 'Other',
 };
 
-function dueText(s: PaymentSnapshot) {
+const isPastDate = (d?: string | null) => {
+  if (!d) return false;
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return parseDateFromLocalString(d) < t;
+};
+
+function dueText(s: PaymentSnapshot, eventDate?: string | null) {
   const n = s.nextMilestone;
   if (!n) return null;
+  // After the event, or a $0-paid event within 14 days, the whole balance is what's owed — never "deposit".
+  if (isPastDate(eventDate)) {
+    const kind = s.paidCents > 0 ? 'Remaining balance' : 'Full balance';
+    if (n.dueDate && !isPastDate(n.dueDate)) return `${kind}: ${money(s.balanceCents)} — agreed due ${format(parseDateFromLocalString(n.dueDate), 'MMM d')}`;
+    return `${kind}: ${money(s.balanceCents)} due`;
+  }
+  if (eventDate && s.paidCents === 0) {
+    const days = Math.round((parseDateFromLocalString(eventDate).getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000);
+    if (days <= 14 && (n.isDueNow || !n.dueDate || isPastDate(n.dueDate))) return `Full payment: ${money(s.balanceCents)} due now`;
+  }
   const label = getMilestoneLabel(n.type as any) || n.type;
   if (n.isDueNow || !n.dueDate) return `${label}: ${money(n.remainingCents)} due now`;
   return `${label}: ${money(n.remainingCents)} due ${format(parseDateFromLocalString(n.dueDate), 'MMM d')}`;
@@ -45,6 +61,8 @@ export function getOverdueInfo(
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const past: Date[] = [];
   const due = snapshot.nextMilestone?.dueDate;
+  // An agreed future due date (set by admin) is a grace period: not overdue, even after the event.
+  if (due && parseDateFromLocalString(due) >= today) return null;
   if (due) { const d = parseDateFromLocalString(due); if (d < today) past.push(d); }
   if (eventDate) { const d = parseDateFromLocalString(eventDate); if (d < today) past.push(d); }
   if (past.length === 0) return null;
@@ -61,13 +79,13 @@ export function OverdueBadge({ className = '' }: { className?: string }) {
   );
 }
 
-const overdueText = (o: OverdueInfo) =>
-  `Past due: ${money(o.amountCents)} since ${format(parseDateFromLocalString(o.since), 'MMM d')} (${o.days} day${o.days === 1 ? '' : 's'})`;
+const overdueText = (o: OverdueInfo, paidCents = 0) =>
+  `${paidCents > 0 ? 'Remaining balance' : 'Full balance'} past due: ${money(o.amountCents)} since ${format(parseDateFromLocalString(o.since), 'MMM d')} (${o.days} day${o.days === 1 ? '' : 's'})`;
 
 /** Compact 2-line summary for list cards and calendar tiles. */
-export function PaymentSnapshotCompact({ snapshot, overdue }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null }) {
+export function PaymentSnapshotCompact({ snapshot, overdue, eventDate }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null; eventDate?: string | null }) {
   if (!snapshot) return null;
-  const next = dueText(snapshot);
+  const next = dueText(snapshot, eventDate);
   const last = snapshot.recentPayments[0];
   return (
     <div className="text-xs space-y-0.5">
@@ -76,7 +94,7 @@ export function PaymentSnapshotCompact({ snapshot, overdue }: { snapshot?: Payme
         <span className="text-muted-foreground"> of {money(snapshot.totalCents)}</span>
         {snapshot.balanceCents > 0 && <span className="text-muted-foreground"> · {money(snapshot.balanceCents)} left</span>}
       </p>
-      {overdue ? <p className="font-medium text-destructive">{overdueText(overdue)}</p>
+      {overdue ? <p className="font-medium text-destructive">{overdueText(overdue, snapshot.paidCents)}</p>
         : next ? <p className="text-amber-700 dark:text-amber-400">Next — {next}</p>
         : snapshot.balanceCents <= 0 && snapshot.totalCents > 0 ? <p className="text-success">Paid in full</p> : null}
       {last && <p className="text-muted-foreground">Last: {money(last.amount)} on {format(new Date(last.at), 'MMM d, h:mm a')}</p>}
@@ -85,11 +103,11 @@ export function PaymentSnapshotCompact({ snapshot, overdue }: { snapshot?: Payme
 }
 
 /** Full summary with progress bar + recent history for the event drawer. */
-export function PaymentSnapshotFull({ snapshot, overdue }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null }) {
+export function PaymentSnapshotFull({ snapshot, overdue, eventDate }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null; eventDate?: string | null }) {
   if (!snapshot) return null;
   const st = overdue ? { label: 'Payment Overdue', cls: 'bg-destructive/10 text-destructive border-destructive/40' } : status(snapshot);
   const pct = snapshot.totalCents ? Math.min(100, Math.round((snapshot.paidCents / snapshot.totalCents) * 100)) : 0;
-  const next = overdue ? null : dueText(snapshot);
+  const next = overdue ? null : dueText(snapshot, eventDate);
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
@@ -98,7 +116,7 @@ export function PaymentSnapshotFull({ snapshot, overdue }: { snapshot?: PaymentS
       </div>
       {overdue && (
         <p role="alert" className="text-sm rounded-md border border-destructive/30 bg-destructive/10 text-destructive px-3 py-2 font-medium">
-          {overdueText(overdue)}
+          {overdueText(overdue, snapshot.paidCents)}
         </p>
       )}
       <Progress value={pct} className="h-2" />
