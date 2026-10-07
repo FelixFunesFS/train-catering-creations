@@ -404,6 +404,15 @@ export class PaymentDataService {
 
       // Auto-void any pending transactions (orphaned checkout sessions)
       await this.voidPendingTransactions(invoiceId);
+
+      // Match Stripe webhook behavior: fully paid event becomes confirmed
+      if (invoice.quote_id) {
+        await supabase
+          .from('quote_requests')
+          .update({ workflow_status: 'confirmed' })
+          .eq('id', invoice.quote_id)
+          .in('workflow_status', ['approved', 'awaiting_payment', 'paid']);
+      }
     } else if (invoice.workflow_status !== 'partially_paid') {
       await supabase
         .from('invoices')
