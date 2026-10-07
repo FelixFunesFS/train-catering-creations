@@ -396,9 +396,7 @@ serve(async (req) => {
     // Government badge if applicable
     if (isGovernment) {
       page.drawRectangle({ x: margin, y: y - 14, width: contentWidth, height: 18, color: rgb(0.93, 0.95, 1) });
-      const pdfNet30 = Array.isArray((invoiceData as any).payment_milestones)
-        ? (invoiceData as any).payment_milestones.some((m: any) => m.is_net30)
-        : (invoiceData as any).payment_schedule_type === 'net30';
+      const pdfNet30 = (milestones || []).some((m: any) => m.is_net30);
       drawText(pdfNet30 ? "Government Contract - Tax Exempt | Net 30 Payment Terms" : "Government Contract - Tax Exempt", margin + 8, y - 9, { 
         font: helveticaBold, size: 9, color: BLUE 
       });
