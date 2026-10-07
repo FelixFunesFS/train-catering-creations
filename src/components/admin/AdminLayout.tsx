@@ -5,6 +5,7 @@ import { LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
 import { AdminHelpButton } from './help/AdminHelpButton';
+import { AdminAssistant } from './help/AdminAssistant';
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -34,7 +35,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </Link>
             
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="flex items-center gap-1">
+              {!isStaffPage && <AdminAssistant />}
+              <div className="hidden lg:flex items-center gap-1">
               <MobileAdminNav />
               <AdminHelpButton />
               <Button
@@ -46,6 +49,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <LogOut className="h-4 w-4" />
                 <span>Sign Out</span>
               </Button>
+              </div>
             </div>
           </div>
         </div>
