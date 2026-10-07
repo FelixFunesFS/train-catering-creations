@@ -12,7 +12,7 @@ import { formatLocationLink } from '@/utils/linkFormatters';
 import { EventSummaryPanel } from './EventSummaryPanel';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePaymentSnapshots } from '@/hooks/usePaymentSnapshots';
-import { PaymentSnapshotCompact } from './PaymentSnapshotView';
+import { PaymentSnapshotCompact, getOverdueInfo, OverdueBadge } from './PaymentSnapshotView';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -47,13 +47,15 @@ const statusColors: Record<string, string> = {
 function EventCard({ event, onClick }: { event: EventWithInvoice; onClick: () => void }) {
   const snapshots = usePaymentSnapshots();
   const snapshot = event.invoice ? snapshots.get(event.invoice.id) : undefined;
+  const overdue = getOverdueInfo(snapshot, event.invoice?.workflow_status, event.event_date);
   return (
     <div
       onClick={onClick}
       className={`p-2 rounded border-l-4 cursor-pointer hover:shadow-md transition-shadow ${
-        statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
+        overdue ? 'border-l-destructive bg-destructive/5' : statusColors[event.workflow_status] || 'border-l-gray-300 bg-muted/20'
       }`}
     >
+      {overdue && <OverdueBadge className="mb-1 text-[10px] px-1.5 py-0" />}
       <p className="font-medium text-sm truncate">
         {event.contact_name}
       </p>
