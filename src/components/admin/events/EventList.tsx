@@ -169,8 +169,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
   // Filter & Sort state - default to newest submissions first
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [serviceTypeFilter, setServiceTypeFilter] = useState<ServiceTypeFilter>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('submitted');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [sortBy, setSortBy] = useState<SortBy>('date');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   
   // Handle column header clicks for sorting
   const handleSort = useCallback((key: SortBy) => {
