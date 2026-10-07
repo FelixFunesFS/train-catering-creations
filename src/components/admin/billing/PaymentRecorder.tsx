@@ -402,7 +402,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+              <div className="flex flex-row flex-wrap justify-end gap-2 [&>*]:flex-1 sm:[&>*]:flex-none pt-2">
                 <Button type="button" variant="outline" onClick={onClose}>
                   Cancel
                 </Button>
@@ -456,7 +456,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     Once payment completes on Stripe, the transaction, milestones, and invoice status will update automatically.
                   </p>
 
-                  <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2">
+                  <div className="flex flex-row flex-wrap justify-end gap-2 [&>*]:flex-1 sm:[&>*]:flex-none pt-2">
                     <Button variant="outline" onClick={() => { setCheckoutUrl(''); setShowLinkFallback(false); }} className="text-sm">
                       Back
                     </Button>
