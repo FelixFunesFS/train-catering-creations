@@ -350,6 +350,7 @@ export function PaymentRecorder({ invoiceId, onClose }: PaymentRecorderProps) {
                     <SelectItem value="credit_card">Credit Card (Manual)</SelectItem>
                     <SelectItem value="venmo">Venmo</SelectItem>
                     <SelectItem value="zelle">Zelle</SelectItem>
+                    <SelectItem value="waveapp">WaveApp</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>

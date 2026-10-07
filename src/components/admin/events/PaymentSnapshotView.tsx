@@ -10,7 +10,7 @@ const money = (c: number) =>
 
 const METHODS: Record<string, string> = {
   cash: 'Cash', check: 'Check', bank_transfer: 'Bank Transfer', ach_debit: 'ACH',
-  credit_card: 'Card', stripe: 'Card', venmo: 'Venmo', zelle: 'Zelle', other: 'Other',
+  credit_card: 'Card', stripe: 'Card', venmo: 'Venmo', zelle: 'Zelle', waveapp: 'WaveApp', other: 'Other',
 };
 
 function dueText(s: PaymentSnapshot) {
