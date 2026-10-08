@@ -25,6 +25,7 @@ import {
   type EnrichedMilestone,
 } from '@/utils/paymentFormatters';
 import { formatDate } from '@/utils/formatters';
+import { mapMilestoneReceipts, type ReceiptTransaction } from '@/utils/paymentReceipt';
 import { 
   Clock, 
   CreditCard, 
@@ -43,6 +44,7 @@ interface PaymentCardProps {
   customerEmail: string;
   accessToken: string;
   totalPaidFromTransactions?: number;
+  payments?: ReceiptTransaction[];
 }
 
 export function PaymentCard({
@@ -52,6 +54,7 @@ export function PaymentCard({
   workflowStatus,
   accessToken,
   totalPaidFromTransactions,
+  payments = [],
 }: PaymentCardProps) {
   const { initiatePayment, isProcessing } = usePaymentCheckout();
   const [customAmount, setCustomAmount] = useState('');
@@ -61,6 +64,7 @@ export function PaymentCard({
   
   // Calculate per-milestone remaining balances using waterfall
   const enrichedMilestones = calculateMilestoneBalances(milestones, totalPaidFromTransactions ?? 0);
+  const receipts = mapMilestoneReceipts(enrichedMilestones, payments);
   
   // Find next due/upcoming from enriched milestones (with remaining balances)
   const nextDueEnriched = enrichedMilestones.find(m => {
@@ -295,6 +299,7 @@ export function PaymentCard({
                   <p className="text-sm text-muted-foreground">
                     {milestone.percentage}% of total
                     {milestone.due_date && !isPaid && ` • Due ${formatDate(milestone.due_date)}`}
+                    {isPaid && receipts[index] && ` • Paid ${formatDate(receipts[index]!.paidAt.slice(0, 10))} via ${receipts[index]!.method}`}
                   </p>
                   {hasPartialPayment && (
                     <p className="text-xs text-muted-foreground mt-0.5">
