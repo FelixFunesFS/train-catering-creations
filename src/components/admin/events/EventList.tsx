@@ -590,6 +590,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
             ) : isMobile ? (
               /* Mobile Card Layout */
               <div className="space-y-3">
+                <p className="text-xs text-muted-foreground rounded-md border border-dashed px-3 py-2">Tip: Estimates are valid 7 days. If the customer called, texted, or agreed to a payment arrangement, log it (Log Call / Note) so the quote isn't treated as expired. Customer agreed by phone? Tap Approve, or Pay to approve and record the deposit in one step.</p>
                 {paginatedEvents.map((event) => {
                   const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
                   const invoice = event.invoice;
@@ -767,6 +768,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </div>
             ) : (
               /* Desktop Table Layout */
+              <>
+              <p className="mb-3 text-xs text-muted-foreground rounded-md border border-dashed px-3 py-2">Tip: Estimates are valid 7 days. If the customer called, texted, or agreed to a payment arrangement, log it (Log Call / Note) so the quote isn't treated as expired. Customer agreed by phone? Tap Approve, or Pay to approve and record the deposit in one step.</p>
               <Table className="[&_th]:lg:px-2 [&_td]:lg:px-2">
                 <TableHeader>
                   <TableRow>
