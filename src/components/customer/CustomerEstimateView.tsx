@@ -370,7 +370,7 @@ export function CustomerEstimateView() {
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
           {/* Left: sticky booking overview, payment, download, terms, help */}
-          <aside className="space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1 lg:-mr-1 overscroll-contain">
+          <aside className="space-y-4">
             <CustomerDetailsSidebar 
               quote={quote}
               invoiceId={invoice.id}
