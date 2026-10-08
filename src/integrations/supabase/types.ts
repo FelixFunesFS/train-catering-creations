@@ -2184,6 +2184,7 @@ export type Database = {
           invoice: Json
           line_items: Json
           milestones: Json
+          payments: Json
           quote: Json
           total_paid: number
         }[]
