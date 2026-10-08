@@ -101,13 +101,13 @@ export function CustomerDetailsSidebar({
         )}
         {/* Customer Contact Card */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card/90">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 sm:pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <User className="h-4 w-4 text-primary" />
               Your Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-sm">
+          <CardContent className="space-y-2 text-sm sm:pt-0">
             <div className="flex items-center gap-2">
               <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <span className="font-medium text-foreground">{quote.contact_name}</span>
@@ -145,13 +145,13 @@ export function CustomerDetailsSidebar({
 
         {/* Event Details Card */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 sm:pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
               Event Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm">
+          <CardContent className="space-y-3 text-sm sm:pt-0">
             <div>
               <h3 className="font-semibold text-foreground">{quote.event_name}</h3>
               <p className="text-muted-foreground">
@@ -245,7 +245,7 @@ export function CustomerDetailsSidebar({
                 </CardHeader>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 sm:pt-0">
                   <StandardTermsAndConditions 
                     eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
                     variant="compact" 
