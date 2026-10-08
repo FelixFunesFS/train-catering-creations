@@ -853,35 +853,37 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                   return (
                     <div 
                       key={milestone.id}
-                      className="flex items-center justify-between text-sm p-2 rounded-lg bg-muted/50"
+                      className="text-sm p-3 rounded-lg bg-muted/50 space-y-2"
                     >
-                      <div>
-                        <p className="font-medium">{getMilestoneLabel(milestone.milestone_type)}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {milestone.percentage}%
-                          {milestone.due_date && ` • Due ${format(new Date(milestone.due_date), 'MMM d')}`}
-                        </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium">{getMilestoneLabel(milestone.milestone_type)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {milestone.percentage}%
+                            {milestone.due_date && ` • Due ${format(new Date(milestone.due_date), 'MMM d')}`}
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-medium">
+                            {formatCurrency(milestone.status === 'paid' ? milestone.amount_cents : milestone.remainingCents)}
+                            {milestone.status !== 'paid' && milestone.remainingCents < milestone.amount_cents && (
+                              <span className="text-muted-foreground font-normal text-xs block">
+                                of {formatCurrency(milestone.amount_cents)}
+                              </span>
+                            )}
+                          </p>
+                          <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
+                            {milestone.status}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium">
-                          {formatCurrency(milestone.status === 'paid' ? milestone.amount_cents : milestone.remainingCents)}
-                          {milestone.status !== 'paid' && milestone.remainingCents < milestone.amount_cents && (
-                            <span className="text-muted-foreground font-normal text-xs block">
-                              of {formatCurrency(milestone.amount_cents)}
-                            </span>
-                          )}
-                        </p>
-                        <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
-                          {milestone.status}
-                        </Badge>
-                        {milestone.status !== 'paid' && (
-                          <Button type="button" size="sm" variant="outline" className="h-9 px-2 gap-1 text-xs mt-1 flex"
-                            aria-label={`Change due date for ${getMilestoneLabel(milestone.milestone_type)}`}
-                            onClick={() => setAdjusting({ id: milestone.id, milestone_type: milestone.milestone_type, due_date: milestone.due_date ?? null })}>
-                            <CalendarClock className="h-4 w-4" /> Change date
-                          </Button>
-                        )}
-                      </div>
+                      {milestone.status !== 'paid' && (
+                        <Button type="button" size="sm" variant="outline" className="h-11 w-full gap-2 text-sm"
+                          aria-label={`Change due date for ${getMilestoneLabel(milestone.milestone_type)}`}
+                          onClick={() => setAdjusting({ id: milestone.id, milestone_type: milestone.milestone_type, due_date: milestone.due_date ?? null })}>
+                          <CalendarClock className="h-4 w-4" /> Change date
+                        </Button>
+                      )}
                     </div>
                   );
                 })}
