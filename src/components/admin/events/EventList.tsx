@@ -727,7 +727,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           {actionLabel.replace('View ', '')}
                         </Button>
                         
-                        {/* Email tracking labeled indicators */}
+                        {(invoice?.sent_at || invoice?.viewed_at) && <div className="col-span-2 flex gap-3">
                         {invoice?.sent_at && (
                           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                             {invoice.email_opened_at ? (
@@ -743,6 +743,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                             <Globe className="h-3 w-3 text-purple-600" /> Viewed
                           </span>
                         )}
+                        </div>}
                       </div>
                     </div>
                   );
