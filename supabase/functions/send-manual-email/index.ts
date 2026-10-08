@@ -205,6 +205,7 @@ serve(async (req) => {
 
     // Send email using the existing SMTP function
     const emailResponse = await supabaseClient.functions.invoke('send-smtp-email', {
+        headers: { Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
       body: {
         to: customer.email,
         subject: subject,
