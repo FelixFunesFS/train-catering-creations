@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
 import { formatDate, formatTime, formatServiceType } from '@/utils/formatters';
 import { getMilestoneLabel, calculateMilestoneBalances } from '@/utils/paymentFormatters';
+import { mapMilestoneReceipts, type ReceiptTransaction } from '@/utils/paymentReceipt';
 import { DEFAULT_TERMS } from '@/hooks/useCateringAgreement';
 
 interface LineItem {
@@ -84,6 +85,7 @@ export default function EstimatePrintView() {
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [milestones, setMilestones] = useState<PaymentMilestone[]>([]);
   const [totalPaidFromTransactions, setTotalPaidFromTransactions] = useState<number>(0);
+  const [payments, setPayments] = useState<ReceiptTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
