@@ -53,7 +53,7 @@ export function MenuActionsPanel({
     <div className="space-y-6">
       {/* Line Items Card */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2 sm:pb-2">
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
         <CardContent>

@@ -190,7 +190,7 @@ export function CustomerEstimateView() {
 
       {/* Line Items Card */}
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-2 sm:pb-2">
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
         <CardContent>
@@ -317,7 +317,7 @@ export function CustomerEstimateView() {
 
           {/* Event Details Card */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 sm:pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
                 Event Details
@@ -410,7 +410,7 @@ export function CustomerEstimateView() {
                 </CardHeader>
               </CollapsibleTrigger>
               <CollapsibleContent>
-                <CardContent className="pt-0">
+                <CardContent className="pt-0 sm:pt-0">
                   <StandardTermsAndConditions 
                     eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
                     variant="compact" 
@@ -493,7 +493,7 @@ export function CustomerEstimateView() {
                     </CardHeader>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <CardContent className="pt-0">
+                    <CardContent className="pt-0 sm:pt-0">
                       <StandardTermsAndConditions 
                         eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
                         variant="compact" 
