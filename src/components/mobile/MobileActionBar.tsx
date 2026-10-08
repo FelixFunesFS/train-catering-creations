@@ -3,7 +3,6 @@ import { MessageSquareText, Phone, Sparkles } from "lucide-react";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
 
 type MobileActionBarProps = {
   className?: string;
