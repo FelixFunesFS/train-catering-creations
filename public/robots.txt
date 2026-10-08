@@ -19,6 +19,8 @@ Allow: /
 # Disallow admin and customer portal routes
 Disallow: /admin
 Disallow: /admin/*
+Disallow: /staff
+Disallow: /staff/*
 Disallow: /customer-portal
 Disallow: /customer/*
 Disallow: /estimate
