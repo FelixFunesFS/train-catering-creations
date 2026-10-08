@@ -938,6 +938,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
                       <TableCell className="text-right whitespace-nowrap">
+                        {invoice && isPreApproval(invoice.workflow_status) && invoice.workflow_status !== 'draft' && (
+                          <AdminApproveButton invoiceId={invoice.id} quoteId={event.id} customerName={event.contact_name} className="h-8 mr-1" />
+                        )}
                         {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
