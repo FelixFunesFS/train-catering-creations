@@ -69,7 +69,7 @@ export const useRouteMeta = () => {
     const privateMeta = path.startsWith("/staff")
       ? { title: "Staff & Team Schedule | Soul Train's Eatery", description: "Sign-in for Soul Train's Eatery event crew: schedules, prep sheets and event details." }
       : { title: "Admin Portal | Soul Train's Eatery", description: "Secure sign-in for Soul Train's Eatery administrators to manage catering events and payments." };
-    const meta = isPrivate ? privateMeta : ROUTE_META[path];
+    const meta: { title: string; description: string; image?: string } | undefined = isPrivate ? privateMeta : ROUTE_META[path];
     if (!meta) return;
     const url = `${SITE}${path === "/" ? "/" : path}`;
     document.title = meta.title;
