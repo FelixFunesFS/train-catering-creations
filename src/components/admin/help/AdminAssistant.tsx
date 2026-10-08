@@ -29,8 +29,15 @@ async function authHeaders() {
 }
 
 export function AdminAssistant() {
-  const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Msg[]>([]);
+  // Persist across page re-renders/remounts (e.g. mobile keyboard resize) so the chat never resets
+  const [open, setOpenState] = useState(() => sessionStorage.getItem('adminAssistant.open') === '1');
+  const [messages, setMessages] = useState<Msg[]>(() => {
+    try { return JSON.parse(sessionStorage.getItem('adminAssistant.messages') || '[]'); } catch { return []; }
+  });
+  const setOpen = (v: boolean) => { setOpenState(v); sessionStorage.setItem('adminAssistant.open', v ? '1' : '0'); };
+  useEffect(() => {
+    sessionStorage.setItem('adminAssistant.messages', JSON.stringify(messages.slice(-30)));
+  }, [messages]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [escalating, setEscalating] = useState(false);
@@ -125,6 +132,9 @@ export function AdminAssistant() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
+          onInteractOutside={(e) => e.preventDefault()}
+          onFocusOutside={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => e.preventDefault()}
           className="w-full sm:max-w-md p-0 flex flex-col gap-0 h-[100dvh] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]"
         >
           <SheetHeader className="px-4 py-3 border-b text-left space-y-0.5">
@@ -213,6 +223,7 @@ export function AdminAssistant() {
                 }}
                 placeholder="Ask a question or describe what you need…"
                 rows={1}
+                autoFocus={false}
                 aria-label="Message the assistant"
                 className="min-h-[44px] max-h-32 resize-none text-base sm:text-sm"
               />
