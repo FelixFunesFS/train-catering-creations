@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { Database } from '@/integrations/supabase/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { AdminApproveButton } from './AdminApproveButton';
+import { isPreApproval } from '@/utils/proposalStatus';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CustomerEditor } from './CustomerEditor';
@@ -397,7 +399,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               <Separator />
               <section>
                 <h3 className="text-sm font-semibold mb-3">Event Status Actions</h3>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-2 gap-2 [&>button]:min-h-[44px] [&>button]:w-full">
                   {quote.workflow_status === 'confirmed' && (
                     <Button 
                       variant="outline" 
@@ -423,10 +425,10 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
                   )}
                   
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="sm"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleStatusChange('cancelled')}
+                    className="col-span-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => { if (window.confirm('Cancel this event? The customer will not be notified.')) handleStatusChange('cancelled'); }}
                     disabled={updateStatus.isPending}
                   >
                     <XCircle className="h-4 w-4 mr-2" />
@@ -444,6 +446,9 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
             <Button variant="outline" onClick={onClose} className="min-h-[44px]">
               Close
             </Button>
+            {existingInvoice && isPreApproval(existingInvoice.workflow_status) && existingInvoice.workflow_status !== 'draft' && (
+              <AdminApproveButton invoiceId={existingInvoice.id} quoteId={quote.id} customerName={quote.contact_name} className="min-h-[44px] text-sm" />
+            )}
             {existingInvoice ? (
               <Button 
                 onClick={handleViewEstimate} 

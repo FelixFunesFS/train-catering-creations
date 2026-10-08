@@ -256,7 +256,7 @@ export function EventMonthView({ events, currentDate, onEventClick }: EventMonth
                         </div>
                         {event.invoice && (
                           snapshots.get(event.invoice.id) ? (
-                            <div className="mt-2 pt-2 border-t"><PaymentSnapshotCompact snapshot={snapshots.get(event.invoice.id)} overdue={overdueOf(event)} eventDate={event.event_date} /></div>
+                            <div className="mt-2 pt-2 border-t"><PaymentSnapshotCompact snapshot={snapshots.get(event.invoice.id)} overdue={overdueOf(event)} invoiceStatus={event.invoice?.workflow_status} eventDate={event.event_date} /></div>
                           ) : (
                             <Badge variant="outline" className="mt-2 text-xs">
                               ${(event.invoice.total_amount / 100).toLocaleString()}

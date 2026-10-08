@@ -83,8 +83,11 @@ const overdueText = (o: OverdueInfo, paidCents = 0) =>
   `${paidCents > 0 ? 'Remaining balance' : 'Full balance'} past due: ${money(o.amountCents)} since ${format(parseDateFromLocalString(o.since), 'MMM d')} (${o.days} day${o.days === 1 ? '' : 's'})`;
 
 /** Compact 2-line summary for list cards and calendar tiles. */
-export function PaymentSnapshotCompact({ snapshot, overdue, eventDate }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null; eventDate?: string | null }) {
+export function PaymentSnapshotCompact({ snapshot, overdue, eventDate, invoiceStatus }: { snapshot?: PaymentSnapshot; overdue?: OverdueInfo | null; eventDate?: string | null; invoiceStatus?: string | null }) {
   if (!snapshot) return null;
+  if (invoiceStatus && ['draft', 'pending_review', 'sent', 'viewed'].includes(invoiceStatus) && snapshot.paidCents === 0) {
+    return <p className="text-xs text-muted-foreground">Estimate {money(snapshot.totalCents)} · awaiting approval</p>;
+  }
   const next = dueText(snapshot, eventDate);
   const last = snapshot.recentPayments[0];
   return (

@@ -420,13 +420,31 @@ export class PaymentDataService {
         .eq('id', invoiceId);
     }
 
+    // A payment on a not-yet-approved estimate means the customer agreed:
+    // record acceptance so the booking is approved and confirmed in one step.
+    const wasPreApproval = ['draft', 'pending_review', 'sent', 'viewed'].includes(invoice.workflow_status);
+    if (wasPreApproval && amount > 0) {
+      const now = new Date().toISOString();
+      await supabase.from('invoices')
+        .update({ terms_accepted_at: now, last_customer_interaction: now })
+        .eq('id', invoiceId)
+        .is('terms_accepted_at', null);
+      if (invoice.quote_id) {
+        await supabase.from('admin_notes').insert({
+          quote_request_id: invoice.quote_id,
+          note_content: `Estimate approved via ${paymentMethod} payment recorded by admin.`,
+          created_by: 'admin', is_internal: true, category: 'contact',
+        });
+      }
+    }
+
     // Auto-confirm booking once any payment (deposit) is received
-    if (!isFullPayment && invoice.quote_id && amount > 0) {
+    if (invoice.quote_id && amount > 0) {
       await supabase
         .from('quote_requests')
         .update({ workflow_status: 'confirmed' })
         .eq('id', invoice.quote_id)
-        .in('workflow_status', ['approved', 'awaiting_payment']);
+        .in('workflow_status', ['pending', 'under_review', 'estimated', 'quoted', 'approved', 'awaiting_payment', 'paid']);
     }
 
     // Send confirmation email if requested and quote exists

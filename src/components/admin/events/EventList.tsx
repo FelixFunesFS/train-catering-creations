@@ -31,6 +31,8 @@ import { SortableTableHead } from './SortableTableHead';
 import { QuickEventDialog } from './QuickEventDialog';
 import { MobileFilterSheet } from './MobileFilterSheet';
 import { Plus } from 'lucide-react';
+import { AdminApproveButton } from './AdminApproveButton';
+import { getProposalStatus, isPreApproval } from '@/utils/proposalStatus';
 import { formatDateTimeShortET } from '@/utils/formatters';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { Database } from '@/integrations/supabase/types';
@@ -53,6 +55,7 @@ function useRawInvoices() {
           viewed_at, 
           email_opened_at, 
           invoice_number,
+          last_customer_interaction,
           payment_milestones (
             id,
             milestone_type,
@@ -139,6 +142,7 @@ type InvoiceForEvent = {
   viewed_at: string | null;
   email_opened_at: string | null;
   invoice_number: string | null;
+  last_customer_interaction: string | null;
   payment_milestones: Array<{
     id: string;
     milestone_type: string;
@@ -586,6 +590,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
             ) : isMobile ? (
               /* Mobile Card Layout */
               <div className="space-y-3">
+                <p className="text-xs text-muted-foreground rounded-md border border-dashed px-3 py-2">Tip: Estimates are valid 7 days. If the customer called, texted, or agreed to a payment arrangement, log it (Log Call / Note) so the quote isn't treated as expired. Customer agreed by phone? Tap Approve, or Pay to approve and record the deposit in one step.</p>
                 {paginatedEvents.map((event) => {
                   const { icon: ActionIcon, label: actionLabel } = getActionDetails(event.workflow_status);
                   const invoice = event.invoice;
@@ -630,7 +635,16 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           </span>
                         )}
                       </div>
-                      {invoice && snapshots.get(invoice.id) && (
+                      {invoice && isPreApproval(invoice.workflow_status) ? (() => {
+                        const ps = getProposalStatus(invoice)!;
+                        const warn = ps.state === 'needs_follow_up';
+                        return (
+                          <div className={`mb-3 rounded-md px-3 py-2 text-xs ${warn ? 'border border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300' : 'bg-muted/40'}`}>
+                            <p className="font-medium text-foreground">Estimate {formatCurrency(invoice.total_amount)} · {ps.label}{ps.daysSinceSent !== null ? ` (${ps.daysSinceSent}d ago)` : ''}</p>
+                            <p className={warn ? '' : 'text-muted-foreground'}>{ps.detail}. No payment is owed until approved.</p>
+                          </div>
+                        );
+                      })() : invoice && snapshots.get(invoice.id) && (
                         <div className="mb-3 rounded-md bg-muted/40 px-3 py-2">
                           <PaymentSnapshotCompact snapshot={snapshots.get(invoice.id)} eventDate={event.event_date} overdue={getOverdueInfo(snapshots.get(invoice.id), invoice.workflow_status, event.event_date)} />
                         </div>
@@ -690,6 +704,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           </Button>
                         )}
                         
+                        {invoice && isPreApproval(invoice.workflow_status) && invoice.workflow_status !== 'draft' && (
+                          <AdminApproveButton invoiceId={invoice.id} quoteId={event.id} customerName={event.contact_name} />
+                        )}
                         {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
                           <Button
                             size="sm"
@@ -751,6 +768,8 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
               </div>
             ) : (
               /* Desktop Table Layout */
+              <>
+              <p className="mb-3 text-xs text-muted-foreground rounded-md border border-dashed px-3 py-2">Tip: Estimates are valid 7 days. If the customer called, texted, or agreed to a payment arrangement, log it (Log Call / Note) so the quote isn't treated as expired. Customer agreed by phone? Tap Approve, or Pay to approve and record the deposit in one step.</p>
               <Table className="[&_th]:lg:px-2 [&_td]:lg:px-2">
                 <TableHeader>
                   <TableRow>
@@ -886,6 +905,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <TableCell className="hidden lg:table-cell">
                         {(() => {
                           if (!invoice) return <span className="text-muted-foreground">—</span>;
+                          const ps = getProposalStatus(invoice);
+                          if (ps) return (
+                            <Badge variant="outline" title={ps.detail} className={`text-xs ${ps.state === 'needs_follow_up' ? 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300' : 'text-muted-foreground'}`}>
+                              {ps.label}
+                            </Badge>
+                          );
                           const nextMilestone = invoice.payment_milestones 
                             ? getNextUnpaidMilestone(invoice.payment_milestones)
                             : null;
@@ -916,6 +941,9 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         {event.updated_at ? formatDateTimeShortET(event.updated_at) : '—'}
                       </TableCell>
                       <TableCell className="text-right whitespace-nowrap">
+                        {invoice && isPreApproval(invoice.workflow_status) && invoice.workflow_status !== 'draft' && (
+                          <AdminApproveButton invoiceId={invoice.id} quoteId={event.id} customerName={event.contact_name} className="h-8 mr-1" />
+                        )}
                         {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
@@ -956,6 +984,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                 })}
                 </TableBody>
               </Table>
+              </>
             )}
           </CardContent>
           {viewMode === 'list' && (
