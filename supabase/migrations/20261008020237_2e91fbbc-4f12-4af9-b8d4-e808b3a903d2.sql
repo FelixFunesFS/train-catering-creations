@@ -1,0 +1,2 @@
+ALTER TABLE public.admin_notes DROP CONSTRAINT IF EXISTS admin_notes_category_check;
+ALTER TABLE public.admin_notes ADD CONSTRAINT admin_notes_category_check CHECK (category IS NULL OR category IN ('general','follow-up','pricing','logistics','menu','customer-request','call','text','in_person','note','contact'));
