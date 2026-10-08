@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.52.1";
 import { 
   generateStandardEmail,
   generateMenuSection,
@@ -227,6 +227,7 @@ ${safeSpecialRequests ? `
     try {
       console.log('Sending admin notification email...');
       const { error: adminEmailError } = await supabase.functions.invoke('send-smtp-email', {
+        headers: { Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
         body: {
           to: 'soultrainseatery@gmail.com',
           subject: `[NEW QUOTE] ${quote.contact_name} - ${quote.event_name}`,

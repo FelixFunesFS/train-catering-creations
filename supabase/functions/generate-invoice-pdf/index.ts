@@ -62,7 +62,7 @@ serve(async (req) => {
         customers (id, name, email, phone, address),
       quote_requests (
           id, event_name, event_date, location, service_type, guest_count, 
-          special_requests, contact_name, email, start_time, proteins, sides,
+          special_requests, contact_name, email, start_time, proteins, both_proteins_available, sides,
           appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
           compliance_level, requires_po_number, event_type, military_organization,
           wait_staff_requested, wait_staff_requirements, bussing_tables_needed,
@@ -515,6 +515,13 @@ serve(async (req) => {
       y -= 6;
       drawLine(margin, y, pageWidth - margin);
       y -= 4;
+    }
+
+    // Both-proteins indicator (ASCII-safe for WinAnsi)
+    if (quote?.both_proteins_available && Array.isArray(quote?.proteins) && quote.proteins.length >= 2) {
+      y -= 14;
+      drawText("* Both proteins served to all guests", descCol + 4, y, { font: helveticaBold, size: 9, color: CRIMSON });
+      y -= 6;
     }
 
     // === TOTALS (compact) ===

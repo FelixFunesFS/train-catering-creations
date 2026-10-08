@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { generateStandardEmail, EMAIL_CONFIGS, getEmailContentBlocks } from '../_shared/emailTemplates.ts';
 import { getTodayString, subtractDays } from '../_shared/dateHelpers.ts';
 
@@ -82,6 +82,7 @@ serve(async (req) => {
       });
 
       const { error: emailError } = await supabaseClient.functions.invoke('send-smtp-email', {
+        headers: { Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
         body: {
           to: quote.email,
           subject: `Thank you for choosing Soul Train's Eatery - ${quote.event_name}`,

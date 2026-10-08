@@ -194,6 +194,11 @@ export function CustomerEstimateView() {
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
         <CardContent>
+          {(quote as any)?.both_proteins_available && Array.isArray((quote as any)?.proteins) && (quote as any).proteins.length >= 2 && (
+            <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3 text-sm font-semibold text-primary">
+              ⭐ Both proteins served to all guests
+            </div>
+          )}
           <EstimateLineItems
             lineItems={lineItems}
             subtotal={invoice.subtotal}

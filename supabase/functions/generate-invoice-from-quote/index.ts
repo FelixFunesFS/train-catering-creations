@@ -73,6 +73,7 @@ const generateLineItems = (quote: any): any[] => {
     if (sidesText) description += ` with ${sidesText}`;
     description += ', dinner rolls';
     if (drinksText) description += `, ${drinksText}`;
+    if (quote.both_proteins_available && proteins.length >= 2) description += ' (Both proteins served to all guests)';
     
     lineItems.push({
       title: `Catering Package`,
