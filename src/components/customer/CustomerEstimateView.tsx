@@ -20,7 +20,6 @@ import { MenuActionsPanel } from './MenuActionsPanel';
 import { CustomerActions, DownloadPdfButton } from './CustomerActions';
 import { ChangeRequestModal } from './ChangeRequestModal';
 import { PaymentCard } from './PaymentCard';
-import { CustomerContactCard } from './CustomerContactCard';
 import { CustomerDetailsSidebar } from './CustomerDetailsSidebar';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

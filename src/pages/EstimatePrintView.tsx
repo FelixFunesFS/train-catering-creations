@@ -127,7 +127,7 @@ export default function EstimatePrintView() {
       // Fetch payment transactions for accurate totalPaid
       const { data: transactionsData } = await supabase
         .from('payment_transactions')
-        .select('amount, status')
+        .select('amount, status, payment_method, payment_type, processed_at, created_at, milestone_id')
         .eq('invoice_id', invoiceId)
         .eq('status', 'completed');
 
@@ -137,6 +137,7 @@ export default function EstimatePrintView() {
       setLineItems(lineItemsData || []);
       setMilestones(milestonesData || []);
       setTotalPaidFromTransactions(txTotalPaid);
+      setPayments((transactionsData || []) as ReceiptTransaction[]);
     } catch (error) {
       console.error('Error fetching estimate:', error);
     } finally {
@@ -356,6 +357,7 @@ export default function EstimatePrintView() {
             // Use transaction-based totalPaid, fall back to milestone-based
             totalPaidFromTransactions || milestones.filter(m => m.status === 'paid').reduce((s, m) => s + m.amount_cents, 0)
           );
+          const receipts = mapMilestoneReceipts(enriched, payments);
 
           return (
           <div className="max-w-[8.5in] mx-auto p-8 print:p-0 page-break">
@@ -388,7 +390,9 @@ export default function EstimatePrintView() {
                       ${(milestone.remainingCents / 100).toFixed(2)}
                     </td>
                     <td className="p-3 text-right border-b border-gray-200">
-                      {milestone.due_date ? formatDate(milestone.due_date) : 'TBD'}
+                      {milestone.status === 'paid' && receipts[idx]
+                        ? `Paid ${new Date(receipts[idx]!.paidAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} via ${receipts[idx]!.method}`
+                        : milestone.due_date ? formatDate(milestone.due_date) : 'TBD'}
                     </td>
                     <td className="p-3 text-center border-b border-gray-200">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
