@@ -23,8 +23,6 @@ import { PaymentCard } from './PaymentCard';
 import { CustomerContactCard } from './CustomerContactCard';
 import { CustomerDetailsSidebar } from './CustomerDetailsSidebar';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -152,7 +150,9 @@ export function CustomerEstimateView() {
   // Shared header component
   const HeaderSection = () => (
     <div className="text-center space-y-2">
-      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Your {getDocumentLabel(invoice.workflow_status).title}</h1>
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground text-balance leading-tight">
+        Your {getDocumentLabel(invoice.workflow_status).title.replace(/\s*\(.*\)\s*$/, '')}
+      </h1>
       {/* Status Badges */}
       <div className="flex flex-wrap justify-center gap-2 pt-2">
         <Badge variant="outline" className={`${estimateStatus.color} border`}>
@@ -279,31 +279,47 @@ export function CustomerEstimateView() {
     />
   );
 
-  // Footer Section
+  // Single support block (phone + email live here only)
+  const HelpCard = () => (
+    <Card className="bg-muted/30">
+      <CardContent className="pt-4">
+        <div className="flex items-center gap-2 mb-2">
+          <HelpCircle className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium">Need Help?</span>
+        </div>
+        <div className="space-y-1 text-sm text-muted-foreground">
+          <p>
+            Call:{' '}
+            <a href="tel:+18439700265" className="text-primary hover:underline">(843) 970-0265</a>
+          </p>
+          <p>
+            Email:{' '}
+            <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline break-all">soultrainseatery@gmail.com</a>
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // Branded red copyright & legal bar
   const FooterSection = () => (
-    <div className="text-center space-y-2 pt-4">
-      <Separator />
-      <p className="text-sm text-muted-foreground pt-4">
-        Questions? Contact us at{' '}
-        <a href="tel:+18439700265" className="text-primary hover:underline">
-          (843) 970-0265
-        </a>
-        {' '}or{' '}
-        <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
-          soultrainseatery@gmail.com
-        </a>
-      </p>
-      <p className="text-xs text-muted-foreground">
-        Build: {new Date(__APP_BUILD_TIME__).toLocaleString()}
-      </p>
-    </div>
+    <footer className="bg-gradient-to-r from-primary to-primary-dark py-4 pb-[calc(1rem+env(safe-area-inset-bottom))] text-primary-foreground">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs sm:text-sm text-center">
+        <p>© {new Date().getFullYear()} Soul Train's Eatery. All rights reserved.</p>
+        <nav className="flex items-center gap-3">
+          <a href="/privacy-policy" className="hover:text-primary-foreground/80">Privacy Policy</a>
+          <span className="text-primary-foreground/60">|</span>
+          <a href="/terms-conditions" className="hover:text-primary-foreground/80">Terms & Conditions</a>
+        </nav>
+      </div>
+    </footer>
   );
 
   // MOBILE LAYOUT (unchanged)
   if (isMobile) {
     return (
-      <div className="min-h-screen bg-muted/30 py-8 px-4">
-        <div className="max-w-3xl mx-auto space-y-6">
+      <div className="min-h-screen bg-muted/30 flex flex-col">
+        <div className="flex-1 w-full max-w-3xl mx-auto space-y-6 py-8 px-4">
           <HeaderSection />
 
           {/* Customer Contact Card */}
@@ -419,157 +435,103 @@ export function CustomerEstimateView() {
             </Card>
           </Collapsible>
 
-          <FooterSection />
+          <HelpCard />
         </div>
+        <FooterSection />
       </div>
     );
   }
 
-  // DESKTOP 3-COLUMN LAYOUT
+  // DESKTOP / TABLET: document column + sticky action sidebar
   return (
     <div className="min-h-screen bg-muted/30 flex flex-col">
-      {/* Header - Full Width */}
       <div className="py-6 px-4 border-b bg-background">
         <HeaderSection />
       </div>
 
-      {/* 3-Column Split Panel Content */}
-      <ResizablePanelGroup
-        direction="horizontal"
-        className="flex-1 h-[calc(100vh-10rem)]"
-      >
-        {/* Left Panel - Customer Details Sidebar (25%) - NOW WITH CTAs AT TOP */}
-        <ResizablePanel 
-          defaultSize={25} 
-          minSize={22} 
-          maxSize={30}
-          className="bg-background"
-        >
-          <CustomerDetailsSidebar 
-            quote={quote}
-            invoiceId={invoice.id}
-            customerEmail={quote.email}
-            workflowStatus={invoice.workflow_status}
-            quoteRequestId={invoice.quote_request_id}
-            amountPaid={amountPaid}
-            onStatusChange={refetch}
-            autoApprove={shouldAutoApprove}
-            accessToken={token}
-            invoiceNumber={invoice.invoice_number}
-            hideTermsAndHelp={true}
-          />
-        </ResizablePanel>
+      <div className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] gap-6 lg:gap-8 items-start">
+          {/* Main document: customer, event, menu & pricing */}
+          <div className="space-y-6 min-w-0">
+            <CustomerDetailsSidebar 
+              quote={quote}
+              invoiceId={invoice.id}
+              customerEmail={quote.email}
+              workflowStatus={invoice.workflow_status}
+              quoteRequestId={invoice.quote_request_id}
+              amountPaid={amountPaid}
+              onStatusChange={refetch}
+              autoApprove={shouldAutoApprove}
+              accessToken={token}
+              invoiceNumber={invoice.invoice_number}
+              hideTermsAndHelp={true}
+            />
+            <MenuActionsPanel
+              lineItems={lineItems}
+              subtotal={invoice.subtotal}
+              taxAmount={invoice.tax_amount || 0}
+              total={invoice.total_amount}
+              notes={invoice.notes}
+              invoiceId={invoice.id}
+              customerEmail={quote.email}
+              workflowStatus={invoice.workflow_status}
+              quoteRequestId={invoice.quote_request_id}
+              amountPaid={amountPaid}
+              onStatusChange={refetch}
+              autoApprove={shouldAutoApprove}
+              accessToken={token}
+              invoiceNumber={invoice.invoice_number}
+            />
+          </div>
 
-        <ResizableHandle withHandle />
-
-        {/* Center Panel - Payment + Terms + Download + Help (35%) */}
-        <ResizablePanel defaultSize={35} minSize={30} maxSize={40}>
-          <ScrollArea className="h-full">
-            <div className="p-6 space-y-6">
-              {/* PaymentCard */}
-              <div id="payment">
-                <PaymentCard
-                  invoiceId={invoice.id}
-                  totalAmount={invoice.total_amount}
-                  milestones={(milestones || []) as Milestone[]}
-                  workflowStatus={invoice.workflow_status}
-                  customerEmail={quote.email}
-                  accessToken={token}
-                  totalPaidFromTransactions={estimateData.totalPaid}
-                />
-              </div>
-
-              {/* Terms & Conditions */}
-              <Collapsible defaultOpen={false}>
-                <Card>
-                  <CollapsibleTrigger className="w-full">
-                    <CardHeader className="flex flex-row items-center justify-between py-3">
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <PenLine className="h-4 w-4 text-primary" />
-                        Terms & Conditions
-                      </CardTitle>
-                      <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
-                    </CardHeader>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <CardContent className="pt-0 sm:pt-0">
-                      <StandardTermsAndConditions 
-                        eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
-                        variant="compact" 
-                      />
-                    </CardContent>
-                  </CollapsibleContent>
-                </Card>
-              </Collapsible>
-
-              {/* Download PDF Button */}
-              <DownloadPdfButton 
+          {/* Sticky action sidebar: payment, download, terms, help */}
+          <aside className="space-y-6 lg:sticky lg:top-24">
+            <div id="payment">
+              <PaymentCard
                 invoiceId={invoice.id}
-                invoiceNumber={invoice.invoice_number}
-                accessToken={token}
-                status={invoice.workflow_status}
-              />
-
-              {/* Help Section */}
-              <Card className="bg-muted/30">
-                <CardContent className="pt-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <HelpCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Need Help?</span>
-                  </div>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>
-                      Call:{' '}
-                      <a href="tel:+18439700265" className="text-primary hover:underline">
-                        (843) 970-0265
-                      </a>
-                    </p>
-                    <p>
-                      Email:{' '}
-                      <a href="mailto:soultrainseatery@gmail.com" className="text-primary hover:underline">
-                        soultrainseatery@gmail.com
-                      </a>
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </ScrollArea>
-        </ResizablePanel>
-
-        <ResizableHandle withHandle />
-
-        {/* Right Panel - Menu & Actions (40%) */}
-        <ResizablePanel defaultSize={40} minSize={35}>
-          <ScrollArea className="h-full">
-            <div className="p-6">
-              <MenuActionsPanel
-                lineItems={lineItems}
-                subtotal={invoice.subtotal}
-                taxAmount={invoice.tax_amount || 0}
-                total={invoice.total_amount}
-                notes={invoice.notes}
-                invoiceId={invoice.id}
-                customerEmail={quote.email}
+                totalAmount={invoice.total_amount}
+                milestones={(milestones || []) as Milestone[]}
                 workflowStatus={invoice.workflow_status}
-                quoteRequestId={invoice.quote_request_id}
-                amountPaid={amountPaid}
-                onStatusChange={refetch}
-                autoApprove={shouldAutoApprove}
+                customerEmail={quote.email}
                 accessToken={token}
-                invoiceNumber={invoice.invoice_number}
+                totalPaidFromTransactions={estimateData.totalPaid}
               />
             </div>
-          </ScrollArea>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+            <DownloadPdfButton 
+              invoiceId={invoice.id}
+              invoiceNumber={invoice.invoice_number}
+              accessToken={token}
+              status={invoice.workflow_status}
+            />
+              {/* Terms & Conditions */}
+            <Collapsible defaultOpen={false}>
+              <Card>
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between py-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <PenLine className="h-4 w-4 text-primary" />
+                      Terms & Conditions
+                    </CardTitle>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 sm:pt-0">
+                    <StandardTermsAndConditions 
+                      eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                      variant="compact" 
+                    />
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+            <HelpCard />
+          </aside>
+        </div>
+      </div>
 
       <ChangeModal />
-
-      {/* Footer - Full Width */}
-      <div className="py-4 px-4 border-t bg-background">
-        <FooterSection />
-      </div>
+      <FooterSection />
     </div>
   );
 }
