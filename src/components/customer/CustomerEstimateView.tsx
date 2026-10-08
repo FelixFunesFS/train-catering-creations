@@ -195,7 +195,7 @@ export function CustomerEstimateView() {
         <CardContent className="sm:pt-0">
           {(quote as any)?.both_proteins_available && Array.isArray((quote as any)?.proteins) && (quote as any).proteins.length >= 2 && (
             <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3 text-sm font-semibold text-primary">
-              ⭐ Both proteins served to all guests
+              ⭐ Dual Entrée: Both meats served to each guest (2 servings per guest)
             </div>
           )}
           <EstimateLineItems
