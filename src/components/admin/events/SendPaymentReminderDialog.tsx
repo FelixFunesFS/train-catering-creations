@@ -221,26 +221,26 @@ export function SendPaymentReminderDialog({
         </div>
         )}
 
-        <DialogFooter className="flex-col-reverse sm:flex-row gap-2">
+        <DialogFooter className="flex-row gap-2 sticky bottom-0 bg-background pt-2">
           {preview ? (
             <Button variant="outline" className="min-h-[44px]" onClick={() => setPreview(null)} disabled={sending}>
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to edit
+              <ArrowLeft className="h-4 w-4 mr-1" /> Edit
             </Button>
           ) : (
             <>
-              <Button variant="outline" className="min-h-[44px]" onClick={() => handleOpenChange(false)} disabled={sending}>
+              <Button variant="ghost" className="min-h-[44px] hidden sm:inline-flex" onClick={() => handleOpenChange(false)} disabled={sending}>
                 Cancel
               </Button>
               <Button variant="outline" className="min-h-[44px]" onClick={loadPreview} disabled={loadingPreview || sending}>
-                {loadingPreview ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Eye className="h-4 w-4 mr-2" />} Preview Email
+                {loadingPreview ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Eye className="h-4 w-4 mr-1" />} Preview
               </Button>
             </>
           )}
           <Button className="min-h-[44px]" onClick={handleSend} disabled={sending || !email.trim()}>
             {sending ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending...</>
+              <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Sending...</>
             ) : (
-              <><Send className="h-4 w-4 mr-2" /> Send Reminder</>
+              <><Send className="h-4 w-4 mr-1" /> Send</>
             )}
           </Button>
         </DialogFooter>
