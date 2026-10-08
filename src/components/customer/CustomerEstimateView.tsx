@@ -401,28 +401,6 @@ export function CustomerEstimateView() {
               accessToken={token}
               status={invoice.workflow_status}
             />
-              {/* Terms & Conditions */}
-            <Collapsible defaultOpen={false}>
-              <Card className="border-border/60 shadow-sm">
-                <CollapsibleTrigger className="w-full">
-                  <CardHeader className="flex flex-row items-center justify-between py-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <PenLine className="h-4 w-4 text-primary" />
-                      Terms & Conditions
-                    </CardTitle>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
-                  </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <CardContent className="pt-0 sm:pt-0">
-                    <StandardTermsAndConditions 
-                      eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
-                      variant="compact" 
-                    />
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
             <HelpCard />
           </aside>
 
@@ -444,6 +422,28 @@ export function CustomerEstimateView() {
               accessToken={token}
               invoiceNumber={invoice.invoice_number}
             />
+            {/* Terms & Conditions — directly after the approval card */}
+            <Collapsible defaultOpen={false}>
+              <Card className="border-border/60 shadow-sm">
+                <CollapsibleTrigger className="w-full">
+                  <CardHeader className="flex flex-row items-center justify-between py-3">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <PenLine className="h-4 w-4 text-primary" />
+                      Terms & Conditions
+                    </CardTitle>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent className="pt-0 sm:pt-0">
+                    <StandardTermsAndConditions 
+                      eventType={quote.compliance_level === 'government' ? 'government' : 'standard'} 
+                      variant="compact" 
+                    />
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           </div>
         </div>
       </div>
