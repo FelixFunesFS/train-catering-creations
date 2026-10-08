@@ -550,11 +550,11 @@ serve(async (req) => {
       y -= 12;
     }
 
-    drawLine(totalsX - 10, y + 2, pageWidth - margin, CRIMSON, 1.5);
-    y -= 6;
+    drawLine(totalsX - 10, y + 4, pageWidth - margin, CRIMSON, 1.5);
+    y -= 14;
     drawText("TOTAL:", totalsX, y, { font: helveticaBold, size: 11 });
     drawText(formatCurrency(invoiceData.total_amount), totalsValueX - 10, y, { font: helveticaBold, size: 12, color: CRIMSON });
-    y -= 18;
+    y -= 20;
 
     // === NOTES (compact) ===
     if (invoiceData.notes) {
