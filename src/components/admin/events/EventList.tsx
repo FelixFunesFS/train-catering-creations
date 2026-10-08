@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard, DollarSign } from 'lucide-react';
+import { Search, X, Eye, Loader2, FileText, Receipt, Mail, MailOpen, Globe, List, CalendarDays, CalendarRange, Phone, Shield, CreditCard, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { isMilitaryEvent, getMilitaryBadgeStyles } from '@/utils/eventTypeUtils';
 import { getPaymentStatus, getNextUnpaidMilestone } from '@/utils/statusHelpers';
@@ -365,17 +365,32 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     <TooltipProvider>
       <div className="space-y-4">
         {/* Controls: 2 rows on mobile, 1 row on desktop */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sticky top-0 z-20 -mx-1 px-1 py-2 bg-background/95 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none">
           <div className="flex gap-2 flex-1">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
+                type="search"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
                 placeholder="Search name, email, event..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9"
+                onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                className="pl-9 pr-10 h-10 text-base sm:text-sm [&::-webkit-search-cancel-button]:hidden"
                 aria-label="Search events"
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-0 top-0 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             <Button onClick={() => setQuickOpen(true)} className="h-10 px-3 gap-1 shrink-0 sm:hidden" aria-label="New event">
               <Plus className="h-4 w-4" /> New
