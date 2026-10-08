@@ -96,6 +96,32 @@ serve(async (req) => {
       .eq("invoice_id", invoice_id)
       .order("due_date", { ascending: true });
 
+    // Completed payments for receipt display (keep in sync with src/utils/paymentReceipt.ts)
+    const { data: paidTxs } = await supabaseClient
+      .from("payment_transactions")
+      .select("amount, payment_method, payment_type, processed_at, created_at, milestone_id")
+      .eq("invoice_id", invoice_id)
+      .eq("status", "completed");
+    const receiptMethod = (method?: string | null, type?: string | null) => {
+      const m = (method || '').toLowerCase();
+      const map: Record<string, string> = { card: 'Card', credit_card: 'Card', stripe: 'Online', ach: 'ACH', ach_debit: 'ACH', us_bank_account: 'ACH', bank_transfer: 'Bank', cash: 'Cash', check: 'Check', venmo: 'Venmo', zelle: 'Zelle', waveapp: 'WaveApp', other: 'Other' };
+      if (map[m]) return map[m];
+      if (!m && type && type !== 'manual') return 'Online';
+      return m ? m.charAt(0).toUpperCase() + m.slice(1) : '';
+    };
+    const txTime = (t: any) => t.processed_at || t.created_at || '';
+    const sortedTxs = (paidTxs || []).filter((t: any) => (t.amount ?? 0) > 0).sort((a: any, b: any) => txTime(a).localeCompare(txTime(b)));
+    const milestoneReceipts: Array<{ paidAt: string; method: string } | null> = (() => {
+      let need = 0, paid = 0, i = 0; let last: any = null;
+      return (milestones || []).map((m: any) => {
+        const linked = sortedTxs.filter((t: any) => t.milestone_id === m.id);
+        need += m.amount_cents;
+        while (paid < need && i < sortedTxs.length) { last = sortedTxs[i++]; paid += last.amount; }
+        const src = linked.length ? linked[linked.length - 1] : (paid >= need ? last : null);
+        return src && txTime(src) ? { paidAt: txTime(src), method: receiptMethod(src.payment_method, src.payment_type) } : null;
+      });
+    })();
+
     logStep("Data fetched successfully", { 
       lineItemsCount: lineItems?.length || 0,
       milestonesCount: milestones?.length || 0,
@@ -580,7 +606,7 @@ serve(async (req) => {
       drawText("Due Date", margin + contentWidth - 70, y - 7, { font: helveticaBold, size: 7, color: WHITE });
       y -= 14;
 
-      for (const milestone of milestones) {
+      for (const [mIdx, milestone] of milestones.entries()) {
         const isPaid = milestone.status === 'paid';
         const rowColor = isPaid ? rgb(0.95, 1, 0.95) : WHITE;
         
@@ -591,9 +617,15 @@ serve(async (req) => {
         });
         drawText(`${milestone.percentage}%`, margin + contentWidth - 180, y - 6, { size: 8 });
         drawText(formatCurrency(milestone.amount_cents), margin + contentWidth - 130, y - 6, { font: helveticaBold, size: 8 });
-        drawText(formatShortDate(milestone.due_date), margin + contentWidth - 70, y - 6, { size: 8 });
+        const receipt = isPaid ? milestoneReceipts[mIdx] : null;
+        if (receipt) {
+          const d = new Date(receipt.paidAt).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit', timeZone: 'America/New_York' });
+          drawText(`Paid ${d}${receipt.method ? ` (${receipt.method})` : ''}`, margin + contentWidth - 82, y - 6, { size: 7, color: rgb(0, 0.5, 0) });
+        } else {
+          drawText(formatShortDate(milestone.due_date), margin + contentWidth - 70, y - 6, { size: 8 });
+        }
         
-        if (isPaid) {
+        if (isPaid && !receipt) {
           const paidWidth = helveticaBold.widthOfTextAtSize("PAID", 6);
           page.drawRectangle({ x: pageWidth - margin - paidWidth - 6, y: y - 8, width: paidWidth + 4, height: 10, color: rgb(0, 0.6, 0) });
           drawText("PAID", pageWidth - margin - paidWidth - 4, y - 5, { font: helveticaBold, size: 6, color: WHITE });

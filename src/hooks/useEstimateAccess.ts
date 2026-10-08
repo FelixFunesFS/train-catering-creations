@@ -8,6 +8,7 @@ interface EstimateData {
   lineItems: any[];
   milestones: any[];
   totalPaid?: number;
+  payments?: any[];
 }
 
 export function useEstimateAccess(accessToken: string) {
@@ -72,6 +73,7 @@ export function useEstimateAccess(accessToken: string) {
       const lineItems = (result.line_items || []) as any[];
       const milestones = (result.milestones || []) as any[];
       const totalPaid = result.total_paid as number | null;
+      const payments = (((result as any).payments) || []) as any[];
       
       // Ensure critical quote fields have safe defaults to prevent .charAt() errors
       const safeQuote = {
@@ -96,6 +98,7 @@ export function useEstimateAccess(accessToken: string) {
         lineItems,
         milestones,
         totalPaid: totalPaid ?? undefined,
+        payments,
       });
       // Update view count
       await supabase
