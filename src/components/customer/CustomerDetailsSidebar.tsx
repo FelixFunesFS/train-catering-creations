@@ -225,7 +225,7 @@ export function CustomerDetailsSidebar({
         {/* Terms & Conditions Collapsible - hidden on desktop (shown in center panel) */}
         {!hideTermsAndHelp && (
           <Collapsible defaultOpen={false}>
-            <Card>
+            <Card className="border-border/60 shadow-sm">
               <CollapsibleTrigger className="w-full">
                 <CardHeader className="flex flex-row items-center justify-between py-3">
                   <CardTitle className="text-base flex items-center gap-2">
