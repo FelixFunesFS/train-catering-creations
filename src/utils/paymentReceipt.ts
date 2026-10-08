@@ -26,12 +26,12 @@ export interface MilestoneReceipt {
 export function formatReceiptMethod(method?: string | null, type?: string | null): string {
   const m = (method || '').toLowerCase();
   const map: Record<string, string> = {
-    card: 'Card', credit_card: 'Card', stripe: 'Card',
+    card: 'Card', credit_card: 'Card', stripe: 'Online Payment',
     ach: 'ACH', ach_debit: 'ACH', us_bank_account: 'ACH', bank_transfer: 'Bank Transfer',
     cash: 'Cash', check: 'Check', venmo: 'Venmo', zelle: 'Zelle', waveapp: 'WaveApp', other: 'Other',
   };
   if (map[m]) return map[m];
-  if (!m && type && type !== 'manual') return 'Card';
+  if (!m && type && type !== 'manual') return 'Online Payment';
   return m ? m.charAt(0).toUpperCase() + m.slice(1) : 'Payment';
 }
 
