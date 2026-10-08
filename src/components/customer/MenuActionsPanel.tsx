@@ -52,7 +52,7 @@ export function MenuActionsPanel({
   return (
     <div className="space-y-6">
       {/* Line Items Card */}
-      <Card>
+      <Card className="border-primary/20 shadow-md">
         <CardHeader className="pb-2 sm:pb-2">
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
@@ -68,7 +68,7 @@ export function MenuActionsPanel({
 
       {/* Customer Notes from Caterer */}
       {notes && (
-        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2 text-amber-700 dark:text-amber-400">
               <MessageSquare className="h-4 w-4" />
@@ -82,7 +82,7 @@ export function MenuActionsPanel({
       )}
 
       {/* Actions Card */}
-      <Card>
+      <Card className="border-border/60 shadow-sm">
         <CardContent className="pt-6 space-y-4">
           {['sent', 'viewed'].includes(workflowStatus) && (
             <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-lg border border-border/50">

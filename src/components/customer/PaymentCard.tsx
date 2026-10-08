@@ -112,7 +112,7 @@ export function PaymentCard({
   // Fully paid state
   if (remaining <= 0) {
     return (
-      <Card className="border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20">
+      <Card className="border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 shadow-sm">
         <CardContent className="pt-6 space-y-4">
           <div className="text-center space-y-2">
             <PartyPopper className="h-10 w-10 text-emerald-600 mx-auto" />
@@ -150,7 +150,7 @@ export function PaymentCard({
   }
 
   return (
-    <Card>
+    <Card className="border-primary/20 shadow-md">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2">
           {showPaymentActions ? (
