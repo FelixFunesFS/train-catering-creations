@@ -984,6 +984,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                 })}
                 </TableBody>
               </Table>
+              </>
             )}
           </CardContent>
           {viewMode === 'list' && (
