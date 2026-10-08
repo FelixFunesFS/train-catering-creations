@@ -303,6 +303,23 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     return { listEvents: kept, hiddenPastCount: hidden, overdueEvents: overdue };
   }, [eventsWithInvoices, snapshots, showPast, search, statusFilter]);
 
+  // Approved, upcoming, nothing paid, and the first payment date has passed.
+  const [awaitingOpen, setAwaitingOpen] = useState(false);
+  const awaitingDeposit = useMemo(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    return eventsWithInvoices.filter(e => {
+      const inv = e.invoice;
+      if (!inv || e.workflow_status === 'cancelled') return false;
+      if (!['approved', 'payment_pending', 'overdue'].includes(inv.workflow_status)) return false;
+      if (parseDateFromLocalString(e.event_date).getTime() < today.getTime()) return false;
+      const snap = snapshots.get(inv.id);
+      if (!snap || snap.paidCents > 0 || snap.balanceCents <= 0) return false;
+      const due = snap.nextMilestone?.dueDate;
+      return !!due && parseDateFromLocalString(due).getTime() < today.getTime();
+    });
+  }, [eventsWithInvoices, snapshots]);
+  const daysBetween = (from: Date, to: Date) => Math.round((to.getTime() - from.getTime()) / 86400000);
+
   // Pagination for list view (15 per page)
   const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
     listEvents.length,
