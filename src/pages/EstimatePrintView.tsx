@@ -285,6 +285,12 @@ export default function EstimatePrintView() {
             </tbody>
           </table>
 
+          {quote?.both_proteins_available && Array.isArray(quote.proteins) && quote.proteins.length >= 2 && (
+            <div className="mb-6 rounded-md border border-primary/40 bg-primary/5 p-3 text-sm font-semibold text-primary avoid-break">
+              ⭐ Both proteins served to all guests
+            </div>
+          )}
+
           {/* Totals */}
           <div className="flex justify-end mb-8">
             <div className="w-72 avoid-break">
