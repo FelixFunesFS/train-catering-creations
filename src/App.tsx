@@ -91,6 +91,7 @@ const AppContent = () => {
   useScrollToAnchor();
   useVisitorTracking(); // Track visitor page views for admin notifications
   useRouteMeta();
+  useAdminAppManifest();
   const location = useLocation();
   const isMobile = useIsMobile();
   const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/staff';

@@ -198,17 +198,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
           ]);
 
+          // Slow network on iOS cold wake: keep the cached session instead of signing out.
           if (!userResult) {
-            console.warn('getUser() timed out -- possible browser lock issue');
-          supabase.auth.signOut().catch(() => {});
-          return;
-        }
-
-        const { error: userError } = userResult;
-        if (userError) {
-          console.warn('Stale session detected, clearing:', userError.message);
-          supabase.auth.signOut().catch(() => {});
-            return;
+            console.warn('getUser() timed out -- keeping cached session');
+          } else {
+            const { error: userError } = userResult;
+            // Only clear the session when the server explicitly rejects it (not on network errors)
+            const status = (userError as any)?.status;
+            if (userError && typeof status === 'number' && status >= 400 && status < 500) {
+              console.warn('Stale session detected, clearing:', userError.message);
+              supabase.auth.signOut().catch(() => {});
+              return;
+            }
           }
 
           // Token valid — set user, but keep loading=true so dashboard does NOT render yet
