@@ -540,9 +540,10 @@ ${(item.quantity > 1 || item.category === 'dietary') ? `<td align="right" style=
 `;
       });
       
-      if (isProtein && bothProteinsAvailable) {
+      if ((isProtein || category === 'package') && bothProteinsAvailable && !renderedCategories.has('__both_banner')) {
+        renderedCategories.add('__both_banner');
         menuHtml += `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;margin-top:12px;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;margin-top:12px;border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:12px 16px;">
 <span style="color:white;font-size:14px;font-weight:bold;">⭐ Both proteins served to all guests</span>
@@ -861,7 +862,7 @@ export function generateMenuWithPricingSection(
 <tr>
 <td>
 <!-- Total Summary Box - bgcolor for Outlook -->
-<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.crimson}" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:12px;margin-bottom:20px;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${BRAND_COLORS.crimson}" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:12px;margin-bottom:20px;border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:24px;">
 <span style="font-size:14px;color:rgba(255,255,255,0.9);text-transform:uppercase;letter-spacing:1px;">Your Total</span>
@@ -963,9 +964,10 @@ ${qtyStr ? `<span style="color:#888;font-size:11px;margin-left:8px;">(${qtyStr})
       });
       
       // Add "both proteins" note if applicable
-      if (isProtein && bothProteinsAvailable) {
+      if ((isProtein || category === 'package') && bothProteinsAvailable && !renderedCategories.has('__both_banner')) {
+        renderedCategories.add('__both_banner');
         html += `
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:6px;margin-top:8px;border-collapse:collapse;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:6px;margin-top:8px;border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:8px 12px;">
 <span style="color:white;font-size:13px;font-weight:bold;">⭐ Both proteins served to all guests</span>
@@ -1422,7 +1424,7 @@ export function generateEstimateActionButtons(portalUrl: string): string {
   <!-- Primary: Approve Button -->
   <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 15px auto;border-collapse:collapse;">
     <tr>
-      <td align="center" bgcolor="${BRAND_COLORS.crimson}" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
+      <td align="center" bgcolor="${BRAND_COLORS.crimson}" style="background-color:${BRAND_COLORS.crimson};background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;">
         <!--[if mso]>
         <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${approveUrl}" style="height:50px;v-text-anchor:middle;width:250px;" arcsize="16%" stroke="f" fillcolor="${BRAND_COLORS.crimson}">
         <w:anchorlock/>
