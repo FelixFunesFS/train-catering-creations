@@ -32,6 +32,8 @@ import { QuickEventDialog } from './QuickEventDialog';
 import { MobileFilterSheet } from './MobileFilterSheet';
 import { Plus } from 'lucide-react';
 import { AdminApproveButton } from './AdminApproveButton';
+import { LogContactDialog } from './LogContactDialog';
+import { StickyNote } from 'lucide-react';
 import { getProposalStatus, isPreApproval } from '@/utils/proposalStatus';
 import { formatDateTimeShortET } from '@/utils/formatters';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
@@ -309,6 +311,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
 
   // Approved, upcoming, nothing paid, and the first payment date has passed.
   const [awaitingOpen, setAwaitingOpen] = useState(false);
+  const [logEvent, setLogEvent] = useState<EventWithInvoice | null>(null);
   const awaitingDeposit = useMemo(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     return eventsWithInvoices.filter(e => {
@@ -416,6 +419,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
           </div>
         </div>
         <QuickEventDialog open={quickOpen} onOpenChange={setQuickOpen} />
+        {logEvent && (
+          <LogContactDialog open={!!logEvent} onOpenChange={(o) => { if (!o) setLogEvent(null); }}
+            quoteId={logEvent.id} invoiceId={logEvent.invoice?.id} customerName={logEvent.contact_name} eventName={logEvent.event_name} />
+        )}
 
         {/* Date Navigation (only for week/month views) */}
         {viewMode !== 'list' && (
@@ -481,6 +488,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           onClick={(e) => handleOpenReminderDialog(e, event)}>
                           <DollarSign className="h-4 w-4" /> Remind
                         </Button>
+                        <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3"
+                          onClick={(e) => { e.stopPropagation(); setLogEvent(event); }}>
+                          <StickyNote className="h-4 w-4" /> Log / Arrange Date
+                        </Button>
                       </div>
                     </div>
                   );
@@ -538,8 +549,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           <DollarSign className="h-4 w-4" /> Remind
                         </Button>
                         <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3"
+                          onClick={(e) => { e.stopPropagation(); setLogEvent(event); }}>
+                          <StickyNote className="h-4 w-4" /> Log / Arrange Date
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-10 text-xs gap-1.5 px-3"
                           onClick={(e) => { e.stopPropagation(); navigate(`/admin/event/${event.id}`); }}>
-                          <Eye className="h-4 w-4" /> Log Call / Change Date / Cancel
+                          <Eye className="h-4 w-4" /> Manage / Cancel
                         </Button>
                       </div>
                     </div>
@@ -728,6 +743,12 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                           >
                             <DollarSign className="h-4 w-4" />
                             Remind
+                          </Button>
+                        )}
+                        {invoice && (
+                          <Button variant="outline" size="sm" className="h-10 text-xs font-medium gap-1.5 px-3"
+                            onClick={(e) => { e.stopPropagation(); setLogEvent(event); }}>
+                            <StickyNote className="h-4 w-4" /> Log / Arrange
                           </Button>
                         )}
                         
@@ -944,6 +965,10 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         {invoice && isPreApproval(invoice.workflow_status) && invoice.workflow_status !== 'draft' && (
                           <AdminApproveButton invoiceId={invoice.id} quoteId={event.id} customerName={event.contact_name} className="h-8 mr-1" />
                         )}
+                        <Button variant="outline" size="sm" className="h-8 mr-1 gap-1 text-xs" aria-label="Log contact"
+                          onClick={(e) => { e.stopPropagation(); setLogEvent(event); }}>
+                          <StickyNote className="h-3.5 w-3.5" /> Log
+                        </Button>
                         {invoice && takePaymentStatuses.includes(invoice.workflow_status) && (
                           <Tooltip>
                             <TooltipTrigger asChild>
