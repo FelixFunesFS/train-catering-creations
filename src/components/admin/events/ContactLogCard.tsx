@@ -56,7 +56,7 @@ export function ContactLogCard({ quoteId, invoiceId }: Props) {
       const { data, error } = await supabase.from('admin_notes')
         .select('id, note_content, category, created_by, created_at')
         .eq('quote_request_id', quoteId)
-        .in('category', Object.keys(CONTACT_TYPES))
+        .in('category', [...Object.keys(CONTACT_TYPES), 'contact'])
         .order('created_at', { ascending: false })
         .limit(20);
       if (error) throw error;
