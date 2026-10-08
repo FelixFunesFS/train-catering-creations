@@ -33,6 +33,8 @@ const HomePage = () => {
       {/* Above-the-fold: eagerly loaded for LCP */}
       <SplitHero />
       <ServiceCategoriesSection />
+      {/* Mobile quick-action bar appears once visitors scroll past this point */}
+      <div id="mobile-cta-trigger" aria-hidden="true" className="h-px w-full" />
       
       {/* Below-the-fold: lazy loaded to reduce initial bundle */}
       <Suspense fallback={<SectionLoader />}>

@@ -100,6 +100,13 @@ const AppContent = () => {
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
   const isPortfolioRoute = location.pathname === '/portfolio';
+  // Customer token/portal views are transactional: keep only their own compact red footer
+  const isCustomerPortalRoute =
+    location.pathname === '/estimate' ||
+    location.pathname === '/customer-portal' ||
+    location.pathname.startsWith('/customer/') ||
+    location.pathname.startsWith('/estimate-preview/') ||
+    location.pathname.startsWith('/invoice/public/');
   const hideChrome = isAdminRoute || isEventFullView || isEventMenuEdit || isEstimatePrint || isQuoteWizardRoute || isPortfolioRoute;
 
   const showMobileActionBar = isMobile && !isAdminRoute && !isQuoteWizardRoute && !isPortfolioRoute;
@@ -175,7 +182,7 @@ const AppContent = () => {
         </Suspense>
       </main>
       <Suspense fallback={null}>
-        {!hideChrome && !isAdminRoute && <Footer />}
+        {!hideChrome && !isAdminRoute && !isCustomerPortalRoute && <Footer />}
         {showMobileActionBar && <MobileActionBar />}
       </Suspense>
     </div>;

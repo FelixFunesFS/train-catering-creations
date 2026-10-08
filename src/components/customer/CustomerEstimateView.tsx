@@ -152,8 +152,7 @@ export function CustomerEstimateView() {
   // Shared header component
   const HeaderSection = () => (
     <div className="text-center space-y-2">
-      <h1 className="text-3xl font-bold text-foreground">Soul Train's Eatery</h1>
-      <p className="text-muted-foreground">Your {getDocumentLabel(invoice.workflow_status).title}</p>
+      <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Your {getDocumentLabel(invoice.workflow_status).title}</h1>
       {/* Status Badges */}
       <div className="flex flex-wrap justify-center gap-2 pt-2">
         <Badge variant="outline" className={`${estimateStatus.color} border`}>
