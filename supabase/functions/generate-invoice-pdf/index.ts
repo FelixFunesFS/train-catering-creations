@@ -625,7 +625,7 @@ serve(async (req) => {
           drawText(formatShortDate(milestone.due_date), margin + contentWidth - 70, y - 6, { size: 8 });
         }
         
-        if (isPaid) {
+        if (isPaid && !receipt) {
           const paidWidth = helveticaBold.widthOfTextAtSize("PAID", 6);
           page.drawRectangle({ x: pageWidth - margin - paidWidth - 6, y: y - 8, width: paidWidth + 4, height: 10, color: rgb(0, 0.6, 0) });
           drawText("PAID", pageWidth - margin - paidWidth - 4, y - 5, { font: helveticaBold, size: 6, color: WHITE });
