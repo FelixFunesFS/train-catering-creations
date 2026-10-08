@@ -109,13 +109,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     logStep("Calculating schedule", { daysUntilEvent, isGovernment, isNet30, totalAmountCents });
 
-    // Guard: Cannot create milestones for zero or negative totals
-    if (!totalAmountCents || totalAmountCents <= 0) {
-      logStep("Cannot create milestones - invoice total is zero or negative", { totalAmountCents });
+    // Guard: placeholder totals (under $1.00) — skip schedule until real pricing is added
+    if (!totalAmountCents || totalAmountCents < 100) {
+      logStep("Skipping milestones - placeholder total under $1.00", { totalAmountCents });
       return new Response(
         JSON.stringify({ 
-          success: false, 
-          message: "Cannot create payment milestones: Invoice total must be greater than zero. Please add line items first.",
+          success: false,
+          placeholder: true,
+          message: "Add menu items and pricing to generate the payment schedule.",
           milestones: []
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }

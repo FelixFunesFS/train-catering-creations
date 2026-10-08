@@ -32,6 +32,8 @@ export function usePaymentScheduleSync({
 
   const regenerateMilestones = useCallback(async () => {
     if (!invoiceId || isSyncing.current) return;
+    // Placeholder totals (under $1.00): wait for real pricing, no error
+    if (totalAmount < 100) return;
     
     isSyncing.current = true;
     
