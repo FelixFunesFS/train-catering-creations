@@ -73,7 +73,7 @@ export function CustomerDetailsSidebar({
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-4">
+      <div className="space-y-4">
         {/* Customer Actions - TOP of sidebar on desktop */}
         {showActions && (
           <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card/90 shadow-md">
