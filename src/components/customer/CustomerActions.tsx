@@ -216,36 +216,34 @@ export function CustomerActions({
     return null;
   }
 
-  const buttonSize = layout === 'stacked' ? 'default' : 'lg';
+  const touchBtn = "h-12 min-h-[48px] w-full px-2 sm:px-4 text-sm font-semibold whitespace-nowrap touch-manipulation [&_svg]:shrink-0";
 
   return (
     <>
       <div className={cn(
-        "flex gap-3",
-        layout === 'stacked' ? "flex-col" : "flex-col sm:flex-row"
+        "grid gap-3",
+        layout === 'stacked' ? "grid-cols-1" : "grid-cols-1 min-[360px]:grid-cols-2"
       )}>
         <Button
           onClick={handleApprove}
           disabled={isApproving}
-          size={buttonSize}
-          className="flex-1 bg-primary hover:bg-primary/90"
+          className={cn(touchBtn, "bg-primary hover:bg-primary/90 shadow-sm")}
         >
           {isApproving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <CheckCircle className="mr-2 h-4 w-4" />
+            <CheckCircle className="mr-1.5 h-4 w-4" />
           )}
-          Approve Estimate
+          <span className="truncate">Approve<span className="hidden min-[400px]:inline"> Estimate</span></span>
         </Button>
 
         <Button
           variant="outline"
           onClick={() => setShowChangeModal(true)}
-          size={buttonSize}
-          className="flex-1"
+          className={touchBtn}
         >
-          <MessageSquare className="mr-2 h-4 w-4" />
-          Request Changes
+          <MessageSquare className="mr-1.5 h-4 w-4" />
+          <span className="truncate"><span className="hidden min-[400px]:inline">Request </span>Changes</span>
         </Button>
       </div>
 
