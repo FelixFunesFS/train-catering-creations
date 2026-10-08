@@ -99,56 +99,12 @@ export function CustomerDetailsSidebar({
             </CardContent>
           </Card>
         )}
-        {/* Customer Contact Card */}
-        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card/90">
-          <CardHeader className="pb-2 sm:pb-2">
-            <CardTitle className="text-base flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" />
-              Your Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2 text-sm sm:pt-0">
-            <div className="flex items-center gap-2">
-              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <span className="font-medium text-foreground">{quote.contact_name}</span>
-            </div>
-            <div className="flex items-center gap-2 min-w-0">
-              <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              {emailLink ? (
-                <a href={emailLink} className="text-primary hover:underline truncate">
-                  {quote.email}
-                </a>
-              ) : (
-                <span className="text-foreground truncate">{quote.email}</span>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              {phoneLink ? (
-                <a href={phoneLink} className="text-primary hover:underline">
-                  {quote.phone}
-                </a>
-              ) : (
-                <span className="text-foreground">{quote.phone}</span>
-              )}
-            </div>
-            {quote.guest_count_with_restrictions && (
-              <div className="flex items-center gap-2 pt-1">
-                <Leaf className="h-3.5 w-3.5 text-green-600 shrink-0" />
-                <span className="text-green-700 dark:text-green-400">
-                  {quote.guest_count_with_restrictions} vegetarian portions
-                </span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Event Details Card */}
-        <Card>
+        {/* Event & Contact Overview (consolidated) */}
+        <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card shadow-sm">
           <CardHeader className="pb-2 sm:pb-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
-              Event Details
+              Event & Contact Overview
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm sm:pt-0">
@@ -228,6 +184,41 @@ export function CustomerDetailsSidebar({
                 <p className="text-sm font-medium mt-1">{quote.special_requests}</p>
               </div>
             )}
+            <div className="pt-3 border-t border-border/60 space-y-2">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground block">Primary Contact</span>
+            <div className="flex items-center gap-2">
+              <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span className="font-medium text-foreground">{quote.contact_name}</span>
+            </div>
+            <div className="flex items-center gap-2 min-w-0">
+              <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              {emailLink ? (
+                <a href={emailLink} className="text-primary hover:underline truncate">
+                  {quote.email}
+                </a>
+              ) : (
+                <span className="text-foreground truncate">{quote.email}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              {phoneLink ? (
+                <a href={phoneLink} className="text-primary hover:underline">
+                  {quote.phone}
+                </a>
+              ) : (
+                <span className="text-foreground">{quote.phone}</span>
+              )}
+            </div>
+            {quote.guest_count_with_restrictions && (
+              <div className="flex items-center gap-2 pt-1">
+                <Leaf className="h-3.5 w-3.5 text-green-600 shrink-0" />
+                <span className="text-green-700 dark:text-green-400">
+                  {quote.guest_count_with_restrictions} vegetarian portions
+                </span>
+              </div>
+            )}
+            </div>
           </CardContent>
         </Card>
 
@@ -258,7 +249,7 @@ export function CustomerDetailsSidebar({
 
         {/* Help Section - hidden on desktop (shown in center panel) */}
         {!hideTermsAndHelp && (
-          <Card className="bg-muted/30">
+          <Card className="border-border/60 bg-muted/30 shadow-sm">
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
                 <HelpCircle className="h-4 w-4 text-primary" />
