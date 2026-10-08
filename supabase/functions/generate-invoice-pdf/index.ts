@@ -517,6 +517,13 @@ serve(async (req) => {
       y -= 4;
     }
 
+    // Both-proteins indicator (ASCII-safe for WinAnsi)
+    if (quote?.both_proteins_available && Array.isArray(quote?.proteins) && quote.proteins.length >= 2) {
+      y -= 14;
+      drawText("* Both proteins served to all guests", descCol + 4, y, { font: helveticaBold, size: 9, color: CRIMSON });
+      y -= 6;
+    }
+
     // === TOTALS (compact) ===
     y -= 6;
     const totalsX = margin + contentWidth - 140;
