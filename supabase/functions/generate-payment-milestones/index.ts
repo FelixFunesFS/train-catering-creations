@@ -142,6 +142,19 @@ const handler = async (req: Request): Promise<Response> => {
         status: "pending",
         description: "Full payment due 30 days after event (Net 30)",
       });
+    } else if (daysUntilEvent < 0) {
+      // Past event: balance was due on the event date (keeps it in Past-Due, not "Payment Arranged")
+      milestones.push({
+        invoice_id,
+        milestone_type: "FULL",
+        percentage: 100,
+        amount_cents: totalAmountCents,
+        due_date: quote?.event_date || formatDateToString(now),
+        is_due_now: true,
+        is_net30: false,
+        status: "pending",
+        description: "Full payment due (event date has passed)",
+      });
     } else if (daysUntilEvent <= 14) {
       // Rush: 100% due immediately
       milestones.push({
