@@ -60,14 +60,14 @@ export const CTASection = ({ title, description, buttons, footer, showWatermark 
             </p>
             
             {/* Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
+            <div className="flex flex-row justify-center items-stretch gap-2 sm:gap-4">
               {buttons.map((button, index) => (
                 <Button 
                   key={index} 
                   asChild 
                   variant={button.variant || "cta"} 
                   size="responsive-lg" 
-                  className="w-full sm:w-auto sm:min-w-[12rem]"
+                  className="flex-1 min-w-0 px-3 text-sm sm:flex-none sm:w-auto sm:min-w-[12rem] sm:text-base"
                 >
                   <a href={button.href} className="flex items-center justify-center gap-2">
                     {button.icon}

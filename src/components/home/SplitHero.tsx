@@ -282,14 +282,14 @@ export const SplitHero = () => {
             </div>
 
             {/* CTA Buttons - High Contrast */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-1 sm:pt-2">
-              <Button variant="cta" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
+            <div className="flex flex-row gap-2 sm:gap-4 pt-1 sm:pt-2">
+              <Button variant="cta" size="lg" className="flex-1 min-w-0 px-3 min-h-[48px] shadow-lg" asChild>
                 <Link to="/request-quote#page-header" className="flex items-center justify-center gap-2">
                   <Calendar className="h-4 w-4" />
                   <span>Request Quote</span>
                 </Link>
               </Button>
-              <Button variant="glass-white" size="lg" className="w-full sm:flex-1 min-h-[48px] shadow-lg" asChild>
+              <Button variant="glass-white" size="lg" className="flex-1 min-w-0 px-3 min-h-[48px] shadow-lg" asChild>
                 <Link to="/menu" className="flex items-center justify-center gap-2">
                   <Utensils className="h-4 w-4" />
                   <span>See Menu</span>

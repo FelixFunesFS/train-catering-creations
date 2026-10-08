@@ -3,7 +3,6 @@ import { MessageSquareText, Phone, Sparkles } from "lucide-react";
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useHeroVisibility } from "@/contexts/HeroVisibilityContext";
 
 type MobileActionBarProps = {
   className?: string;
@@ -20,19 +19,24 @@ type MobileActionBarProps = {
 export function MobileActionBar({ className }: MobileActionBarProps) {
   const location = useLocation();
   const pathname = location.pathname;
-  const { isHeroVisible } = useHeroVisibility();
-
   const isAdmin = pathname.startsWith("/admin") || pathname.startsWith("/staff");
   const [pastTop, setPastTop] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   useEffect(() => {
-    const onScroll = () => setPastTop(window.scrollY > window.innerHeight * 0.6);
+    const onScroll = () => {
+      // Home: show only after the second section. Other pages: after hero/header + intro.
+      const trigger = document.getElementById("mobile-cta-trigger");
+      if (trigger) {
+        setPastTop(trigger.getBoundingClientRect().top <= window.innerHeight);
+      } else {
+        setPastTop(window.scrollY > window.innerHeight * 1.2);
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [pathname]);
   const isMobileQuoteWizard = /^\/request-quote\/(regular|wedding)$/.test(pathname);
-  const isHomePage = pathname === "/" || pathname === "";
   
   // Customer portal routes where action bar should be hidden
   const isCustomerPortal = 
@@ -42,8 +46,7 @@ export function MobileActionBar({ className }: MobileActionBarProps) {
     pathname.startsWith("/estimate-preview/") ||
     pathname.startsWith("/invoice/public/");
   
-  // Hide on admin, quote wizard, customer portal, or when hero is visible on home page
-  const hidden = isAdmin || isMobileQuoteWizard || isCustomerPortal || (isHomePage ? isHeroVisible : !pastTop);
+  const hidden = isAdmin || isMobileQuoteWizard || isCustomerPortal || !pastTop;
 
   return (
     <div

@@ -147,7 +147,7 @@ export const PageHeader = ({
         <div 
           ref={animated ? buttonsRef : undefined}
           className={cn(
-            "flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 lg:gap-6",
+            "flex flex-row justify-center items-stretch gap-2 sm:gap-4 lg:gap-6",
             animated && useAnimationClass(buttonsVariant, buttonsVisible)
           )}
         >
@@ -157,7 +157,10 @@ export const PageHeader = ({
               asChild
               variant={button.variant || "default"}
               size="responsive-md"
-              className="w-full sm:w-auto min-w-[180px] sm:min-w-[200px] text-sm sm:text-base font-medium hover:scale-105 transition-transform duration-300"
+              className={cn(
+                "min-w-0 px-3 sm:w-auto sm:flex-none sm:min-w-[200px] text-sm sm:text-base font-medium hover:scale-105 transition-transform duration-300",
+                buttons.length > 1 ? "flex-1" : "w-full max-w-xs"
+              )}
             >
               <a href={button.href} className="flex items-center justify-center space-x-2">
                 {button.icon && <span>{button.icon}</span>}
