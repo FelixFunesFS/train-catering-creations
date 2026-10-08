@@ -62,6 +62,8 @@ import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
 import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
 import { ContactLogCard } from '@/components/admin/events/ContactLogCard';
+import { AdjustDueDateDialog, type AdjustableMilestone } from '@/components/admin/events/AdjustDueDateDialog';
+import { CalendarClock } from 'lucide-react';
 
 interface MobileEstimateViewProps {
   quote: any;
@@ -79,6 +81,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const [showAddItem, setShowAddItem] = useState(false);
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [adjusting, setAdjusting] = useState<AdjustableMilestone | null>(null);
   const updateQuoteStatus = useUpdateQuoteStatus();
   
   // Collapsible sections
@@ -849,6 +852,13 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                         <Badge variant={milestone.status === 'paid' ? 'default' : 'outline'} className="text-xs">
                           {milestone.status}
                         </Badge>
+                        {milestone.status !== 'paid' && (
+                          <Button type="button" size="sm" variant="outline" className="h-9 px-2 gap-1 text-xs mt-1 flex"
+                            aria-label={`Change due date for ${getMilestoneLabel(milestone.milestone_type)}`}
+                            onClick={() => setAdjusting({ id: milestone.id, milestone_type: milestone.milestone_type, due_date: milestone.due_date ?? null })}>
+                            <CalendarClock className="h-4 w-4" /> Change date
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
@@ -856,6 +866,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
               </CardContent>
             </Card>
           )}
+          <AdjustDueDateDialog open={!!adjusting} onOpenChange={o => !o && setAdjusting(null)} milestone={adjusting} quoteId={quote?.id} invoiceId={invoice?.id} />
           {/* Danger Zone - Cancel Event */}
           {quote?.workflow_status !== 'cancelled' && (
             <Collapsible>

@@ -251,6 +251,16 @@ serve(async (req) => {
               logStep("Error updating invoice", { error: invoiceError.message });
             }
 
+            // Auto-confirm booking on deposit
+            if (quote_request_id) {
+              await supabaseClient
+                .from('quote_requests')
+                .update({ workflow_status: 'confirmed' })
+                .eq('id', quote_request_id)
+                .in('workflow_status', ['approved', 'awaiting_payment']);
+              logStep("Quote request auto-confirmed on deposit");
+            }
+
             // Send customer deposit confirmation email
             try {
               await supabaseClient.functions.invoke('send-customer-portal-email', {

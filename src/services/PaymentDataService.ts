@@ -420,6 +420,15 @@ export class PaymentDataService {
         .eq('id', invoiceId);
     }
 
+    // Auto-confirm booking once any payment (deposit) is received
+    if (!isFullPayment && invoice.quote_id && amount > 0) {
+      await supabase
+        .from('quote_requests')
+        .update({ workflow_status: 'confirmed' })
+        .eq('id', invoice.quote_id)
+        .in('workflow_status', ['approved', 'awaiting_payment']);
+    }
+
     // Send confirmation email if requested and quote exists
     if (sendConfirmationEmail && invoice.quote_id) {
       try {

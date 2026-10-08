@@ -94,6 +94,14 @@ const handler = async (req: Request): Promise<Response> => {
         })
         .eq('id', transaction.invoice_id);
 
+      if (totalPaid > 0) {
+        const { data: invQ } = await supabase.from('invoices').select('quote_request_id').eq('id', transaction.invoice_id).single();
+        if (invQ?.quote_request_id) {
+          await supabase.from('quote_requests').update({ workflow_status: 'confirmed' })
+            .eq('id', invQ.quote_request_id).in('workflow_status', ['approved', 'awaiting_payment', 'paid']);
+        }
+      }
+
       if (invoiceUpdateError) {
         console.error('Error updating invoice status:', invoiceUpdateError.message);
       } else {
