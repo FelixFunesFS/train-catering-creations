@@ -463,7 +463,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       <div className="flex flex-wrap justify-between gap-2 mb-2">
                         <div className="min-w-0">
                           <p className="font-medium truncate">{event.contact_name}</p>
-                          <p className="text-sm text-muted-foreground truncate">{event.event_name} · {format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</p>
+                          <p className="text-sm text-muted-foreground truncate">{event.event_name} · Event Date: <span className="text-foreground font-medium">{format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</span></p>
                         </div>
                         <Badge variant="outline" className="h-6 text-xs border-destructive/30 bg-destructive/10 text-destructive">Payment Overdue</Badge>
                       </div>
@@ -476,6 +476,66 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                         <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3 border-amber-500/40 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 hover:text-amber-900 dark:text-amber-300"
                           onClick={(e) => handleOpenReminderDialog(e, event)}>
                           <DollarSign className="h-4 w-4" /> Remind
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            )}
+          </Card>
+        )}
+
+        {viewMode === 'list' && awaitingDeposit.length > 0 && (
+          <Card className="border-amber-500/40 bg-amber-500/5">
+            <button type="button" onClick={() => setAwaitingOpen(o => !o)} aria-expanded={awaitingOpen}
+              className="w-full flex items-center justify-between gap-3 p-4 sm:px-6 text-left min-h-[56px]">
+              <div className="min-w-0">
+                <p className="text-lg font-semibold flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-amber-600 shrink-0" />
+                  Approved – Awaiting Deposit
+                  <Badge variant="outline" className="border-amber-500/40 text-amber-800 dark:text-amber-300">{awaitingDeposit.length}</Badge>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">Approved, upcoming, nothing paid yet, and the first payment date has passed. Pay, remind, change the date, or cancel.</p>
+              </div>
+              <span className="text-xs font-medium text-amber-800 dark:text-amber-300 shrink-0">{awaitingOpen ? 'Hide' : 'Show'}</span>
+            </button>
+            {awaitingOpen && (
+              <CardContent className="p-3 sm:p-6 pt-0 sm:pt-0 space-y-3">
+                {awaitingDeposit.map(event => {
+                  const invoice = event.invoice!;
+                  const snap = snapshots.get(invoice.id)!;
+                  const today = new Date(); today.setHours(0, 0, 0, 0);
+                  const lateDays = daysBetween(parseDateFromLocalString(snap.nextMilestone!.dueDate!), today);
+                  const untilEvent = daysBetween(today, parseDateFromLocalString(event.event_date));
+                  const lastContact = (invoice as any).last_customer_interaction as string | null;
+                  return (
+                    <div key={event.id} className="p-4 border rounded-lg bg-card cursor-pointer" onClick={() => navigate(`/admin/event/${event.id}`)}>
+                      <div className="flex flex-wrap justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <p className="font-medium truncate">{event.contact_name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{event.event_name}</p>
+                          <p className="text-sm mt-1"><span className="text-muted-foreground">Event Date:</span> <span className="font-medium">{format(parseDateFromLocalString(event.event_date), 'EEE, MMM d, yyyy')}</span></p>
+                        </div>
+                        <span className="font-semibold">{formatCurrency(snap.balanceCents)}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5 mb-3 text-xs">
+                        <Badge variant="outline" className="border-destructive/30 bg-destructive/10 text-destructive">Payment late {lateDays} day{lateDays === 1 ? '' : 's'}</Badge>
+                        <Badge variant="outline">{untilEvent === 0 ? 'Event today' : `Event in ${untilEvent} day${untilEvent === 1 ? '' : 's'}`}</Badge>
+                        <Badge variant="outline">{lastContact ? `Last contact ${format(new Date(lastContact), 'MMM d')}` : 'No contact logged'}</Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" className="h-10 text-xs gap-1.5 px-3 bg-success text-success-foreground hover:bg-success/90"
+                          onClick={(e) => { e.stopPropagation(); setPaymentInvoiceId(invoice.id); }}>
+                          <CreditCard className="h-4 w-4" /> Take Payment
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3 border-amber-500/40 bg-amber-500/10 text-amber-800 hover:bg-amber-500/20 hover:text-amber-900 dark:text-amber-300"
+                          onClick={(e) => handleOpenReminderDialog(e, event)}>
+                          <DollarSign className="h-4 w-4" /> Remind
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-10 text-xs gap-1.5 px-3"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/admin/event/${event.id}`); }}>
+                          <Eye className="h-4 w-4" /> Log Call / Change Date / Cancel
                         </Button>
                       </div>
                     </div>
@@ -559,7 +619,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
                       
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-3">
-                        <span>{format(parseDateFromLocalString(event.event_date), 'MMM d, yyyy')}</span>
+                        <span className="inline-flex items-center gap-1 text-foreground"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" /><span className="text-muted-foreground">Event Date:</span> <span className="font-medium">{format(parseDateFromLocalString(event.event_date), 'EEE, MMM d, yyyy')}</span></span>
                         <span>{event.guest_count} guests</span>
                         {invoice?.invoice_number && (
                           <span className="font-mono text-xs">{invoice.invoice_number}</span>
