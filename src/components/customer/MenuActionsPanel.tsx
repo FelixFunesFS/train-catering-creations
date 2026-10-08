@@ -56,7 +56,7 @@ export function MenuActionsPanel({
         <CardHeader className="pb-2 sm:pb-2">
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="sm:pt-0">
           <EstimateLineItems
             lineItems={lineItems}
             subtotal={subtotal}

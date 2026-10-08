@@ -193,7 +193,7 @@ export function CustomerEstimateView() {
         <CardHeader className="pb-2 sm:pb-2">
           <CardTitle className="text-lg">Your Menu & Pricing</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="sm:pt-0">
           {(quote as any)?.both_proteins_available && Array.isArray((quote as any)?.proteins) && (quote as any).proteins.length >= 2 && (
             <div className="mb-4 rounded-md border border-primary/40 bg-primary/5 p-3 text-sm font-semibold text-primary">
               ⭐ Both proteins served to all guests
@@ -323,7 +323,7 @@ export function CustomerEstimateView() {
                 Event Details
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 sm:pt-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <h3 className="font-semibold text-foreground">{quote.event_name}</h3>
