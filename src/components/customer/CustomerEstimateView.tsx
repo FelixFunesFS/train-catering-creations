@@ -183,6 +183,7 @@ export function CustomerEstimateView() {
             customerEmail={quote.email}
             accessToken={token}
             totalPaidFromTransactions={estimateData.totalPaid}
+            payments={estimateData.payments}
           />
         </div>
       )}
@@ -218,6 +219,7 @@ export function CustomerEstimateView() {
             customerEmail={quote.email}
             accessToken={token}
             totalPaidFromTransactions={estimateData.totalPaid}
+            payments={estimateData.payments}
           />
         </div>
       )}
@@ -322,91 +324,8 @@ export function CustomerEstimateView() {
         <div className="flex-1 w-full max-w-3xl mx-auto space-y-6 py-8 px-4">
           <HeaderSection />
 
-          {/* Customer Contact Card */}
-          <CustomerContactCard
-            contactName={quote.contact_name}
-            email={quote.email}
-            phone={quote.phone}
-            guestCountWithRestrictions={quote.guest_count_with_restrictions}
-          />
-
-          {/* Event Details Card */}
-          <Card className="border-border/60 shadow-sm">
-            <CardHeader className="pb-2 sm:pb-2">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Event Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 sm:pt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold text-foreground">{quote.event_name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {formatDate(quote.event_date)}
-                    {quote.start_time && ` at ${formatTime(quote.start_time)}`}
-                  </p>
-                </div>
-                
-                <div className="flex items-start gap-2">
-                  <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <div>
-                    <p className="font-medium">{quote.guest_count} Guests</p>
-                    <p className="text-sm text-muted-foreground">
-                      {formatServiceType(quote.service_type)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {isMilitaryEvent(quote.event_type) && quote.military_organization && (
-                <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  <Shield className="h-4 w-4 text-blue-600" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Military Organization</p>
-                    <p className="text-sm font-medium text-blue-700">{quote.military_organization}</p>
-                  </div>
-                </div>
-              )}
-
-              {quote.location && (
-                <div className="flex items-start gap-2 pt-2 border-t border-border">
-                  <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-                  <p className="text-sm text-foreground">{quote.location}</p>
-                </div>
-              )}
-
-              {(quote.wait_staff_requested || quote.bussing_tables_needed || quote.cocktail_hour) && (
-                <div className="pt-3 border-t border-border">
-                  <span className="text-sm text-muted-foreground block mb-2">🍽️ Services Included:</span>
-                  <div className="flex flex-wrap gap-2">
-                    {quote.wait_staff_requested && (
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        👨‍🍳 Wait Staff
-                      </Badge>
-                    )}
-                    {quote.bussing_tables_needed && (
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
-                        🧹 Table Bussing
-                      </Badge>
-                    )}
-                    {quote.cocktail_hour && (
-                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                        🍸 Cocktail Hour
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {quote.special_requests && (
-                <div className="pt-2 border-t border-border">
-                  <span className="text-sm text-muted-foreground">📝 Special Requests:</span>
-                  <p className="text-sm font-medium mt-1">{quote.special_requests}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* Event & Contact Overview — same consolidated card as desktop */}
+          <CustomerDetailsSidebar quote={quote} hideTermsAndHelp={true} />
 
           <MainContent />
 
@@ -474,6 +393,7 @@ export function CustomerEstimateView() {
                 customerEmail={quote.email}
                 accessToken={token}
                 totalPaidFromTransactions={estimateData.totalPaid}
+            payments={estimateData.payments}
               />
             </div>
             <DownloadPdfButton 

@@ -299,7 +299,7 @@ export function PaymentCard({
                   <p className="text-sm text-muted-foreground">
                     {milestone.percentage}% of total
                     {milestone.due_date && !isPaid && ` • Due ${formatDate(milestone.due_date)}`}
-                    {isPaid && receipts[index] && ` • Paid ${formatDate(receipts[index]!.paidAt.slice(0, 10))} via ${receipts[index]!.method}`}
+                    {isPaid && receipts[index] && ` • Paid ${new Date(receipts[index]!.paidAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} via ${receipts[index]!.method}`}
                   </p>
                   {hasPartialPayment && (
                     <p className="text-xs text-muted-foreground mt-0.5">
