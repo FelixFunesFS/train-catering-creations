@@ -281,7 +281,7 @@ export function CustomerEstimateView() {
 
   // Single support block (phone + email live here only)
   const HelpCard = () => (
-    <Card className="bg-muted/30">
+    <Card className="border-border/60 bg-muted/30 shadow-sm">
       <CardContent className="pt-4">
         <div className="flex items-center gap-2 mb-2">
           <HelpCircle className="h-4 w-4 text-primary" />
@@ -450,14 +450,13 @@ export function CustomerEstimateView() {
       </div>
 
       <div className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] gap-6 lg:gap-8 items-start">
-          {/* Main document: customer, event, menu & pricing */}
-          <div className="space-y-6 min-w-0">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(340px,400px)_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+          {/* Left: sticky booking overview, payment, download, terms, help */}
+          <aside className="space-y-4 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto lg:pr-1 lg:-mr-1 overscroll-contain">
             <CustomerDetailsSidebar 
               quote={quote}
               invoiceId={invoice.id}
               customerEmail={quote.email}
-              workflowStatus={invoice.workflow_status}
               quoteRequestId={invoice.quote_request_id}
               amountPaid={amountPaid}
               onStatusChange={refetch}
@@ -466,26 +465,6 @@ export function CustomerEstimateView() {
               invoiceNumber={invoice.invoice_number}
               hideTermsAndHelp={true}
             />
-            <MenuActionsPanel
-              lineItems={lineItems}
-              subtotal={invoice.subtotal}
-              taxAmount={invoice.tax_amount || 0}
-              total={invoice.total_amount}
-              notes={invoice.notes}
-              invoiceId={invoice.id}
-              customerEmail={quote.email}
-              workflowStatus={invoice.workflow_status}
-              quoteRequestId={invoice.quote_request_id}
-              amountPaid={amountPaid}
-              onStatusChange={refetch}
-              autoApprove={shouldAutoApprove}
-              accessToken={token}
-              invoiceNumber={invoice.invoice_number}
-            />
-          </div>
-
-          {/* Sticky action sidebar: payment, download, terms, help */}
-          <aside className="space-y-6 lg:sticky lg:top-24">
             <div id="payment">
               <PaymentCard
                 invoiceId={invoice.id}
@@ -527,6 +506,26 @@ export function CustomerEstimateView() {
             </Collapsible>
             <HelpCard />
           </aside>
+
+          {/* Right: menu & pricing showcase */}
+          <div className="space-y-6 min-w-0">
+            <MenuActionsPanel
+              lineItems={lineItems}
+              subtotal={invoice.subtotal}
+              taxAmount={invoice.tax_amount || 0}
+              total={invoice.total_amount}
+              notes={invoice.notes}
+              invoiceId={invoice.id}
+              customerEmail={quote.email}
+              workflowStatus={invoice.workflow_status}
+              quoteRequestId={invoice.quote_request_id}
+              amountPaid={amountPaid}
+              onStatusChange={refetch}
+              autoApprove={shouldAutoApprove}
+              accessToken={token}
+              invoiceNumber={invoice.invoice_number}
+            />
+          </div>
         </div>
       </div>
 
