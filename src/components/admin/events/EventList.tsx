@@ -674,7 +674,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
                       </div>
 
                       {/* Labeled action buttons for mobile */}
-                      <div className="flex flex-wrap items-center gap-2 pt-3 border-t">
+                      <div className="grid grid-cols-2 gap-2 pt-3 border-t [&>button]:w-full [&>button]:justify-center">
                         {event.phone && (
                           <Button
                             variant="outline"

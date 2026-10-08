@@ -10,6 +10,7 @@ import { useEditableInvoice } from '@/hooks/useEditableInvoice';
 import { usePaymentScheduleSync } from '@/hooks/usePaymentScheduleSync';
 import { useEstimateActions } from '@/hooks/useEstimateActions';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -82,6 +83,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   const [showCustomerEdit, setShowCustomerEdit] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [adjusting, setAdjusting] = useState<AdjustableMilestone | null>(null);
+  const [savingNet30, setSavingNet30] = useState(false);
   const updateQuoteStatus = useUpdateQuoteStatus();
   
   // Collapsible sections
@@ -462,23 +464,6 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </div>
                   </div>
 
-                  {/* Government Contract Toggle */}
-                  <Separator />
-                  <div className="flex items-center justify-between py-2">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <Label className="text-sm font-medium">Government Contract</Label>
-                        <p className="text-xs text-muted-foreground">Tax exempt</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={isGovernment}
-                      onCheckedChange={handleToggleGovernment}
-                      disabled={isRegenerating}
-                    />
-                  </div>
-
                   {/* Menu Selections - Collapsible */}
                   <Collapsible>
                     <CollapsibleTrigger asChild>
@@ -807,8 +792,8 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
             </Card>
           </Collapsible>
 
-          {/* Payment Milestones */}
-          {milestones.length > 0 && (
+          {/* Payment Schedule, Terms & History */}
+          {invoice && (
             <Card>
               <CardHeader className="py-3">
                 <div className="flex items-center justify-between">
@@ -827,6 +812,40 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                 </div>
               </CardHeader>
               <CardContent className="pt-0 space-y-2">
+                <div className="grid grid-cols-1 gap-2 pb-2">
+                  <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <Label htmlFor="m-gov" className="text-sm font-medium">Tax Exempt</Label>
+                        <p className="text-xs text-muted-foreground">Government contract only</p>
+                      </div>
+                    </div>
+                    <Switch id="m-gov" checked={!!isGovernment} onCheckedChange={handleToggleGovernment} disabled={isRegenerating} />
+                  </div>
+                  <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/30 p-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <div className="min-w-0">
+                        <Label htmlFor="m-net30" className="text-sm font-medium">Net 30 Terms</Label>
+                        <p className="text-xs text-muted-foreground">100% due 30 days after event</p>
+                      </div>
+                    </div>
+                    <Switch id="m-net30" checked={milestones.some((m: any) => m.is_net30)} disabled={savingNet30 || isRegenerating}
+                      onCheckedChange={async (checked) => {
+                        setSavingNet30(true);
+                        try {
+                          const { error } = await supabase.from('invoices').update({ payment_schedule_type: checked ? 'net30' : 'standard' }).eq('id', invoice.id);
+                          if (error) throw error;
+                          await handleRegenerateMilestones();
+                        } catch { toast({ title: 'Could not update payment terms', variant: 'destructive' }); }
+                        finally { setSavingNet30(false); }
+                      }} />
+                  </div>
+                </div>
+                {milestones.length === 0 && (
+                  <p className="text-sm text-muted-foreground py-2">No payment schedule yet. Add pricing, then tap Refresh.</p>
+                )}
               {enrichedMilestones.map((milestone) => {
                   return (
                     <div 
@@ -863,6 +882,35 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </div>
                   );
                 })}
+                {(() => {
+                  const done = (transactions || []).filter((t: any) => t.status === 'completed')
+                    .sort((x: any, y: any) => (y.processed_at || y.created_at).localeCompare(x.processed_at || x.created_at));
+                  const paid = done.reduce((sum: number, t: any) => sum + t.amount, 0);
+                  return (
+                    <Collapsible>
+                      <CollapsibleTrigger className="flex w-full items-center justify-between rounded-lg border p-3 min-h-[44px] text-sm mt-2">
+                        <span className="font-medium">Payment History ({done.length})</span>
+                        <span className="flex items-center gap-2 text-muted-foreground">
+                          {formatCurrency(paid)} paid <ChevronDown className="h-4 w-4" />
+                        </span>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pt-2 space-y-2">
+                        {done.length === 0 ? (
+                          <p className="text-sm text-muted-foreground px-1">No payments received yet.</p>
+                        ) : done.map((t: any) => (
+                          <div key={t.id} className="flex items-start justify-between gap-3 rounded-lg bg-muted/50 p-3 text-sm">
+                            <div className="min-w-0">
+                              <p className="font-medium capitalize">{(t.payment_method || t.payment_type || 'Payment').replace(/_/g, ' ')}</p>
+                              <p className="text-xs text-muted-foreground">{format(new Date(t.processed_at || t.created_at), 'MMM d, yyyy h:mm a')}</p>
+                              {t.description && <p className="text-xs text-muted-foreground truncate">{t.description}</p>}
+                            </div>
+                            <p className="font-semibold text-success shrink-0">{formatCurrency(t.amount)}</p>
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  );
+                })()}
               </CardContent>
             </Card>
           )}
