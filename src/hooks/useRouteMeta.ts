@@ -65,7 +65,8 @@ export const useRouteMeta = () => {
   useEffect(() => {
     const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
     const isPrivate = path.startsWith("/admin") || path.startsWith("/staff");
-    upsertMeta("name", "robots", isPrivate ? "noindex, nofollow" : "index, follow");
+    const isNoIndex = isPrivate || path.startsWith("/portfolio");
+    upsertMeta("name", "robots", isNoIndex ? "noindex, nofollow" : "index, follow");
     const privateMeta = path.startsWith("/staff")
       ? { title: "Staff & Team Schedule | Soul Train's Eatery", description: "Sign-in for Soul Train's Eatery event crew: schedules, prep sheets and event details." }
       : { title: "Admin Portal | Soul Train's Eatery", description: "Secure sign-in for Soul Train's Eatery administrators to manage catering events and payments." };
