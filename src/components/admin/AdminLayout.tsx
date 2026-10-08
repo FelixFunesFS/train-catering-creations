@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { LogOut, BookOpen } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { MobileAdminNav } from './mobile/MobileAdminNav';
 import { AdminHelpButton } from './help/AdminHelpButton';
@@ -36,6 +36,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </Link>
             
             <div className="flex items-center gap-1">
+              {!isStaffPage && (
+                <Button asChild variant="ghost" size="sm" className="min-h-[40px]">
+                  <Link to="/admin/guide" aria-label="Admin guide"><BookOpen className="h-4 w-4 sm:mr-1" /><span className="hidden sm:inline">Guide</span></Link>
+                </Button>
+              )}
               {!isStaffPage && <AdminAssistant />}
               <div className="hidden lg:flex items-center gap-1">
               <MobileAdminNav />

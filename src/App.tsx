@@ -49,6 +49,7 @@ const CustomerEstimateView = lazy(() => import("./components/customer/CustomerEs
 const QuoteThankYou = lazy(() => import("./pages/QuoteThankYou"));
 const AdminMenuEditPage = lazy(() => import("./pages/AdminMenuEditPage"));
 const StaffSchedule = lazy(() => import("./pages/StaffSchedule"));
+const AdminGuide = lazy(() => import("./pages/admin/AdminGuide"));
 const SubmissionFailures = lazy(() => import("./pages/admin/SubmissionFailures"));
 
 // Local SEO landing pages — lazy-loaded to keep home LCP intact
@@ -139,6 +140,7 @@ const AppContent = () => {
             
             {/* Admin estimate print route - Protected */}
             <Route path="/admin/estimate-print/:invoiceId" element={<ProtectedRoute><EstimatePrintView /></ProtectedRoute>} />
+            <Route path="/admin/guide" element={<ProtectedRoute><AdminGuide /></ProtectedRoute>} />
             <Route path="/admin/submission-failures" element={<ProtectedRoute><SubmissionFailures /></ProtectedRoute>} />
             <Route path="/admin/*" element={<ProtectedRoute><UnifiedAdminDashboard /></ProtectedRoute>} />
             
