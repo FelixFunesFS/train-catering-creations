@@ -119,6 +119,7 @@ serve(async (req) => {
 
     // Send via existing SMTP function
     const { error: sendErr } = await supabase.functions.invoke("send-smtp-email", {
+      headers: { Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
       body: {
         to: ADMIN_EMAIL,
         subject: "Quote submission failure detected - manual recovery needed",
