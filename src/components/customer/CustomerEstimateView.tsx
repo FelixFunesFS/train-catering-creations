@@ -23,8 +23,6 @@ import { PaymentCard } from './PaymentCard';
 import { CustomerContactCard } from './CustomerContactCard';
 import { CustomerDetailsSidebar } from './CustomerDetailsSidebar';
 import { StandardTermsAndConditions } from '@/components/shared/StandardTermsAndConditions';
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
