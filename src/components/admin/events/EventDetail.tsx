@@ -274,7 +274,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               </div>
               {quote.both_proteins_available && (
                 <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                  ⭐ Both proteins served to all guests
+                  ⭐ Dual Entrée: Both meats served to each guest (2 servings per guest)
                 </Badge>
               )}
               <div>

@@ -465,7 +465,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                   </div>
 
                   {/* Menu Selections - Collapsible */}
-                  <Collapsible>
+                  <Collapsible defaultOpen={true}>
                     <CollapsibleTrigger asChild>
                       <div className="flex items-center justify-between p-2 bg-muted/50 rounded-md cursor-pointer">
                         <p className="text-xs font-medium flex items-center gap-1">
@@ -490,9 +490,12 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                       {/* Proteins */}
                       {quote?.proteins && Array.isArray(quote.proteins) && quote.proteins.length > 0 && (
                         <div>
-                          <p className="text-xs text-muted-foreground">
-                            Proteins {quote.both_proteins_available && <span className="text-primary">(Both Available)</span>}
-                          </p>
+                          <p className="text-xs text-muted-foreground">Proteins</p>
+                          {quote.both_proteins_available && quote.proteins.length >= 2 && (
+                            <div className="mt-1 rounded-md border border-primary/40 bg-primary/5 px-2 py-1.5 text-xs font-semibold text-primary">
+                              ⭐ Dual Entrée: Both meats served to each guest (2 servings per guest)
+                            </div>
+                          )}
                           <div className="flex flex-wrap gap-1 mt-1">
                             {quote.proteins.map((item: string, idx: number) => (
                               <Badge key={idx} variant="secondary" className="text-xs">{item}</Badge>
