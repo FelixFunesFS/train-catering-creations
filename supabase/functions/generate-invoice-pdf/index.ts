@@ -62,7 +62,7 @@ serve(async (req) => {
         customers (id, name, email, phone, address),
       quote_requests (
           id, event_name, event_date, location, service_type, guest_count, 
-          special_requests, contact_name, email, start_time, proteins, sides,
+          special_requests, contact_name, email, start_time, proteins, both_proteins_available, sides,
           appetizers, desserts, drinks, vegetarian_entrees, guest_count_with_restrictions,
           compliance_level, requires_po_number, event_type, military_organization,
           wait_staff_requested, wait_staff_requirements, bussing_tables_needed,
