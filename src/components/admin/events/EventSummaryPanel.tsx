@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
+import { formatStaffTime } from '@/components/staff/staffUrgency';
   Mail, Phone, MapPin, Calendar, Clock, Users, 
   Utensils, Leaf, MessageSquare, ExternalLink, X,
   Package, Flame, IceCream, GlassWater, DollarSign, Shield
@@ -193,7 +194,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
+                <span>{formatStaffTime(event.start_time) || 'TBD'}{(event as any).serving_start_time && (event as any).serving_start_time !== event.start_time && ` · Serving ${formatStaffTime((event as any).serving_start_time)}`}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-3.5 w-3.5 text-muted-foreground" />

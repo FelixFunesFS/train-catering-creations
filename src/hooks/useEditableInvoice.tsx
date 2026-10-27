@@ -304,6 +304,7 @@ export function useEditableInvoice(
     // Force refresh from server
     if (invoiceId) {
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       queryClient.invalidateQueries({ queryKey: ['invoice', invoiceId] });
     }
     

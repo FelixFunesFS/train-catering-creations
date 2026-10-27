@@ -228,7 +228,7 @@ export default function StaffSchedule() {
         <ResizablePanel defaultSize={65}>
           <ScrollArea className="h-full">
             <div className="p-6">
-              {selectedEvent ? (
+              {selectedEvent && eventList.some((e) => e.id === selectedEvent.id) ? (
                 <StaffEventDetails event={selectedEvent} />
               ) : (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">
