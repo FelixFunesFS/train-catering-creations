@@ -365,7 +365,7 @@ export function EventList({ excludeStatuses = [] }: EventListProps) {
     <TooltipProvider>
       <div className="space-y-4">
         {/* Controls: 2 rows on mobile, 1 row on desktop */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sticky top-0 z-20 -mx-1 px-1 py-2 bg-background/95 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-20 -mx-1 px-1 py-2 bg-background/95 backdrop-blur sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:backdrop-blur-none">
           <div className="flex gap-2 flex-1">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />

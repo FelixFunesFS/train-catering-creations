@@ -263,6 +263,12 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
                 <div className="sticky top-0 z-10 bg-background pb-1">
                   <ListSearchInput value={search} onChange={setSearch} placeholder="Search email, memo, method, amount" />
                 </div>
+                {search.trim() && pendingTransactions.length + failedTransactions.length + activeTransactions.length + voidedTransactions.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">No transactions match "{search}"</p>
+                    <button type="button" onClick={() => setSearch('')} className="mt-2 text-sm text-primary underline min-h-[44px]">Clear search</button>
+                  </div>
+                )}
                 {/* Pending Transactions - Show with warning */}
                 {pendingTransactions.length > 0 && (
                   <div className="space-y-2">
