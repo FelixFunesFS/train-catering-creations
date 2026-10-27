@@ -45,7 +45,8 @@ describe('ChangeRequestProcessor', () => {
       };
       mockTables({
         invoices: { id: 'invoice-123', total_amount: 10000, quote_request_id: 'quote-123', workflow_status: 'sent' },
-        quote_requests: { id: 'quote-123', guest_count: 100, workflow_status: 'estimated' },
+        quote_requests: { id: 'quote-123', contact_name: 'Test Customer', event_name: 'Test Event', event_date: '2027-06-01', guest_count: 100, service_type: 'full-service', workflow_status: 'estimated', proteins: ['fried-chicken'], sides: ['mac-cheese'], appetizers: [], desserts: [], drinks: [], extras: [], utensils: [], dietary_restrictions: [] },
+        estimate_versions: { id: 'ver-1' },
         invoice_line_items: [],
       });
 
@@ -67,7 +68,8 @@ describe('ChangeRequestProcessor', () => {
       };
       mockTables({
         invoices: { id: 'invoice-456', total_amount: 10000, quote_request_id: 'quote-456', workflow_status: 'sent' },
-        quote_requests: { id: 'quote-456', guest_count: 100, workflow_status: 'estimated' },
+        quote_requests: { id: 'quote-456', contact_name: 'Test Customer', event_name: 'Test Event', event_date: '2027-06-01', guest_count: 100, service_type: 'full-service', workflow_status: 'estimated', proteins: ['fried-chicken'], sides: ['mac-cheese'], appetizers: [], desserts: [], drinks: [], extras: [], utensils: [], dietary_restrictions: [] },
+        estimate_versions: { id: 'ver-1' },
         invoice_line_items: [],
       });
 
@@ -89,7 +91,10 @@ describe('ChangeRequestProcessor', () => {
         requested_changes: {},
         workflow_status: 'pending',
       };
-      mockTables({});
+      mockTables({
+        invoices: { id: 'invoice-789', total_amount: 10000, quote_request_id: 'quote-789', workflow_status: 'sent' },
+        quote_requests: { id: 'quote-789', contact_name: 'Test Customer', event_name: 'Test Event', event_date: '2027-06-01', guest_count: 100, service_type: 'full-service', workflow_status: 'estimated', proteins: ['fried-chicken'], sides: ['mac-cheese'], appetizers: [], desserts: [], drinks: [], extras: [], utensils: [], dietary_restrictions: [] },
+      });
 
       const result = await processor.rejectChangeRequest(
         mockChangeRequest as any,
