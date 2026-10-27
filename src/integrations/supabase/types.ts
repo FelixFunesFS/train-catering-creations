@@ -2251,6 +2251,13 @@ export type Database = {
           created_at: string
         }[]
       }
+      get_staff_directory: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+        }[]
+      }
       get_staff_invoice_links: {
         Args: { _quote_ids: string[] }
         Returns: {
@@ -2282,6 +2289,11 @@ export type Database = {
       }
       is_valid_status_transition: {
         Args: { entity_type: string; from_status: string; to_status: string }
+        Returns: boolean
+      }
+      staff_name_aliases: { Args: { _t: string }; Returns: string[] }
+      staff_name_matches: {
+        Args: { _hay: string; _loose: boolean; _name: string }
         Returns: boolean
       }
     }

@@ -7,29 +7,51 @@ export interface StaffIdentity {
 
 const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
+const ALIAS_GROUPS: string[][] = [
+  ['mike', 'mikey', 'michael'], ['bob', 'rob', 'robbie', 'robert'], ['bill', 'will', 'billy', 'william'],
+  ['jim', 'jimmy', 'james'], ['tony', 'anthony'], ['chris', 'christopher', 'christina', 'christine'],
+  ['liz', 'beth', 'elizabeth'], ['kate', 'katie', 'kathy', 'katherine', 'catherine'], ['dan', 'danny', 'daniel'],
+  ['joe', 'joey', 'joseph'], ['tom', 'tommy', 'thomas'], ['dave', 'david'], ['steve', 'steven', 'stephen'],
+  ['matt', 'matthew'], ['nick', 'nicholas'], ['sam', 'samuel', 'samantha'], ['alex', 'alexander', 'alexandra'],
+  ['jen', 'jenny', 'jennifer'], ['pat', 'patrick', 'patricia'], ['ron', 'ronald'], ['ken', 'kenny', 'kenneth'],
+];
+// Mirrors public.staff_name_aliases in the database.
+const aliasesFor = (t: string) => ALIAS_GROUPS.find((g) => g.includes(t)) ?? [t];
+
+const tokensOf = (name: string) => name.split(/\s+/).map(normalize).filter((t) => t.length >= 3);
+
+const haystacksOf = (identity: StaffIdentity) =>
+  [identity.fullName, identity.email?.split('@')[0]]
+    .filter((v): v is string => !!v && v.trim().length > 0)
+    .map(normalize);
+
+/** Mirrors public.staff_name_matches: strict = every name part appears; loose = first part may be a nickname. */
+export function nameMatches(staffName: string, identity: StaffIdentity, loose = false): boolean {
+  const tokens = tokensOf(staffName);
+  if (tokens.length === 0) return false;
+  return haystacksOf(identity).some((h) =>
+    tokens.every((t, i) => (loose && i === 0 ? aliasesFor(t).some((a) => h.includes(a)) : h.includes(t)))
+  );
+}
+
 /**
  * Assignments only store a staff name, so we match the signed-in user by name.
- * Every word (3+ letters) in the assigned name must appear in the user's
- * full name or email username. Returns null when nothing matches confidently.
+ * Strict matches win. A nickname / first-name match is accepted only when it is
+ * the single loose match on the event, so nobody can claim someone else's shift.
  */
 export function findMyAssignment(
   assignments: StaffAssignment[],
   identity: StaffIdentity
 ): StaffAssignment | null {
-  const haystacks = [identity.fullName, identity.email?.split('@')[0]]
-    .filter((v): v is string => !!v && v.trim().length > 0)
-    .map(normalize);
-  if (haystacks.length === 0) return null;
+  const strict = assignments.find((a) => nameMatches(a.staff_name, identity));
+  if (strict) return strict;
+  const loose = assignments.filter((a) => nameMatches(a.staff_name, identity, true));
+  return loose.length === 1 ? loose[0] : null;
+}
 
-  for (const a of assignments) {
-    const tokens = a.staff_name
-      .split(/\s+/)
-      .map(normalize)
-      .filter((t) => t.length >= 3);
-    if (tokens.length === 0) continue;
-    if (haystacks.some((h) => tokens.every((t) => h.includes(t)))) return a;
-  }
-  return null;
+/** True when some staff login plausibly matches this assigned name (used to flag typos for admins). */
+export function hasMatchingLogin(staffName: string, directory: StaffIdentity[]): boolean {
+  return directory.some((d) => nameMatches(staffName, d, true));
 }
 
 export function isAppleDevice(ua: string = typeof navigator !== 'undefined' ? navigator.userAgent : ''): boolean {

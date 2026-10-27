@@ -78,7 +78,10 @@ export function StaffMonthView({ month, onMonthChange, selectedEventId, onSelect
               <button
                 key={c.date}
                 type="button"
-                onClick={() => setSelectedDay(isSel ? null : c.date)}
+                onClick={() => {
+                  if (!c.inMonth) { onMonthChange(c.date.slice(0, 7)); setSelectedDay(c.date); return; }
+                  setSelectedDay(isSel ? null : c.date);
+                }}
                 aria-label={`${c.date}, ${list.length} event${list.length === 1 ? '' : 's'}`}
                 className={cn(
                   'relative flex flex-col items-center lg:items-stretch gap-1 border-b border-r p-1 lg:p-1.5 text-left min-h-[48px] lg:min-h-[96px] touch-manipulation transition-colors',

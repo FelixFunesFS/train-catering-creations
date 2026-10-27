@@ -18,7 +18,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { findMyAssignment } from './myShift';
 import { MyShiftBanner } from './MyShiftBanner';
@@ -341,7 +340,8 @@ function CustomerNotesContent({ event }: { event: StaffEvent }) {
 
 export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
   const queryClient = useQueryClient();
-  const isMobile = useIsMobile();
+  // Phones only (below the 768px md breakpoint); tablets and desktop open notes by default.
+  const isPhone = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
   const { user } = useAuth();
   const myAssignment = findMyAssignment(event.staff_assignments, {
     email: user?.email,
@@ -637,7 +637,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
         {/* Customer Notes & Preferences — wrapped in CollapsibleSection */}
         {hasCustomerNotes && (
           <>
-            <CollapsibleSection title="Customer Notes & Preferences" icon={MessageSquare} defaultOpen={!isMobile}>
+            <CollapsibleSection title="Customer Notes & Preferences" icon={MessageSquare} defaultOpen={!isPhone}>
               <CustomerNotesContent event={event} />
             </CollapsibleSection>
             <Separator />
@@ -647,7 +647,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
         {/* Admin Notes */}
         {event.admin_notes.length > 0 && (
           <>
-            <CollapsibleSection title="Admin Notes" icon={StickyNote} defaultOpen={!isMobile}>
+            <CollapsibleSection title="Admin Notes" icon={StickyNote} defaultOpen={!isPhone}>
               <AdminNotesBlock notes={event.admin_notes} />
             </CollapsibleSection>
             <Separator />
