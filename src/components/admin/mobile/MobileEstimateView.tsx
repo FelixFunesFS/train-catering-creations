@@ -286,7 +286,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
           <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11 shrink-0" aria-label="Back to events">
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div>
+          <div className="min-w-0">
             <h1 className="font-semibold text-sm truncate">
               {quote?.event_name || 'Event Details'}
             </h1>

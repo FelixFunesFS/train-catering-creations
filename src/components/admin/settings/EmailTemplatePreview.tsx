@@ -208,7 +208,7 @@ export function EmailTemplatePreview() {
       <div className="lg:col-span-9 min-w-0">
         <Card className="h-full flex flex-col">
           <CardHeader className="pb-3 border-b">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <CardTitle className="text-base">
                   {selectedEmailInfo?.label || 'Email Preview'}
