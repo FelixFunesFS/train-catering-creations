@@ -22,6 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { findMyAssignment } from './myShift';
 import { MyShiftBanner } from './MyShiftBanner';
+import { RunOfShowTimeline } from './RunOfShowTimeline';
 import { StaffQuickActions } from './StaffQuickActions';
 import { getUrgency, urgencyStyles, getCountdownLabel } from './staffUrgency';
 
@@ -572,6 +573,8 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           )}
         </CardHeader>
       </Card>
+
+      <RunOfShowTimeline event={event} />
 
       {/* Collapsible Sections */}
       <Card className="overflow-hidden">
