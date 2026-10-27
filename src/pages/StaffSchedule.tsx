@@ -12,18 +12,31 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
+import { ListSearchInput, matchesSearch } from '@/components/admin/ListSearchInput';
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
   const [filter, setFilter] = useState<StaffEventFilter>('all');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
   
   const { data: events, isLoading, error } = useStaffEvents(filter);
   const { data: selectedEvent } = useStaffEvent(selectedEventId);
 
   const PAGE_SIZE = 10;
-  const eventList = events ?? [];
-  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [filter]);
+  const eventList = (events ?? []).filter((e) =>
+    matchesSearch(search, [e.event_name, e.contact_name, e.phone, e.location, e.event_type, e.service_type])
+  );
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [filter, search]);
+  const searchBox = (
+    <ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" />
+  );
+  const noMatch = search.trim() ? (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <p className="text-muted-foreground">No events match "{search}"</p>
+      <Button variant="link" onClick={() => setSearch('')} className="min-h-[44px]">Clear search</Button>
+    </div>
+  ) : null;
   const paginatedEvents = eventList.slice(startIndex, endIndex);
 
   const showMobileDetails = isMobile && selectedEventId && selectedEvent;
@@ -106,6 +119,7 @@ export default function StaffSchedule() {
               </TabsList>
             </Tabs>
           </div>
+          <div className="px-4 pb-3">{searchBox}</div>
         </div>
         
         <div className="p-4 pb-20 space-y-3">
@@ -117,7 +131,7 @@ export default function StaffSchedule() {
                 onClick={() => handleCardClick(event.id)}
               />
             ))
-          ) : (
+          ) : noMatch ?? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
               <p className="text-muted-foreground">No upcoming events</p>
@@ -166,6 +180,7 @@ export default function StaffSchedule() {
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
+              {searchBox}
               {paginatedEvents.length > 0 ? (
                 paginatedEvents.map((event) => (
                   <StaffEventCard 
@@ -175,7 +190,7 @@ export default function StaffSchedule() {
                     onClick={() => handleCardClick(event.id)}
                   />
                 ))
-              ) : (
+              ) : noMatch ?? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
                   <p className="text-muted-foreground">
