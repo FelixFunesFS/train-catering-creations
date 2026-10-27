@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { hasMatchingLogin } from '@/components/staff/myShift';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +41,15 @@ const roleConfig: Record<StaffAssignment['role'], { label: string; icon: typeof 
 
 export function StaffAssignmentPanel({ quoteId, compact = false }: StaffAssignmentPanelProps) {
   const { data: staff = [], isLoading } = useStaffAssignments(quoteId);
+  const { data: directory } = useQuery({
+    queryKey: ['staff-directory'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_staff_directory');
+      if (error) throw error;
+      return (data ?? []).map((d) => ({ email: d.email, fullName: d.full_name }));
+    },
+    staleTime: 5 * 60 * 1000,
+  });
   const createMutation = useCreateStaffAssignment();
   const updateMutation = useUpdateStaffAssignment();
   const deleteMutation = useDeleteStaffAssignment();
@@ -171,6 +183,11 @@ export function StaffAssignmentPanel({ quoteId, compact = false }: StaffAssignme
                     </Badge>
                     {assignment.confirmed && (
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    )}
+                    {directory && !hasMatchingLogin(assignment.staff_name, directory) && (
+                      <span className="text-[11px] text-muted-foreground" title="This person can't confirm the shift themselves until the name matches their staff login.">
+                        No staff login matches
+                      </span>
                     )}
                   </div>
                   
