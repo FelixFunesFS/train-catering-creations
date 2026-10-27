@@ -455,3 +455,21 @@ export function useStaffEvent(eventId: string | null) {
     staleTime: 1000 * 60 * 2,
   });
 }
+// Month view: all staff-visible events in an inclusive date range
+export function useStaffEventsRange(from: string, to: string) {
+  return useQuery({
+    queryKey: ['staff-events', 'range', from, to],
+    queryFn: () => fetchStaffEvents(undefined, { from, to }),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+// History: past events newest first; raise `limit` to load more
+export function useStaffHistory(limit: number) {
+  return useQuery({
+    queryKey: ['staff-events', 'history', limit],
+    queryFn: () => fetchStaffEvents(undefined, { history: true, limit }),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (prev) => prev,
+  });
+}
