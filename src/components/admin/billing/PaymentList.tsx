@@ -171,19 +171,19 @@ export function PaymentList() {
       {/* Status Filter Tabs - Responsive */}
       <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
         <TabsList className="flex flex-wrap justify-start gap-1 h-auto p-1 sm:grid sm:grid-cols-5">
-          <TabsTrigger value="all" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
+          <TabsTrigger value="all" className="text-xs px-2 py-2 min-h-[40px] h-auto sm:px-3">
             All ({paymentInvoices.length})
           </TabsTrigger>
-          <TabsTrigger value="awaiting" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
+          <TabsTrigger value="awaiting" className="text-xs px-2 py-2 min-h-[40px] h-auto sm:px-3">
             Awaiting ({paymentInvoices.filter(i => ['approved', 'payment_pending'].includes(i.workflow_status || '')).length})
           </TabsTrigger>
-          <TabsTrigger value="partial" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
+          <TabsTrigger value="partial" className="text-xs px-2 py-2 min-h-[40px] h-auto sm:px-3">
             Partial ({paymentInvoices.filter(i => i.workflow_status === 'partially_paid').length})
           </TabsTrigger>
-          <TabsTrigger value="overdue" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
+          <TabsTrigger value="overdue" className="text-xs px-2 py-2 min-h-[40px] h-auto sm:px-3">
             Overdue ({paymentInvoices.filter(i => i.workflow_status === 'overdue').length})
           </TabsTrigger>
-          <TabsTrigger value="paid" className="text-xs px-2 py-1.5 h-auto sm:px-3 sm:py-2">
+          <TabsTrigger value="paid" className="text-xs px-2 py-2 min-h-[40px] h-auto sm:px-3">
             Paid ({paymentInvoices.filter(i => i.workflow_status === 'paid').length})
           </TabsTrigger>
         </TabsList>
@@ -234,7 +234,7 @@ export function PaymentList() {
           return (
             <Card key={invoice.invoice_id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-2">
                   <div>
                     <CardTitle className="text-base font-medium">
                       {invoice.event_name}
@@ -351,7 +351,7 @@ export function PaymentList() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-2 pt-2 flex-wrap">
+                <div className="grid grid-cols-2 sm:flex gap-2 pt-2 [&_button]:min-h-[44px] sm:[&_button]:min-h-9">
                   <Button 
                     variant="outline"
                     size="sm"

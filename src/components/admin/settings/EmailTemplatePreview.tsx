@@ -181,9 +181,9 @@ export function EmailTemplatePreview() {
   const selectedQuote = quoteOptions.find(q => q.id === selectedQuoteId);
 
   return (
-    <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:h-[calc(100dvh-200px)]">
       {/* Left sidebar - Email type selector */}
-      <div className="col-span-3">
+      <div className="lg:col-span-3">
         <Card className="h-full">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -192,7 +192,7 @@ export function EmailTemplatePreview() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[calc(100vh-320px)] px-4 pb-4">
+            <ScrollArea className="max-h-72 lg:max-h-none lg:h-[calc(100dvh-320px)] px-4 pb-4">
               <EmailTypeSelector
                 selectedType={selectedType}
                 selectedVariant={selectedVariant}
@@ -205,11 +205,11 @@ export function EmailTemplatePreview() {
       </div>
 
       {/* Right panel - Preview */}
-      <div className="col-span-9">
+      <div className="lg:col-span-9 min-w-0">
         <Card className="h-full flex flex-col">
           <CardHeader className="pb-3 border-b">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <CardTitle className="text-base">
                   {selectedEmailInfo?.label || 'Email Preview'}
                 </CardTitle>
@@ -223,7 +223,7 @@ export function EmailTemplatePreview() {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {/* Real Event Preview toggle */}
                 <div className="flex items-center gap-2 mr-3 pr-3 border-r">
                   <Switch

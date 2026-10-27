@@ -64,7 +64,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         <MobileAdminNav />
       </div>
 
-      <main className="flex-1 pb-20 lg:pb-[env(safe-area-inset-bottom)]">
+      <main className="flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:pb-[env(safe-area-inset-bottom)] overflow-x-hidden">
         {children}
       </main>
     </div>

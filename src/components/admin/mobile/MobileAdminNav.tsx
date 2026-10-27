@@ -42,7 +42,7 @@ export function MobileAdminNav() {
               key={item.label}
               to={`${item.path}${item.query}`}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 text-xs transition-colors",
+                "flex flex-col items-center justify-center gap-1 min-h-[48px] min-w-0 text-[11px] sm:text-xs transition-colors touch-manipulation select-none",
                 "lg:flex-row lg:gap-2 lg:px-3 lg:py-1.5 lg:rounded-md lg:text-sm",
                 isActive 
                   ? "text-primary font-medium lg:bg-muted" 
@@ -57,7 +57,7 @@ export function MobileAdminNav() {
         
         <button
           onClick={() => signOut()}
-          className="flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors lg:hidden"
+          className="flex flex-col items-center justify-center gap-1 min-h-[48px] min-w-0 text-[11px] sm:text-xs text-muted-foreground hover:text-destructive transition-colors touch-manipulation lg:hidden" aria-label="Log out"
         >
           <LogOut className="h-5 w-5" />
           <span>Logout</span>
