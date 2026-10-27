@@ -318,7 +318,7 @@ Deno.serve(async (req) => {
         cocktail_hour
       `)
       .gte('event_date', today)
-      .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated', 'cancelled'])
+      .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid', 'cancelled'])
       .order('event_date', { ascending: true });
 
     if (error) {

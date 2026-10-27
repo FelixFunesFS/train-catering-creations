@@ -9,7 +9,7 @@ import { StaffEventCard } from '@/components/staff/StaffEventCard';
 import { StaffEventDetails } from '@/components/staff/StaffEventDetails';
 import { SubscribeCalendarButton } from '@/components/staff/SubscribeCalendarButton';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { ListSearchInput, matchesSearch } from '@/components/admin/ListSearchInput';
@@ -51,7 +51,8 @@ function Segmented({ value, onChange }: { value: StaffView; onChange: (v: StaffV
 }
 
 export default function StaffSchedule() {
-  const isMobile = useIsMobile();
+  // Phones only (< md 768px); tablets get the split view.
+  const isMobile = useMediaQuery('(max-width: 767px)');
   const [params, setParams] = useSearchParams();
   const view = (VIEWS.some((v) => v.value === params.get('view')) ? params.get('view') : 'all') as StaffView;
   const month = /^\d{4}-\d{2}$/.test(params.get('m') ?? '') ? params.get('m')! : formatDateToLocalString(new Date()).slice(0, 7);

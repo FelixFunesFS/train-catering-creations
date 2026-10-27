@@ -242,10 +242,10 @@ function transformToStaffEvent(
 // Fetch line items for events (no pricing columns)
 async function fetchLineItemsForEvents(eventIds: string[]): Promise<Record<string, StaffLineItem[]>> {
   // First get invoice IDs for these events
-  const { data: invoices, error: invError } = await supabase
-    .from('invoices')
-    .select('id, quote_request_id')
-    .in('quote_request_id', eventIds);
+  // Staff can't read invoices directly (they hold prices); this returns only the event link.
+  const { data: invoices, error: invError } = await (supabase.rpc as any)('get_staff_invoice_links', { _quote_ids: eventIds }) as {
+    data: { id: string; quote_request_id: string | null }[] | null; error: unknown;
+  };
 
   if (invError || !invoices || invoices.length === 0) return {};
 
@@ -293,6 +293,7 @@ async function fetchAdminNotesForEvents(eventIds: string[]): Promise<Record<stri
 
   const result: Record<string, StaffAdminNote[]> = {};
   for (const note of notes) {
+    if (isPrivateNoteCategory(note.category)) continue;
     const eventId = note.quote_request_id;
     if (!eventId) continue;
     if (!result[eventId]) result[eventId] = [];
@@ -318,7 +319,13 @@ export interface StaffRangeOptions {
   limit?: number;
 }
 
-const STAFF_VISIBLE_STATUSES = ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid'];
+/** Note categories about billing or customer conversations stay office-only. */
+export const PRIVATE_NOTE_CATEGORIES = ['call', 'contact', 'payment', 'billing', 'pricing', 'customer', 'dispute', 'email'];
+export function isPrivateNoteCategory(category: string | null | undefined): boolean {
+  return !!category && PRIVATE_NOTE_CATEGORIES.includes(category.toLowerCase());
+}
+
+export const STAFF_VISIBLE_STATUSES = ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid'];
 const STAFF_HISTORY_STATUSES = [...STAFF_VISIBLE_STATUSES, 'completed'];
 
 async function fetchStaffEvents(filter?: StaffEventFilter, range?: StaffRangeOptions): Promise<StaffEvent[]> {

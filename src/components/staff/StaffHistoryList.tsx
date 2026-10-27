@@ -92,7 +92,7 @@ export function StaffHistoryList({ selectedEventId, onSelectEvent }: Props) {
                       <span className="inline-flex items-center gap-1 min-w-0"><MapPin className="h-3 w-3 shrink-0" /><span className="truncate">{e.location}</span></span>
                     </p>
                   </div>
-                  <Badge variant="outline" className="hidden sm:inline-flex text-muted-foreground">Completed</Badge>
+                  <Badge variant="outline" className="hidden sm:inline-flex text-muted-foreground">{e.workflow_status === 'completed' ? 'Completed' : 'Pending close-out'}</Badge>
                   <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                 </button>
               );

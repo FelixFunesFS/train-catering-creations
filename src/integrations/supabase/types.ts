@@ -2251,6 +2251,13 @@ export type Database = {
           created_at: string
         }[]
       }
+      get_staff_invoice_links: {
+        Args: { _quote_ids: string[] }
+        Returns: {
+          id: string
+          quote_request_id: string
+        }[]
+      }
       get_status_label: { Args: { status: string }; Returns: string }
       grant_first_admin: { Args: never; Returns: undefined }
       has_any_role: { Args: { _user_id: string }; Returns: string }
