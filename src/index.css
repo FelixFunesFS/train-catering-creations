@@ -1013,3 +1013,13 @@ html {
     scroll-margin-bottom: 140px; /* clear sticky CTA + safe area */
   }
 }
+
+/* Staff BEO print sheet: clean, high-contrast, no app chrome */
+@media print {
+  @page { margin: 0.5in; }
+  html, body { background: #fff !important; color: #000 !important; }
+  .h-\[calc\(100vh-7\.5rem\)\] { height: auto !important; }
+  [data-radix-scroll-area-viewport] { overflow: visible !important; height: auto !important; }
+  [data-panel] { flex: 1 1 100% !important; overflow: visible !important; }
+  .shadow-sm, .shadow-md { box-shadow: none !important; }
+}
