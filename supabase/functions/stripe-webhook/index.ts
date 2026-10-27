@@ -323,6 +323,18 @@ serve(async (req) => {
               payment_method: 'stripe',
               stripe_payment_intent_id: session.payment_intent as string
             });
+
+          // Overpayment detection (flag only — never auto-refund)
+          const { data: inv } = await supabaseClient
+            .from('invoices').select('total_amount').eq('id', invoice_id).maybeSingle();
+          const { data: done } = await supabaseClient
+            .from('payment_transactions').select('amount')
+            .eq('invoice_id', invoice_id).eq('status', 'completed');
+          const paid = (done || []).reduce((s: number, t: any) => s + (t.amount ?? 0), 0);
+          const total = inv?.total_amount ?? 0;
+          if (total > 0 && paid > total) {
+            logStep("OVERPAYMENT DETECTED", { invoice_id, paid, total, overBy: paid - total });
+          }
         }
       }
     }
