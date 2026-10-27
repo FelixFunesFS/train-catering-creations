@@ -24,7 +24,7 @@ import { findMyAssignment } from './myShift';
 import { MyShiftBanner } from './MyShiftBanner';
 import { RunOfShowTimeline } from './RunOfShowTimeline';
 import { StaffQuickActions } from './StaffQuickActions';
-import { getUrgency, urgencyStyles, getCountdownLabel } from './staffUrgency';
+import { getUrgency, urgencyStyles, getCountdownLabel, formatStaffTime } from './staffUrgency';
 
 interface StaffEventDetailsProps {
   event: StaffEvent;
@@ -34,44 +34,19 @@ interface StaffEventDetailsProps {
 // Confirmation status badge
 function getConfirmationBadge(status: string): { text: string; className: string } {
   if (['confirmed', 'awaiting_payment', 'paid'].includes(status)) {
-    return { text: 'Confirmed', className: 'bg-green-500/15 text-green-700 dark:text-green-400 border-green-500/30' };
+    return { text: 'Confirmed', className: 'bg-success/10 text-success border-success/30' };
   }
   if (status === 'approved') {
-    return { text: 'Approved', className: 'bg-blue-500/15 text-blue-700 dark:text-blue-400 border-blue-500/30' };
+    return { text: 'Approved', className: 'bg-primary/10 text-primary border-primary/30' };
   }
-  return { text: 'Tentative', className: 'bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30' };
-}
-
-// Countdown badge logic
-function getCountdownBadge(daysUntil: number, eventDate: string): { text: string; className: string } {
-  if (daysUntil < 0) return { text: 'PAST', className: 'bg-muted text-muted-foreground' };
-  if (daysUntil === 0) return { text: 'TODAY', className: 'bg-destructive text-destructive-foreground' };
-  if (daysUntil === 1) return { text: 'TOMORROW', className: 'bg-amber-500 text-white' };
-  if (daysUntil <= 7) return { text: `IN ${daysUntil} DAYS`, className: 'bg-blue-500 text-white' };
-  return { text: format(parseDateFromLocalString(eventDate), 'MMM d'), className: 'bg-muted text-muted-foreground' };
-}
-
-// Format time for display
-function formatTime(time: string | null): string {
-  if (!time) return '';
-  try {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours), parseInt(minutes));
-    return format(date, 'h:mm a');
-  } catch {
-    return time;
-  }
+  return { text: 'Tentative', className: 'bg-[hsl(var(--gold)/0.15)] text-[hsl(var(--gold-dark))] border-[hsl(var(--gold)/0.4)]' };
 }
 
 // Role badge colors
 const roleBadgeColors: Record<string, string> = {
   'Lead Chef': 'bg-primary text-primary-foreground',
-  'Chef': 'bg-orange-500 text-white',
-  'Server': 'bg-blue-500 text-white',
-  'Bartender': 'bg-purple-500 text-white',
-  'Setup': 'bg-green-500 text-white',
-  'Manager': 'bg-amber-500 text-white',
+  'Chef': 'bg-primary/15 text-primary',
+  'Manager': 'bg-[hsl(var(--gold)/0.2)] text-[hsl(var(--gold-dark))]',
 };
 
 // Collapsible section component - defaults to open
@@ -140,7 +115,7 @@ function SelectedItemsList({ items }: { items: string[] }) {
     <ul className="space-y-2">
       {items.map((item) => (
         <li key={item} className="text-sm flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
+          <CheckCircle2 className="h-4 w-4 text-success" />
           {item}
         </li>
       ))}
@@ -167,14 +142,14 @@ function StaffAssignmentCard({ assignment }: { assignment: StaffAssignment }) {
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             {assignment.arrival_time && (
-              <span>Arrive: {formatTime(assignment.arrival_time)}</span>
+              <span>Arrive: {formatStaffTime(assignment.arrival_time)}</span>
             )}
             {assignment.confirmed ? (
-              <span className="text-green-600 flex items-center gap-1">
+              <span className="text-success flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> Confirmed
               </span>
             ) : (
-              <span className="text-amber-600 flex items-center gap-1">
+              <span className="text-[hsl(var(--gold-dark))] flex items-center gap-1">
                 <CircleDashed className="h-3 w-3" /> Pending
               </span>
             )}
@@ -263,14 +238,14 @@ function LineItemsForCategories({ lineItems, categories }: { lineItems: StaffLin
               <ul className="space-y-1">
                 {item.description!.split(',').map((part, i) => (
                   <li key={i} className="flex items-center gap-2">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
                     <span>{part.trim()}</span>
                   </li>
                 ))}
               </ul>
             ) : (
               <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
+                <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
                 <div>
                   <span className="font-medium">{item.title}</span>
                   {item.quantity > 1 && (
@@ -295,7 +270,7 @@ function AdminNotesBlock({ notes }: { notes: StaffAdminNote[] }) {
 
   const priorityColors: Record<string, string> = {
     high: 'bg-destructive/10 text-destructive border-destructive/20',
-    medium: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+    medium: 'bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold-dark))] border-[hsl(var(--gold)/0.3)]',
     low: 'bg-muted text-muted-foreground',
   };
 
@@ -325,21 +300,21 @@ function AdminNotesBlock({ notes }: { notes: StaffAdminNote[] }) {
 // Customer Notes section (inner content)
 function CustomerNotesContent({ event }: { event: StaffEvent }) {
   return (
-    <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+    <div className="p-3 bg-muted/40 rounded-lg border border-border">
       <div className="space-y-3">
         {event.custom_menu_requests && (
           <div>
-            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Menu Notes</h5>
-            <p className="text-sm text-blue-900 dark:text-blue-200">{event.custom_menu_requests}</p>
+            <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Menu Notes</h5>
+            <p className="text-sm text-foreground">{event.custom_menu_requests}</p>
           </div>
         )}
         {event.extras.length > 0 && (
           <div>
-            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Additional Requests</h5>
+            <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Additional Requests</h5>
             <ul className="space-y-1">
               {event.extras.map((extra, i) => (
-                <li key={i} className="text-sm text-blue-900 dark:text-blue-200 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                <li key={i} className="text-sm text-foreground flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   {convertMenuIdToReadableText(extra)}
                 </li>
               ))}
@@ -348,11 +323,11 @@ function CustomerNotesContent({ event }: { event: StaffEvent }) {
         )}
         {event.utensils.length > 0 && (
           <div>
-            <h5 className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-1">Utensil Preferences</h5>
+            <h5 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Utensil Preferences</h5>
             <ul className="space-y-1">
               {event.utensils.map((utensil, i) => (
-                <li key={i} className="text-sm text-blue-900 dark:text-blue-200 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                <li key={i} className="text-sm text-foreground flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   {convertMenuIdToReadableText(utensil)}
                 </li>
               ))}
@@ -373,9 +348,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
     fullName: (user?.user_metadata?.full_name || user?.user_metadata?.name) as string | undefined,
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const countdown = getCountdownBadge(event.days_until, event.event_date);
   const confirmation = getConfirmationBadge(event.workflow_status);
-  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
 
   const hasLineItems = event.has_approved_line_items;
 
@@ -477,10 +450,10 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
             <div className="rounded-lg bg-primary/10 px-3 py-2">
               <div className="text-[11px] uppercase tracking-wider text-primary">Serving</div>
               <div className="text-sm font-semibold text-primary">
-                {formatTime(event.serving_start_time || event.start_time) || '—'}
+                {formatStaffTime(event.serving_start_time || event.start_time) || '—'}
               </div>
               {event.serving_start_time && event.start_time && event.serving_start_time !== event.start_time && (
-                <div className="text-[11px] text-muted-foreground">Starts {formatTime(event.start_time)}</div>
+                <div className="text-[11px] text-muted-foreground">Starts {formatStaffTime(event.start_time)}</div>
               )}
             </div>
             <div className="rounded-lg bg-muted/50 px-3 py-2 col-span-2 sm:col-span-1">
@@ -515,17 +488,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               Dual Entrée: both proteins served to each guest (2 servings per guest)
             </div>
           )}
-          
-          {/* Location */}
-          <a 
-            href={mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-start gap-2 text-sm text-primary hover:underline min-h-[44px] lg:min-h-0 py-2"
-          >
-            <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{event.location}</span>
-          </a>
+          <p className="flex items-start gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" /><span>{event.location}</span></p>
           
           {/* Info badges */}
           <div className="flex flex-wrap gap-2 pt-1">
@@ -533,33 +496,19 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
             <Badge variant="outline">{formatEventType(event.event_type)}</Badge>
           </div>
 
-          {/* Contact info */}
-          {(event.contact_name || event.phone) && (
-            <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border mt-2">
-              {event.contact_name && (
-                <span className="text-sm font-medium">{event.contact_name}</span>
-              )}
-              {event.phone && (
-                <a 
-                  href={`tel:${event.phone}`}
-                  className="flex items-center gap-1 text-sm text-primary hover:underline min-h-[44px] lg:min-h-0 py-2"
-                >
-                  <Phone className="h-4 w-4" />
-                  {event.phone}
-                </a>
-              )}
-            </div>
+          {event.contact_name && (
+            <p className="text-sm text-muted-foreground">On-site contact: <span className="font-medium text-foreground">{event.contact_name}</span>{event.phone && <> · {event.phone}</>}</p>
           )}
 
           {/* Military badge */}
           {isMilitaryEvent(event.event_type) && (
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/20">
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 <Shield className="h-3 w-3 mr-1" />
                 Military
               </Badge>
               {event.military_organization && (
-                <span className="text-sm text-blue-700">{event.military_organization}</span>
+                <span className="text-sm text-primary">{event.military_organization}</span>
               )}
             </div>
           )}
@@ -586,37 +535,6 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                 <div className="space-y-4">
                   {/* Show all line items except supplies/service (those get their own sections) */}
                   <LineItemsByCategory lineItems={event.line_items} excludeCategories={['supplies', 'service', 'service_addon']} />
-                  
-                  {/* Dietary restrictions alert */}
-                  {event.dietary_restrictions.length > 0 && (
-                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-medium text-sm mb-2">
-                        <AlertTriangle className="h-4 w-4" />
-                        Dietary Restrictions
-                      </div>
-                      <ul className="space-y-1">
-                        {event.dietary_restrictions.map((restriction, i) => (
-                          <li key={i} className="text-sm text-amber-800 dark:text-amber-300">
-                            • {convertMenuIdToReadableText(restriction)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {event.guest_count_with_restrictions && Number(event.guest_count_with_restrictions) > 0 && (
-                    <p className="text-sm text-green-700 dark:text-green-400 flex items-center gap-1">
-                      <Heart className="h-3.5 w-3.5" aria-hidden="true" />
-                      {event.guest_count_with_restrictions} guests with dietary restrictions
-                    </p>
-                  )}
-
-                  {event.both_proteins_available && (
-                    <p className="text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                      Both proteins served to all guests
-                    </p>
-                  )}
                 </div>
               ) : (
                 /* Fallback: raw menu arrays */
@@ -627,53 +545,6 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                   <MenuList title="Desserts" items={event.desserts} />
                   <MenuList title="Drinks" items={event.drinks} />
                   <MenuList title="Vegetarian Options" items={event.vegetarian_entrees} />
-                  
-                  {event.dietary_restrictions.length > 0 && (
-                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
-                      <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-medium text-sm mb-2">
-                        <AlertTriangle className="h-4 w-4" />
-                        Dietary Restrictions
-                      </div>
-                      <ul className="space-y-1">
-                        {event.dietary_restrictions.map((restriction, i) => (
-                          <li key={i} className="text-sm text-amber-800 dark:text-amber-300">
-                            • {convertMenuIdToReadableText(restriction)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {event.guest_count_with_restrictions && Number(event.guest_count_with_restrictions) > 0 && (
-                    <p className="text-sm text-green-700 dark:text-green-400 flex items-center gap-1">
-                      <Heart className="h-3.5 w-3.5" aria-hidden="true" />
-                      {event.guest_count_with_restrictions} guests with dietary restrictions
-                    </p>
-                  )}
-
-                  {event.both_proteins_available && (
-                    <p className="text-sm text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-                      Both proteins served to all guests
-                    </p>
-                  )}
-
-                  {/* Equipment in fallback mode */}
-                  {hasEquipmentFallback && (
-                    <div className="pt-2 border-t">
-                      <h4 className="text-sm font-medium text-muted-foreground mb-2">Equipment</h4>
-                      <SelectedItemsList 
-                        items={[
-                          event.chafers_requested && 'Chafers',
-                          event.plates_requested && 'Plates',
-                          event.cups_requested && 'Cups',
-                          event.napkins_requested && 'Napkins',
-                          event.serving_utensils_requested && 'Serving Utensils',
-                          event.ice_requested && 'Ice',
-                        ].filter(Boolean) as string[]}
-                      />
-                    </div>
-                  )}
                 </div>
               )}
             </CollapsibleSection>
@@ -682,10 +553,23 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
         )}
 
         {/* Equipment/Supplies from line items */}
-        {hasSuppliesLineItems && (
+        {showEquipmentSection && (
           <>
             <CollapsibleSection title="Equipment & Supplies" icon={Utensils} defaultOpen>
-              <LineItemsForCategories lineItems={event.line_items} categories={['supplies']} />
+              {hasSuppliesLineItems ? (
+                <LineItemsForCategories lineItems={event.line_items} categories={['supplies']} />
+              ) : (
+                <SelectedItemsList
+                  items={[
+                    event.chafers_requested && 'Chafers',
+                    event.plates_requested && 'Plates',
+                    event.cups_requested && 'Cups',
+                    event.napkins_requested && 'Napkins',
+                    event.serving_utensils_requested && 'Serving Utensils',
+                    event.ice_requested && 'Ice',
+                  ].filter(Boolean) as string[]}
+                />
+              )}
             </CollapsibleSection>
             <Separator />
           </>
@@ -721,7 +605,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
 
                 {event.separate_serving_area && (
                   <div className="text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-green-500 inline mr-1" />
+                    <CheckCircle2 className="h-4 w-4 text-success inline mr-1" />
                     Separate Serving Area
                   </div>
                 )}
