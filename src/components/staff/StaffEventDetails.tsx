@@ -19,6 +19,7 @@ import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { getUrgency, urgencyStyles, getCountdownLabel } from './staffUrgency';
 
 interface StaffEventDetailsProps {
   event: StaffEvent;
@@ -514,10 +515,6 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           
           {/* Info badges */}
           <div className="flex flex-wrap gap-2 pt-1">
-            <Badge variant="secondary" className="gap-1">
-              <Users className="h-3 w-3" />
-              {event.guest_count} guests
-            </Badge>
             <Badge variant="outline">{formatServiceType(event.service_type)}</Badge>
             <Badge variant="outline">{formatEventType(event.event_type)}</Badge>
           </div>
