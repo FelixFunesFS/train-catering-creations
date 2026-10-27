@@ -23,6 +23,7 @@ export function MyShiftBanner({ assignment, compact }: { assignment: StaffAssign
     toast.success("Thanks! You're confirmed for this shift.");
     await queryClient.invalidateQueries({ queryKey: ['staff-event'] });
     await queryClient.invalidateQueries({ queryKey: ['staff-events'] });
+    await queryClient.invalidateQueries({ queryKey: ['staff-assignments'] });
   };
 
   return (
