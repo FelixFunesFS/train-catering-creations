@@ -1,3 +1,4 @@
+// @ts-ignore - bun test runner types are not part of the app tsconfig
 import { describe, it, expect } from 'bun:test';
 import { buildMonthGrid, monthRange, shiftMonth, groupByDate } from './monthGrid';
 
