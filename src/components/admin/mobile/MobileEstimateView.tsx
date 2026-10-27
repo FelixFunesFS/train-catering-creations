@@ -281,13 +281,13 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
   return (
     <div className="min-h-screen flex flex-col bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-card border-b px-4 py-3 flex items-center justify-between w-full">
+      <header className="sticky top-0 z-40 bg-card border-b px-3 sm:px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] flex items-center justify-between gap-2 w-full">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-11 w-11 shrink-0" aria-label="Back to events">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="font-semibold text-sm truncate max-w-[180px]">
+            <h1 className="font-semibold text-sm truncate">
               {quote?.event_name || 'Event Details'}
             </h1>
             <p className="text-xs text-muted-foreground">

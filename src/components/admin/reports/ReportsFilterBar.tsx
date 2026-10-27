@@ -60,7 +60,7 @@ export function ReportsFilterBar({ filters, onChange }: Props) {
             size="sm"
             variant={filters.datePreset === p.value ? 'default' : 'outline'}
             onClick={() => setPreset(p.value)}
-            className="text-xs"
+            className="text-xs min-h-[40px] touch-manipulation"
           >
             {p.label}
           </Button>
