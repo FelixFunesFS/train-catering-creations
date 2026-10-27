@@ -72,7 +72,9 @@ serve(async (req) => {
     logStep("Event type", { type: event.type });
 
     // Handle successful checkout session
-    if (event.type === "checkout.session.completed") {
+    // ACH/bank payments arrive later via async_payment_succeeded — treat it
+    // exactly like a normal success (revives voided/superseded rows too).
+    if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
       const session = event.data.object as Stripe.Checkout.Session;
       
       logStep("Checkout session completed", { 
@@ -81,7 +83,16 @@ serve(async (req) => {
         metadata: session.metadata 
       });
 
-      if (session.payment_status === "paid") {
+      // Idempotency: skip if this session was already recorded as completed
+      const { data: existingTx } = await supabaseClient
+        .from('payment_transactions')
+        .select('status')
+        .eq('stripe_session_id', session.id)
+        .maybeSingle();
+      const alreadyProcessed = existingTx?.status === 'completed';
+      if (alreadyProcessed) logStep("Session already processed, skipping", { sessionId: session.id });
+
+      if (session.payment_status === "paid" && !alreadyProcessed) {
         const { invoice_id, milestone_id, quote_request_id } = session.metadata || {};
 
         // Update payment transaction
@@ -312,6 +323,18 @@ serve(async (req) => {
               payment_method: 'stripe',
               stripe_payment_intent_id: session.payment_intent as string
             });
+
+          // Overpayment detection (flag only — never auto-refund)
+          const { data: inv } = await supabaseClient
+            .from('invoices').select('total_amount').eq('id', invoice_id).maybeSingle();
+          const { data: done } = await supabaseClient
+            .from('payment_transactions').select('amount')
+            .eq('invoice_id', invoice_id).eq('status', 'completed');
+          const paid = (done || []).reduce((s: number, t: any) => s + (t.amount ?? 0), 0);
+          const total = inv?.total_amount ?? 0;
+          if (total > 0 && paid > total) {
+            logStep("OVERPAYMENT DETECTED", { invoice_id, paid, total, overBy: paid - total });
+          }
         }
       }
     }

@@ -43,6 +43,13 @@ export function usePaymentCheckout() {
           }
         } catch { /* ignore parse failures */ }
 
+        if (parsedBody?.code === 'PAYMENT_PROCESSING' && parsedBody?.error) {
+          toast({
+            title: 'Your Bank Payment Is Processing',
+            description: parsedBody.error,
+          });
+          return;
+        }
         if (parsedBody?.code === 'DEPOSIT_SATISFIED' && parsedBody?.error) {
           toast({
             title: 'Already Paid',
