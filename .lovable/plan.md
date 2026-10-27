@@ -1,107 +1,42 @@
-## What I found from the logs/audit
+# Prevent Double Payments (ACH + Card) and Make Payment Status Clear for Admins
 
-I pulled the available Supabase-side logs and checked the deployment-related files.
+## What is happening today
+When a customer starts a new online payment, the system marks every earlier "pending" online payment for that invoice as "Superseded" (voided) without checking Stripe first. A bank (ACH) payment can take 3-5 business days to clear, so Cyan's ACH payment was still processing when she paid by card. The system voided the ACH record, but Stripe kept processing it, so both charges went through.
 
-Available logs showed:
-- No runtime logs for `unified-reminder-system`.
-- No recent `function_edge_logs` entries in the last 24 hours.
+## Goals
+- A customer cannot pay twice while a bank payment is still processing.
+- Admins can see right away when a payment is "Processing (bank transfer)", "Paid", "Failed", or "Overpaid".
+- Overpayments get flagged for the admin to resolve. They are never absorbed silently or refunded automatically.
+- Existing estimates, invoices, line items and Cyan's records are not rewritten.
 
-That usually means the failure is happening during the deploy/upload step, before the function ever runs, so it will not show up as normal function runtime logs.
+## Changes
 
-The code/config audit found one concrete stale deploy target:
+### 1. Block a second checkout while ACH is processing (server)
+- Before creating a new checkout, look up each pending Stripe transaction's session with Stripe.
+- If its payment is still `processing` (ACH in flight) or already succeeded, do not void it. Return a clear message instead: "A bank payment of $X started on [date] is still processing. It usually clears in 3-5 business days."
+- Only void a pending transaction when Stripe confirms it was abandoned, expired, or declined.
 
-```text
-Configured in supabase/config.toml, but no function folder exists:
-- send-custom-invoice-email
-```
+### 2. Customer portal message
+- If a bank payment is processing, replace the Pay button with a calm notice: "Your bank payment of $X is processing. No further action is needed. We'll email a receipt once it clears." The notice also lists the phone number (843) 970-0265.
 
-I also confirmed:
-- `send-event-reminders` is no longer referenced in `supabase/config.toml`.
-- The current cron calls `unified-reminder-system` only.
-- Customer submission flow still uses separate functions such as `submit-quote-request`, not the reminder function.
+### 3. Admin clarity
+- New status badge "Processing - Bank Transfer" (amber) in payment history on desktop and mobile, showing the amount and start date.
+- An "Overpaid by $X" alert banner on the event and billing views when total paid is more than the invoice total. It suggests next steps (refund in Stripe, or apply as a credit) and has a "Mark resolved" note field. Resolving it only logs the note; money is not moved.
+- A "Possible duplicate payment" flag when two successful payments for the same invoice land within 72 hours.
 
-## Likely cause
+### 4. Webhook safety
+- Handle `checkout.session.async_payment_succeeded` the same way as a normal success, including for transactions previously marked voided/superseded. The ACH record gets revived instead of being lost.
+- Run the balance update atomically and idempotently by session id, so two successes arriving close together are each counted once. When they push the total past the invoice total, the overpayment flag is set.
 
-The recurring “Couldn't deploy Supabase functions” warning is likely caused by `supabase/config.toml` still declaring a function that no longer exists in the repository:
+### 5. Cyan Brown (read-only)
+- Look up her two transactions and the matching Stripe sessions. Report what Stripe shows (both succeeded, or one still processing) without changing records. The admin decides on a refund in Stripe.
 
-```toml
-[functions.send-custom-invoice-email]
-verify_jwt = false
-```
+## Out of scope
+- No automatic refunds. Reminder, tax, cancellation and thank-you rules stay as they are. The 10/40/50 milestone logic does not change, except that overpayment does not get applied to future milestones.
 
-Because there is no `supabase/functions/send-custom-invoice-email/index.ts`, the deploy pipeline may keep trying to process a function target that cannot be packaged.
-
-## Customer impact
-
-Current customer submissions should not be blocked by this specific issue because:
-
-- Quote submissions use `submit-quote-request`.
-- Payments use `create-checkout-session`, `stripe-webhook`, and `verify-payment`.
-- Customer portal access uses existing estimate/portal routes and deployed functions.
-- The repeated failure appears tied to backend function deployment metadata, not the public quote form.
-
-The risk is backend update drift: changes to edge functions may not reliably go live until the deploy issue is cleaned up.
-
-## Fix plan
-
-### 1. Remove stale function config
-
-Edit `supabase/config.toml` and remove this unused block:
-
-```toml
-[functions.send-custom-invoice-email]
-verify_jwt = false
-```
-
-Reason: there is no matching function folder and no code references it.
-
-### 2. Re-check for missing configured functions
-
-Run the config-vs-folder audit again and confirm there are no configured functions without a matching folder.
-
-Expected result:
-
-```text
-Configured functions without folder: none
-```
-
-### 3. Deploy only the affected function first
-
-Deploy `unified-reminder-system` directly instead of relying on a broad automatic deploy.
-
-This validates whether the recently edited reminder function can package and upload cleanly after the stale config is removed.
-
-### 4. If targeted deploy succeeds, smoke-test the deployed function
-
-Call `unified-reminder-system` directly and verify it returns a structured JSON response like:
-
-```json
-{
-  "success": true,
-  "workflow": { ... },
-  "reminders": [ ... ],
-  "totalEmailsSent": 0
-}
-```
-
-I will also review the function logs after the call to confirm it reached the deployed runtime.
-
-### 5. If targeted deploy still fails
-
-Then the stale config was not the only problem. Next fallback steps:
-
-- Check whether the deployment is failing on an import/package resolution issue.
-- Review `unified-reminder-system` imports from:
-  - `../_shared/emailTemplates.ts`
-  - `../_shared/dateHelpers.ts`
-  - `https://esm.sh/@supabase/supabase-js@2.52.1`
-- If needed, simplify/remediate the function import surface and redeploy again.
-
-## Verification checklist after approval
-
-- `supabase/config.toml` no longer references missing function folders.
-- `unified-reminder-system` deploys successfully.
-- Direct function call succeeds.
-- Function logs show the new version running.
-- No changes are made to customer quote submission code.
-- No database schema changes required.
+## Technical details
+- `create-checkout-session`: replace blind voiding (lines ~256-299) with `stripe.checkout.sessions.retrieve(id, {expand:['payment_intent']})`. If `payment_intent.status` is `processing`, `succeeded` or `requires_action`, return 409 with `{code:'PAYMENT_PROCESSING', amount, created_at}`.
+- `stripe-webhook`: add an `async_payment_succeeded` branch; match by `stripe_session_id` regardless of status; guard with an `already processed` check; compute the overpayment using `total_paid ?? 0` vs `total_amount ?? 0`.
+- Migration: add `processing` to the allowed transaction statuses (if constrained), plus `overpaid_cents` and `overpayment_resolved_note` on invoices. These columns are only readable by admins under the existing RLS.
+- Frontend: handle 409 in the portal payment component; add badges/banners in the admin payment history, EventDetail, and MobileEstimateView.
+- Tests: a Bun test for the overpayment calculation and duplicate-within-72h detection.
