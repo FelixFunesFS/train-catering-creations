@@ -409,39 +409,41 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card className="relative overflow-hidden rounded-xl shadow-sm">
+        <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', urgencyStyles[getUrgency(event.days_until)].accent)} />
+        <CardHeader className="pb-4 pt-5 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <Badge className={cn("text-xs font-semibold", countdown.className)}>
-                {countdown.text}
-              </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide', urgencyStyles[getUrgency(event.days_until)].chip)}>
+                {getCountdownLabel(event.days_until, event.event_date)}
+              </span>
               {event.ceremony_included && event.event_type === 'wedding' && (
-                <Badge variant="outline" className="bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20 text-xs">
+                <Badge variant="outline" className="bg-accent/40 text-foreground text-xs">
                   <Heart className="h-3 w-3 mr-1" />
                   Ceremony
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>
+                {confirmation.text}
+              </Badge>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleRefresh}
-                className="h-8 w-8"
+                className="h-11 w-11 md:h-9 md:w-9"
                 title="Refresh event data"
+                aria-label="Refresh event data"
               >
                 <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
               </Button>
-              <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>
-                {confirmation.text}
-              </Badge>
             </div>
           </div>
-          <CardTitle className="text-xl leading-tight">{event.event_name}</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl leading-tight font-semibold">{event.event_name}</CardTitle>
           
           {/* Data provenance indicator */}
-          <p className="text-xs text-muted-foreground/70 italic flex items-center gap-1">
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
             {hasLineItems ? (
               <>
                 <FileCheck className="h-3 w-3" aria-hidden="true" />
@@ -454,20 +456,48 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               </>
             )}
           </p>
-          
-          {/* Date and time */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground pt-1">
-            <Clock className="h-4 w-4" />
-            <span>
-              {format(parseDateFromLocalString(event.event_date), 'EEEE, MMMM d, yyyy')} • {formatTime(event.start_time)}
-            </span>
+
+          {/* Key facts grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
+            <div className="rounded-lg bg-muted/50 px-3 py-2">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Date</div>
+              <div className="text-sm font-semibold">{format(parseDateFromLocalString(event.event_date), 'EEE, MMM d')}</div>
+            </div>
+            <div className="rounded-lg bg-primary/10 px-3 py-2">
+              <div className="text-[11px] uppercase tracking-wider text-primary">Serving</div>
+              <div className="text-sm font-semibold text-primary">
+                {formatTime(event.serving_start_time || event.start_time) || '—'}
+              </div>
+              {event.serving_start_time && event.start_time && event.serving_start_time !== event.start_time && (
+                <div className="text-[11px] text-muted-foreground">Starts {formatTime(event.start_time)}</div>
+              )}
+            </div>
+            <div className="rounded-lg bg-muted/50 px-3 py-2 col-span-2 sm:col-span-1">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Guests</div>
+              <div className="text-sm font-semibold flex items-center gap-1"><Users className="h-3.5 w-3.5" aria-hidden="true" />{event.guest_count}</div>
+            </div>
           </div>
 
-          {/* Serving time if different */}
-          {event.serving_start_time && event.serving_start_time !== event.start_time && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>Serving begins at {formatTime(event.serving_start_time)}</span>
+          {/* Dietary alert — elevated */}
+          {event.dietary_restrictions.length > 0 && (
+            <div role="alert" className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0" aria-hidden="true" />
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-destructive">
+                  Dietary & allergy alert
+                  {Number(event.guest_count_with_restrictions) > 0 && ` · ${event.guest_count_with_restrictions} guests`}
+                </div>
+                <div className="text-sm text-foreground/90">
+                  {event.dietary_restrictions.map((r) => convertMenuIdToReadableText(r)).join(', ')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {event.both_proteins_available && event.proteins.length >= 2 && (
+            <div className="flex items-start gap-2 rounded-lg border border-[hsl(var(--gold)/0.4)] bg-[hsl(var(--gold)/0.1)] p-3 text-sm font-medium">
+              <ChefHat className="h-4 w-4 shrink-0 mt-0.5 text-[hsl(var(--gold-dark))]" aria-hidden="true" />
+              Dual Entrée: both proteins served to each guest (2 servings per guest)
             </div>
           )}
           
