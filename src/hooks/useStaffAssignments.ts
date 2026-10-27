@@ -66,6 +66,7 @@ export function useCreateStaffAssignment() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['staff-assignments', variables.quoteId] });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast.success('Staff member assigned');
     },
     onError: (error) => {
@@ -103,6 +104,7 @@ export function useUpdateStaffAssignment() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['staff-assignments', variables.quoteId] });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
     },
     onError: (error) => {
       console.error('Error updating staff assignment:', error);
@@ -128,6 +130,7 @@ export function useDeleteStaffAssignment() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['staff-assignments', variables.quoteId] });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast.success('Staff member removed');
     },
     onError: (error) => {

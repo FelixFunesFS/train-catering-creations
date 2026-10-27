@@ -160,6 +160,7 @@ export function useUpdateQuote() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast({
         title: 'Quote updated',
         description: 'Quote has been successfully updated.',
@@ -227,6 +228,7 @@ export function useUpdateQuoteStatus() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast({
         title: 'Status updated',
         description: `Quote status changed to ${data.workflow_status}.`,
@@ -264,6 +266,7 @@ export function useDeleteQuote() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast({
         title: 'Quote deleted',
         description: 'Quote has been successfully deleted.',
@@ -297,6 +300,7 @@ export function useCreateQuote() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast({
         title: 'Quote created',
         description: 'New quote has been successfully created.',
@@ -339,6 +343,7 @@ export function useBulkUpdateQuotes() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: quoteKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       toast({
         title: 'Quotes updated',
         description: `${data.length} quotes have been updated.`,
