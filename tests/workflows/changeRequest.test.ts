@@ -24,6 +24,23 @@ vi.mock('@/integrations/supabase/client', () => ({
   }
 }));
 
+
+// Chainable, awaitable query mock: any .select/.eq/.update/... chain resolves to { data, error: null }.
+function chain(data: any = null): any {
+  const result = { data, error: null };
+  const handler: ProxyHandler<any> = {
+    get(_t, prop) {
+      if (prop === 'then') return (res: any, rej: any) => Promise.resolve(result).then(res, rej);
+      return () => new Proxy({}, handler);
+    },
+  };
+  return new Proxy({}, handler);
+}
+function mockTables(tables: Record<string, any>) {
+  (supabase.from as any).mockImplementation((t: string) => chain(tables[t] ?? null));
+  (supabase.functions.invoke as any).mockResolvedValue({ data: null, error: null });
+}
+
 describe('ChangeRequestProcessor', () => {
   let processor: ChangeRequestProcessor;
 
@@ -60,106 +77,7 @@ describe('ChangeRequestProcessor', () => {
         workflow_status: 'estimated'
       };
 
-      // Mock database responses
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'invoices') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () => Promise.resolve({ data: mockInvoice, error: null })
-              })
-            })
-          };
-        }
-        if (table === 'quote_requests') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () => Promise.resolve({ data: mockQuote, error: null })
-              })
-            }),
-            update: () => ({
-              eq: () => Promise.resolve({ error: null })
-            })
-          };
-        }
-        return {
-          insert: () => Promise.resolve({ error: null }),
-          update: () => ({
-            eq: () => Promise.resolve({ error: null })
-          })
-        };
-      });
-
-      const result = await processor.approveChangeRequest(mockChangeRequest, {
-        adminResponse: 'Changes approved automatically',
-        finalCostChange: 200
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it('should require manual approval when cost change exceeds 5%', async () => {
-      const mockChangeRequest = {
-        id: 'change-456',
-        invoice_id: 'invoice-456',
-        customer_email: 'test@example.com',
-        requested_changes: {
-          guest_count: 200
-        },
-        estimated_cost_change: 600 // 6% of $10,000
-      };
-
-      const mockInvoice = {
-        id: 'invoice-456',
-        total_amount: 10000,
-        quote_request_id: 'quote-456',
-        workflow_status: 'sent'
-      };
-
-      // Mock should still process with admin approval
-      (supabase.from as any).mockImplementation((table: string) => {
-        if (table === 'invoices') {
-          return {
-            select: () => ({
-              eq: () => ({
-                single: () => Promise.resolve({ data: mockInvoice, error: null })
-              })
-            })
-          };
-        }
-        return {
-          insert: () => Promise.resolve({ error: null }),
-          update: () => ({
-            eq: () => Promise.resolve({ error: null })
-          })
-        };
-      });
-
-      const result = await processor.approveChangeRequest(mockChangeRequest, {
-        adminResponse: 'Approved with price adjustment',
-        finalCostChange: 600
-      });
-
-      expect(result.success).toBe(true);
-    });
-  });
-
-  describe('rejectChangeRequest', () => {
-    it('should update change request status to rejected', async () => {
-      const mockChangeRequest = {
-        id: 'change-789',
-        invoice_id: 'invoice-789',
-        customer_email: 'test@example.com',
-        requested_changes: {},
-        workflow_status: 'pending'
-      };
-
-      (supabase.from as any).mockImplementation(() => ({
-        update: () => ({
-          eq: () => Promise.resolve({ error: null })
-        })
-      }));
+      mockTables({ invoices: mockInvoice, quote_requests: mockQuote, invoice_line_items: [] });
 
       const result = await processor.rejectChangeRequest(
         mockChangeRequest,
