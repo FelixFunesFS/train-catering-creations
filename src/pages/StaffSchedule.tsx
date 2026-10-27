@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -40,6 +40,14 @@ export default function StaffSchedule() {
   ) : null;
   const paginatedEvents = eventList.slice(startIndex, endIndex);
 
+  // Desktop/tablet: auto-open the first upcoming event so the detail pane is never blank
+  useEffect(() => {
+    if (isMobile || paginatedEvents.length === 0) return;
+    if (!selectedEventId || !eventList.some((e) => e.id === selectedEventId)) {
+      setSelectedEventId(paginatedEvents[0].id);
+    }
+  }, [isMobile, paginatedEvents, eventList, selectedEventId]);
+
   const showMobileDetails = isMobile && selectedEventId && selectedEvent;
 
   const handleCardClick = (eventId: string) => {
@@ -77,7 +85,7 @@ export default function StaffSchedule() {
   if (showMobileDetails) {
     return (
       <AdminLayout>
-        <div className="sticky top-14 z-40 bg-background border-b">
+        <div className="sticky top-14 z-40 bg-background border-b print:hidden">
           <div className="flex items-center h-12 px-4">
             <Button 
               variant="ghost" 
@@ -160,7 +168,7 @@ export default function StaffSchedule() {
   // Desktop Split View
   return (
     <AdminLayout>
-      <div className="h-14 border-b flex items-center justify-between px-6">
+      <div className="h-14 border-b print:hidden flex items-center justify-between px-6">
         <div className="flex items-center gap-3">
           <Calendar className="h-5 w-5 text-primary" />
           <h2 className="font-semibold text-lg">Staff Schedule</h2>
@@ -179,7 +187,7 @@ export default function StaffSchedule() {
       </div>
 
       <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-7.5rem)]">
-        <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
+        <ResizablePanel defaultSize={35} minSize={25} maxSize={50} className="print:hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
               <StaffPulseStrip events={events ?? []} className="md:grid-cols-2 xl:grid-cols-4" />
@@ -215,7 +223,7 @@ export default function StaffSchedule() {
           </ScrollArea>
         </ResizablePanel>
 
-        <ResizableHandle withHandle />
+        <ResizableHandle withHandle className="print:hidden" />
 
         <ResizablePanel defaultSize={65}>
           <ScrollArea className="h-full">
