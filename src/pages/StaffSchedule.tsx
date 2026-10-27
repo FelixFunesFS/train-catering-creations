@@ -64,7 +64,7 @@ export default function StaffSchedule() {
 
   const listFilter: StaffEventFilter = isListView(view) ? view : 'all';
   const { data: events, isLoading, error } = useStaffEvents(listFilter);
-  const { data: selectedEvent } = useStaffEvent(selectedEventId);
+  const { data: selectedEventRaw } = useStaffEvent(selectedEventId);
 
   const PAGE_SIZE = 10;
   const eventList = (events ?? []).filter((e) =>
@@ -72,12 +72,14 @@ export default function StaffSchedule() {
   );
   const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [view, search]);
   const paginatedEvents = eventList.slice(startIndex, endIndex);
+  // In list views, only show the detail panel for an event that is still visible in the filtered list
+  const selectedEvent = isListView(view) && !isLoading && !eventList.some((e) => e.id === selectedEventId) ? null : selectedEventRaw;
 
   // Desktop: auto-open the first upcoming event in list views so the detail pane is never blank
   useEffect(() => {
     if (isMobile || !isListView(view) || paginatedEvents.length === 0) return;
-    if (!selectedEventId) setSelectedEventId(paginatedEvents[0].id);
-  }, [isMobile, view, paginatedEvents, selectedEventId]);
+    if (!selectedEventId || !eventList.some((e) => e.id === selectedEventId)) setSelectedEventId(paginatedEvents[0].id);
+  }, [isMobile, view, paginatedEvents, eventList, selectedEventId]);
 
   const emptyCopy: Record<StaffEventFilter, string> = {
     today: 'No events scheduled for today',
@@ -92,8 +94,8 @@ export default function StaffSchedule() {
           <StaffEventCard key={event.id} event={event} isSelected={!isMobile && event.id === selectedEventId} onClick={() => setSelectedEventId(event.id)} />
         ))
       ) : (
-        <div className="flex flex-col items-center justify-center py-14 text-center rounded-xl border border-dashed">
-          <Calendar className="h-10 w-10 text-muted-foreground/40 mb-3" />
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-muted"><Calendar className="h-5 w-5 text-muted-foreground" /></div>
           <p className="font-medium">{search.trim() ? `No events match "${search}"` : emptyCopy[listFilter]}</p>
           {search.trim() ? (
             <Button variant="link" onClick={() => setSearch('')} className="min-h-[44px]">Clear search</Button>
@@ -119,10 +121,8 @@ export default function StaffSchedule() {
     </div>
   ) : (
     <div className="space-y-4">
-      <StaffPulseStrip events={events ?? []} className={isMobile ? undefined : 'md:grid-cols-2 xl:grid-cols-4'} />
-      {(searchOpen || !isMobile || search) && (
-        <ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" />
-      )}
+      {!isMobile && <ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" />}
+      <StaffPulseStrip events={eventList} />
       {listContent}
     </div>
   );
@@ -166,6 +166,9 @@ export default function StaffSchedule() {
         </div>
         <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-30 bg-background/95 backdrop-blur px-4 py-2 border-b">
           <Segmented value={view} onChange={(v) => { setView(v); setSelectedEventId(null); }} />
+          {searchOpen && isListView(view) && (
+            <div className="pt-2"><ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" /></div>
+          )}
         </div>
         <div className="p-4 pb-24">{body}</div>
       </AdminLayout>

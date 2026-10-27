@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Loader2, CalendarX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useStaffEventsRange } from '@/hooks/useStaffEvents';
-import { formatDateToLocalString } from '@/utils/dateHelpers';
+import { formatDateToLocalString, parseDateFromLocalString } from '@/utils/dateHelpers';
 import { buildMonthGrid, groupByDate, monthRange, parseMonthKey, shiftMonth } from './monthGrid';
 import { StaffEventCard } from './StaffEventCard';
 import { formatStaffTime } from './staffUrgency';
@@ -25,7 +25,7 @@ export function StaffMonthView({ month, onMonthChange, selectedEventId, onSelect
   const byDate = useMemo(() => groupByDate(events), [events]);
   const cells = useMemo(() => buildMonthGrid(month), [month]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
-  const touchX = useRef<number | null>(null);
+  const touch = useRef<{ x: number; y: number } | null>(null);
 
   const { year, month: m } = parseMonthKey(month);
   const label = new Date(year, m, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -47,12 +47,14 @@ export function StaffMonthView({ month, onMonthChange, selectedEventId, onSelect
 
       <div
         className="rounded-xl border bg-card overflow-hidden touch-pan-y"
-        onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+        onTouchStart={(e) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
         onTouchEnd={(e) => {
-          if (touchX.current == null) return;
-          const dx = e.changedTouches[0].clientX - touchX.current;
-          if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
-          touchX.current = null;
+          if (!touch.current) return;
+          const dx = e.changedTouches[0].clientX - touch.current.x;
+          const dy = e.changedTouches[0].clientY - touch.current.y;
+          // Only clear horizontal swipes change month; vertical scrolling is ignored
+          if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+          touch.current = null;
         }}
       >
         <div className="grid grid-cols-7 border-b bg-muted/40 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -120,7 +122,7 @@ export function StaffMonthView({ month, onMonthChange, selectedEventId, onSelect
       <div className="space-y-3">
         <p className="text-sm font-medium text-muted-foreground">
           {activeDay
-            ? new Date(`${activeDay}T00:00:00`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+            ? parseDateFromLocalString(activeDay).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
             : `All events in ${label}`}
           {' · '}{dayEvents.length}
         </p>
