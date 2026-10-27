@@ -1,14 +1,13 @@
 import { format } from 'date-fns';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
-import { MapPin, Users, Clock, CheckCircle, AlertCircle, AlertTriangle, ChevronRight } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { AlertTriangle, ChevronRight, Users } from 'lucide-react';
 import type { StaffEvent } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { useAuth } from '@/hooks/useAuth';
 import { findMyAssignment } from './myShift';
 import { MyShiftBanner } from './MyShiftBanner';
-import { getUrgency, urgencyStyles, getCountdownLabel, formatStaffTime, getDietarySummary } from './staffUrgency';
+import { getCountdownLabel, formatStaffTime, getDietarySummary } from './staffUrgency';
 
 interface StaffEventCardProps {
   event: StaffEvent;
@@ -16,39 +15,36 @@ interface StaffEventCardProps {
   onClick?: () => void;
 }
 
-// Confirmation status badge
-function getConfirmationBadge(status: string): { text: string; className: string } {
-  if (['confirmed', 'awaiting_payment', 'paid'].includes(status)) {
-    return { text: 'Confirmed', className: 'bg-success/10 text-success border-success/30' };
-  }
-  if (status === 'approved') {
-    return { text: 'Approved', className: 'bg-primary/10 text-primary border-primary/30' };
-  }
-  return { text: 'Tentative', className: 'bg-[hsl(var(--gold)/0.15)] text-[hsl(var(--gold-dark))] border-[hsl(var(--gold)/0.4)]' };
+function getStatus(status: string, isPast: boolean): { text: string; dot: string } {
+  if (isPast || status === 'completed') return { text: 'Completed', dot: 'bg-muted-foreground/50' };
+  if (['confirmed', 'awaiting_payment', 'paid'].includes(status)) return { text: 'Confirmed', dot: 'bg-success' };
+  if (status === 'approved') return { text: 'Approved', dot: 'bg-primary' };
+  return { text: 'Tentative', dot: 'bg-[hsl(var(--gold))]' };
 }
 
 export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardProps) {
   const { user } = useAuth();
-  const myAssignment = findMyAssignment(event.staff_assignments, {
+  const isPast = event.days_until < 0;
+  const myAssignment = isPast ? null : findMyAssignment(event.staff_assignments, {
     email: user?.email,
     fullName: (user?.user_metadata?.full_name || user?.user_metadata?.name) as string | undefined,
   });
-  const urgency = getUrgency(event.days_until);
-  const styles = urgencyStyles[urgency];
-  const confirmation = getConfirmationBadge(event.workflow_status);
-  const confirmedCount = event.staff_assignments.filter(s => s.confirmed).length;
-  const totalStaff = event.staff_assignments.length;
+  const status = getStatus(event.workflow_status, isPast);
+  const crew = event.staff_assignments.length;
+  const crewConfirmed = event.staff_assignments.filter((s) => s.confirmed).length;
   const dietary = getDietarySummary(event);
   const servingTime = event.serving_start_time || event.start_time;
+  const date = parseDateFromLocalString(event.event_date);
 
-  const mapsUrl = `https://maps.google.com/?q=${encodeURIComponent(event.location)}`;
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick?.();
-    }
-  };
+  // Hide the event-type tag when the name already says it (e.g. "Smith Wedding" + "Wedding")
+  const typeLabel = formatEventType(event.event_type);
+  const showType = typeLabel && !event.event_name.toLowerCase().includes(typeLabel.toLowerCase());
+  const meta = [
+    servingTime ? `Serve ${formatStaffTime(servingTime)}` : null,
+    `${event.guest_count} guests`,
+    formatServiceType(event.service_type),
+    showType ? typeLabel : null,
+  ].filter(Boolean) as string[];
 
   return (
     <div
@@ -56,99 +52,66 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
       tabIndex={0}
       aria-label={`View details for ${event.event_name}`}
       aria-pressed={isSelected}
-      onKeyDown={handleKeyDown}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(); } }}
       onClick={onClick}
       className={cn(
-        'group relative overflow-hidden rounded-xl border bg-card text-card-foreground shadow-sm',
+        'group flex gap-3.5 rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4 text-card-foreground',
         'cursor-pointer select-none touch-manipulation transition-all duration-200',
-        'hover:shadow-md hover:border-primary/30 active:scale-[0.99]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-        isSelected && 'ring-2 ring-primary border-primary/40 shadow-md',
-        urgency === 'past' && 'opacity-75'
+        'hover:border-border hover:shadow-sm active:scale-[0.995]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        isSelected && 'border-primary/50 bg-primary/[0.03] shadow-sm',
+        isPast && 'bg-muted/30',
       )}
     >
-      {/* Urgency accent bar */}
-      <span aria-hidden="true" className={cn('absolute inset-y-0 left-0 w-1.5', styles.accent)} />
+      {/* Date block */}
+      <div className={cn(
+        'flex h-14 w-12 shrink-0 flex-col items-center justify-center rounded-xl border border-border/60 bg-background',
+        isPast && 'opacity-60',
+      )}>
+        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{format(date, 'MMM')}</span>
+        <span className="text-xl font-semibold leading-none tabular-nums">{format(date, 'd')}</span>
+        <span className="text-[10px] text-muted-foreground">{format(date, 'EEE')}</span>
+      </div>
 
-      <div className="pl-5 pr-9 py-4 space-y-3">
-        {/* Top row: countdown + status */}
-        <div className="flex items-center justify-between gap-2">
-          <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide', styles.chip)}>
-            {getCountdownLabel(event.days_until, event.event_date)}
-          </span>
-          <Badge variant="outline" className={cn('text-[11px] font-medium', confirmation.className)}>
-            {confirmation.text}
-          </Badge>
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span className={cn('h-1.5 w-1.5 rounded-full', status.dot)} aria-hidden="true" />
+          <span className="font-medium text-foreground/80">{status.text}</span>
+          {!isPast && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{getCountdownLabel(event.days_until, event.event_date)}</span>
+            </>
+          )}
         </div>
 
-        {/* Title + date */}
-        <div className="space-y-1">
-          <h3 className="font-semibold text-base sm:text-lg leading-snug line-clamp-2">
-            {event.event_name}
-          </h3>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span>
-              {format(parseDateFromLocalString(event.event_date), 'EEE, MMM d')}
-              {servingTime && <> · <span className="font-medium text-foreground">Serve {formatStaffTime(servingTime)}</span></>}
-            </span>
-          </div>
-        </div>
+        <h3 className={cn('font-semibold leading-snug line-clamp-2 text-[15px] sm:text-base', isPast && 'text-foreground/70')}>
+          {event.event_name}
+        </h3>
 
-        {myAssignment && <MyShiftBanner assignment={myAssignment} compact />}
+        <p className="text-sm text-muted-foreground line-clamp-1">{meta.join(' · ')}</p>
+        {event.location && <p className="text-sm text-muted-foreground line-clamp-1">{event.location}</p>}
 
-        {/* Location (tappable) */}
-        <a
-          href={mapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-start gap-1.5 text-sm text-primary hover:underline min-h-[44px] md:min-h-0 py-1"
-        >
-          <MapPin className="h-4 w-4 shrink-0 mt-0.5" aria-hidden="true" />
-          <span className="line-clamp-2">{event.location}</span>
-        </a>
-
-        {/* Dietary alert pill */}
-        {dietary.labels.length > 0 && (
-          <div className="flex items-start gap-1.5 rounded-lg border border-destructive/25 bg-destructive/5 px-2.5 py-1.5 text-xs font-medium text-destructive">
-            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-px" aria-hidden="true" />
-            <span className="line-clamp-2">
-              {dietary.count > 0 && `${dietary.count} guests · `}
-              {dietary.labels.join(', ')}
-            </span>
-          </div>
+        {dietary.labels.length > 0 && !isPast && (
+          <p className="flex items-center gap-1.5 text-xs font-medium text-destructive">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="line-clamp-1">{dietary.count > 0 && `${dietary.count} · `}{dietary.labels.join(', ')}</span>
+          </p>
         )}
 
-        {/* Meta chips */}
-        <div className="flex flex-wrap gap-1.5">
-          <Badge variant="secondary" className="gap-1 font-medium">
-            <Users className="h-3 w-3" aria-hidden="true" />
-            {event.guest_count} guests
-          </Badge>
-          <Badge variant="outline" className="font-normal">{formatServiceType(event.service_type)}</Badge>
-          <Badge variant="outline" className="font-normal">{formatEventType(event.event_type)}</Badge>
-        </div>
+        {myAssignment && <div className="pt-1"><MyShiftBanner assignment={myAssignment} compact /></div>}
 
-        {/* Crew summary */}
-        {totalStaff > 0 && (
-          <div className="flex items-center gap-1.5 text-xs pt-2.5 border-t border-border/60">
-            {confirmedCount === totalStaff ? (
-              <CheckCircle className="h-4 w-4 text-success" aria-hidden="true" />
-            ) : (
-              <AlertCircle className="h-4 w-4 text-[hsl(var(--gold-dark))]" aria-hidden="true" />
-            )}
-            <span className="text-muted-foreground">
-              Crew {confirmedCount}/{totalStaff} confirmed
+        {crew > 0 && (
+          <div className="flex justify-end pt-0.5">
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Users className="h-3.5 w-3.5" aria-hidden="true" />
+              {isPast ? `${crew} crew` : `${crewConfirmed}/${crew} crew confirmed`}
             </span>
           </div>
         )}
       </div>
 
-      <ChevronRight
-        aria-hidden="true"
-        className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-      />
+      <ChevronRight aria-hidden="true" className="h-4 w-4 shrink-0 self-center text-muted-foreground/40 transition-transform group-hover:translate-x-0.5" />
     </div>
   );
 }

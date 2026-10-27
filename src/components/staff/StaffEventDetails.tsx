@@ -394,12 +394,11 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
     <div className="space-y-4">
       {/* Header */}
       <Card className="relative overflow-hidden rounded-xl shadow-sm">
-        <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', urgencyStyles[getUrgency(event.days_until)].accent)} />
         <CardHeader className="pb-4 pt-5 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide', urgencyStyles[getUrgency(event.days_until)].chip)}>
-                {getCountdownLabel(event.days_until, event.event_date)}
+              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                {event.days_until < 0 ? 'Completed' : getCountdownLabel(event.days_until, event.event_date)}
               </span>
               {event.ceremony_included && event.event_type === 'wedding' && (
                 <Badge variant="outline" className="bg-accent/40 text-foreground text-xs">
@@ -462,7 +461,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
             </div>
           </div>
 
-          {myAssignment && <MyShiftBanner assignment={myAssignment} />}
+          {myAssignment && event.days_until >= 0 && <MyShiftBanner assignment={myAssignment} />}
 
           <StaffQuickActions event={event} />
 
