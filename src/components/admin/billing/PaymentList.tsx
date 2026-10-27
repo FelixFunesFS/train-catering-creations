@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PaymentRecorder } from './PaymentRecorder';
 import { PaymentHistory } from './PaymentHistory';
+import { ListSearchInput, matchesSearch } from '../ListSearchInput';
 import { DollarSign, Calendar, Users, CreditCard, History, Clock, AlertTriangle } from 'lucide-react';
 
 function formatCurrency(cents: number): string {
@@ -59,6 +60,7 @@ export function PaymentList() {
   const [showHistory, setShowHistory] = useState(false);
   const [historyInvoiceId, setHistoryInvoiceId] = useState<string | undefined>(undefined);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [search, setSearch] = useState('');
 
   // Filter to show only sent/approved/payment-related invoices
   const paymentInvoices = invoices?.filter(inv => 
@@ -67,6 +69,8 @@ export function PaymentList() {
 
   // Apply status filter
   const filteredInvoices = paymentInvoices.filter(inv => {
+    const i = inv as any;
+    if (!matchesSearch(search, [i.contact_name, i.email, i.phone, i.event_name, i.invoice_number, i.total_amount])) return false;
     switch (statusFilter) {
       case 'awaiting':
         return ['approved', 'payment_pending'].includes(inv.workflow_status || '');
@@ -85,7 +89,7 @@ export function PaymentList() {
   const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(
     filteredInvoices.length,
     10,
-    [statusFilter]
+    [statusFilter, search]
   );
   const paginatedInvoices = filteredInvoices.slice(startIndex, endIndex);
 
@@ -160,6 +164,10 @@ export function PaymentList() {
         </Button>
       </div>
 
+      <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] md:static z-20 -mx-1 px-1 py-1 bg-background/95 backdrop-blur">
+        <ListSearchInput value={search} onChange={setSearch} placeholder="Search customer, event, invoice #, phone" />
+      </div>
+
       {/* Status Filter Tabs - Responsive */}
       <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
         <TabsList className="flex flex-wrap justify-start gap-1 h-auto p-1 sm:grid sm:grid-cols-5">
@@ -187,7 +195,7 @@ export function PaymentList() {
             <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium">No Invoices Found</h3>
             <p className="text-muted-foreground text-sm mt-1">
-              {statusFilter === 'all' 
+              {search ? `No invoices match "${search}".` : statusFilter === 'all' 
                 ? 'Sent estimates will appear here once customers receive them.'
                 : `No invoices match the "${statusFilter}" filter.`}
             </p>

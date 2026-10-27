@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Inbox, Clock, ArrowRight, Loader2, Users, MapPin, XCircle, ChevronDown } from 'lucide-react';
+import { ListSearchInput, matchesSearch } from '../ListSearchInput';
 import { Database } from '@/integrations/supabase/types';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
@@ -37,6 +38,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
 
   const [pendingCancel, setPendingCancel] = useState<QuoteRequest | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<boolean>(() => {
     try {
       const saved = localStorage.getItem('admin.submissions.expanded');
@@ -94,6 +96,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
     prevCount.current = submissionCount;
   }, [submissionCount]);
   const latest = submissions[0];
+  const visible = submissions.filter((q: any) => matchesSearch(search, [q.contact_name, q.email, q.phone, q.event_name, q.location, q.event_type]));
 
   if (isLoading) {
     return (
@@ -162,10 +165,16 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
       </CardHeader>
       {expanded && (
       <CardContent className="p-3 sm:p-6">
+        {submissionCount > 3 && (
+          <ListSearchInput className="mb-3" value={search} onChange={setSearch} placeholder="Search name, email, phone, event" />
+        )}
+        {visible.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-4">No submissions match "{search}".</p>
+        )}
         {isMobile ? (
           /* Mobile Card Layout */
           <div className="space-y-3">
-            {submissions.map((event) => (
+            {visible.map((event) => (
               <div
                 key={event.id}
                 className="p-4 border border-amber-200 rounded-lg bg-card active:bg-muted/50 transition-colors cursor-pointer"
@@ -234,7 +243,7 @@ export function SubmissionsCard({ onEventClick }: SubmissionsCardProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {submissions.map((event) => (
+              {visible.map((event) => (
                 <TableRow 
                   key={event.id} 
                   className="cursor-pointer hover:bg-amber-100/50 dark:hover:bg-amber-900/20"
