@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import { usePaymentTransactions, useInvoice } from '@/hooks/useInvoices';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { getOverpaymentCents, hasPossibleDuplicatePayment } from '@/utils/paymentAlerts';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -209,6 +210,36 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
               </div>
             </div>
           )}
+
+          {transactions && invoice && (() => {
+            const over = getOverpaymentCents(transactions as any, invoice.total_amount);
+            const dup = hasPossibleDuplicatePayment(transactions as any);
+            const processing = pendingTransactions.filter(t => t.payment_method === 'stripe');
+            return (
+              <div className="space-y-2">
+                {over > 0 && (
+                  <div role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm">
+                    <p className="font-semibold text-destructive">Overpaid by {formatCurrency(over)}</p>
+                    <p className="text-muted-foreground mt-1">The customer paid more than the invoice total. Nothing was refunded automatically. Refund the extra in Stripe, or note it as a credit for the customer.</p>
+                  </div>
+                )}
+                {dup && over === 0 && (
+                  <div role="alert" className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-sm">
+                    <p className="font-semibold text-amber-700">Possible duplicate payment</p>
+                    <p className="text-muted-foreground mt-1">Two payments went through within 72 hours. Check that both were intended.</p>
+                  </div>
+                )}
+                {processing.length > 0 && (
+                  <div className="rounded-lg border border-amber-300 bg-amber-500/10 p-3 text-sm">
+                    <p className="font-semibold text-amber-700">Online payment in progress</p>
+                    <p className="text-muted-foreground mt-1">
+                      {processing.map(t => `${formatCurrency(t.amount)} started ${new Date(t.created_at).toLocaleDateString()}`).join(', ')}. Bank (ACH) payments can take 3-5 business days. The customer can't start another online payment while a bank payment is processing.
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           <div className="flex-1 min-h-0 overflow-y-auto">
             {isLoading ? (
