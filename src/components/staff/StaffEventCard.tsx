@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import type { StaffEvent } from '@/hooks/useStaffEvents';
 import { cn } from '@/lib/utils';
 import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
+import { useAuth } from '@/hooks/useAuth';
+import { findMyAssignment } from './myShift';
+import { MyShiftBanner } from './MyShiftBanner';
 import { getUrgency, urgencyStyles, getCountdownLabel, formatStaffTime, getDietarySummary } from './staffUrgency';
 
 interface StaffEventCardProps {
@@ -25,6 +28,11 @@ function getConfirmationBadge(status: string): { text: string; className: string
 }
 
 export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardProps) {
+  const { user } = useAuth();
+  const myAssignment = findMyAssignment(event.staff_assignments, {
+    email: user?.email,
+    fullName: (user?.user_metadata?.full_name || user?.user_metadata?.name) as string | undefined,
+  });
   const urgency = getUrgency(event.days_until);
   const styles = urgencyStyles[urgency];
   const confirmation = getConfirmationBadge(event.workflow_status);
@@ -86,6 +94,8 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
             </span>
           </div>
         </div>
+
+        {myAssignment && <MyShiftBanner assignment={myAssignment} compact />}
 
         {/* Location (tappable) */}
         <a

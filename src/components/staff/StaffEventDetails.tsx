@@ -19,6 +19,10 @@ import { formatEventType, formatServiceType } from '@/utils/eventTypeLabels';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
 import { isMilitaryEvent } from '@/utils/eventTypeUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/hooks/useAuth';
+import { findMyAssignment } from './myShift';
+import { MyShiftBanner } from './MyShiftBanner';
+import { StaffQuickActions } from './StaffQuickActions';
 import { getUrgency, urgencyStyles, getCountdownLabel } from './staffUrgency';
 
 interface StaffEventDetailsProps {
@@ -362,6 +366,11 @@ function CustomerNotesContent({ event }: { event: StaffEvent }) {
 export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const myAssignment = findMyAssignment(event.staff_assignments, {
+    email: user?.email,
+    fullName: (user?.user_metadata?.full_name || user?.user_metadata?.name) as string | undefined,
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const countdown = getCountdownBadge(event.days_until, event.event_date);
   const confirmation = getConfirmationBadge(event.workflow_status);
@@ -478,6 +487,10 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               <div className="text-sm font-semibold flex items-center gap-1"><Users className="h-3.5 w-3.5" aria-hidden="true" />{event.guest_count}</div>
             </div>
           </div>
+
+          {myAssignment && <MyShiftBanner assignment={myAssignment} />}
+
+          <StaffQuickActions event={event} />
 
           {/* Dietary alert — elevated */}
           {event.dietary_restrictions.length > 0 && (
@@ -762,10 +775,9 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           ) : (
             <div className="divide-y">
               {event.staff_assignments.map((assignment) => (
-                <StaffAssignmentCard 
-                  key={assignment.id} 
-                  assignment={assignment}
-                />
+                <div key={assignment.id} className={cn(assignment.id === myAssignment?.id && 'bg-primary/5 -mx-3 px-3 rounded-lg')}>
+                  <StaffAssignmentCard assignment={assignment} />
+                </div>
               ))}
             </div>
           )}
