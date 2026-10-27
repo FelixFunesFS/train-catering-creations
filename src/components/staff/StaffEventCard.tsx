@@ -62,7 +62,7 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
       {/* Urgency accent bar */}
       <span aria-hidden="true" className={cn('absolute inset-y-0 left-0 w-1.5', styles.accent)} />
 
-      <div className="pl-5 pr-4 py-4 space-y-3">
+      <div className="pl-5 pr-9 py-4 space-y-3">
         {/* Top row: countdown + status */}
         <div className="flex items-center justify-between gap-2">
           <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide', styles.chip)}>
@@ -75,7 +75,7 @@ export function StaffEventCard({ event, isSelected, onClick }: StaffEventCardPro
 
         {/* Title + date */}
         <div className="space-y-1">
-          <h3 className="font-semibold text-base sm:text-lg leading-snug line-clamp-2 pr-6">
+          <h3 className="font-semibold text-base sm:text-lg leading-snug line-clamp-2">
             {event.event_name}
           </h3>
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">

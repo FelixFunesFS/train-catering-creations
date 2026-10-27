@@ -13,6 +13,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { ListSearchInput, matchesSearch } from '@/components/admin/ListSearchInput';
+import { StaffPulseStrip } from '@/components/staff/StaffPulseStrip';
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
@@ -123,6 +124,7 @@ export default function StaffSchedule() {
         </div>
         
         <div className="p-4 pb-20 space-y-3">
+          <StaffPulseStrip events={events ?? []} className="mb-1" />
           {paginatedEvents.length > 0 ? (
             paginatedEvents.map((event) => (
               <StaffEventCard 
@@ -180,6 +182,7 @@ export default function StaffSchedule() {
         <ResizablePanel defaultSize={35} minSize={25} maxSize={50}>
           <ScrollArea className="h-full">
             <div className="p-4 space-y-3">
+              <StaffPulseStrip events={events ?? []} className="md:grid-cols-2 xl:grid-cols-4" />
               {searchBox}
               {paginatedEvents.length > 0 ? (
                 paginatedEvents.map((event) => (
