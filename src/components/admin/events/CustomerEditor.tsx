@@ -19,7 +19,7 @@ const SERVICE_OPTIONS: { id: ServiceType; name: string; description: string; ico
   { id: 'full-service', name: 'Full-Service Catering', description: 'Complete service with staff', icon: <Users className="h-4 w-4" />, badge: 'Premium' },
 ];
 
-const TRACKED_FIELDS = ['contact_name', 'email', 'phone', 'location', 'event_date', 'start_time', 'guest_count', 'service_type'];
+const TRACKED_FIELDS = ['contact_name', 'email', 'phone', 'location', 'event_date', 'start_time', 'serving_start_time', 'guest_count', 'service_type'];
 
 interface CustomerEditorProps {
   quote: QuoteRequest;
@@ -35,6 +35,7 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
     location: quote.location,
     event_date: quote.event_date,
     start_time: quote.start_time,
+    serving_start_time: quote.serving_start_time ?? '',
     guest_count: quote.guest_count,
     service_type: quote.service_type,
   });
@@ -47,6 +48,7 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
     location: quote.location,
     event_date: quote.event_date,
     start_time: quote.start_time,
+    serving_start_time: quote.serving_start_time ?? '',
     guest_count: quote.guest_count,
     service_type: quote.service_type,
   }), [quote]);
@@ -70,7 +72,7 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
       setShowChangeModal(true);
     } else {
       // No changes, just save
-      await updateQuote.mutateAsync({ quoteId: quote.id, updates: formData });
+      await updateQuote.mutateAsync({ quoteId: quote.id, updates: { ...formData, serving_start_time: formData.serving_start_time || null } });
       onSave();
     }
   };
@@ -87,7 +89,7 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
       );
 
       // Save the actual changes
-      await updateQuote.mutateAsync({ quoteId: quote.id, updates: formData });
+      await updateQuote.mutateAsync({ quoteId: quote.id, updates: { ...formData, serving_start_time: formData.serving_start_time || null } });
       
       setShowChangeModal(false);
       onSave();
@@ -169,6 +171,15 @@ export function CustomerEditor({ quote, invoiceId, onSave }: CustomerEditorProps
                 value={formData.start_time}
                 onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="serving_start_time">Serving Start Time</Label>
+              <Input
+                id="serving_start_time"
+                type="time"
+                value={formData.serving_start_time}
+                onChange={(e) => setFormData(prev => ({ ...prev, serving_start_time: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
