@@ -1,12 +1,12 @@
 import { format } from 'date-fns';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
+import { formatStaffTime } from '@/components/staff/staffUrgency';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
-import { formatStaffTime } from '@/components/staff/staffUrgency';
   Mail, Phone, MapPin, Calendar, Clock, Users, 
   Utensils, Leaf, MessageSquare, ExternalLink, X,
   Package, Flame, IceCream, GlassWater, DollarSign, Shield
