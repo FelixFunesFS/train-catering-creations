@@ -249,6 +249,42 @@ const handler = async (req: Request): Promise<Response> => {
       sessionParams.cancel_url = cancel_url || defaultCancelUrl;
     }
 
+    // GUARD: never start a second checkout while a prior one is still
+    // processing (ACH takes 3-5 business days) or has already succeeded.
+    // Previously these were blindly voided, allowing double payments.
+    {
+      const { data: inFlight } = await supabase
+        .from('payment_transactions')
+        .select('id, stripe_session_id, amount, created_at')
+        .eq('invoice_id', invoice_id)
+        .eq('status', 'pending')
+        .eq('payment_method', 'stripe');
+      for (const tx of inFlight || []) {
+        if (!tx.stripe_session_id) continue;
+        try {
+          const prior = await stripe.checkout.sessions.retrieve(tx.stripe_session_id, { expand: ['payment_intent'] });
+          const pi: any = prior.payment_intent;
+          const piStatus = pi && typeof pi === 'object' ? pi.status : null;
+          if (prior.payment_status === 'paid' || piStatus === 'processing' || piStatus === 'succeeded') {
+            logStep("Blocked checkout: prior payment in flight", { sessionId: tx.stripe_session_id, piStatus });
+            const dollars = (tx.amount / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+            const started = new Date(tx.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return new Response(
+              JSON.stringify({
+                code: 'PAYMENT_PROCESSING',
+                amount: tx.amount,
+                created_at: tx.created_at,
+                error: `A bank payment of ${dollars} started on ${started} is still processing. It usually clears in 3-5 business days, so no further action is needed. Questions? Call (843) 970-0265.`,
+              }),
+              { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (err) {
+          logStep("Could not inspect prior session (non-fatal)", { error: err instanceof Error ? err.message : String(err) });
+        }
+      }
+    }
+
     const session = await stripe.checkout.sessions.create(sessionParams as any);
 
     logStep("Stripe session created", { sessionId: session.id, isEmbedded });
