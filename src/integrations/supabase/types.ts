@@ -2173,6 +2173,10 @@ export type Database = {
           issues: Json
         }[]
       }
+      confirm_my_staff_assignment: {
+        Args: { _assignment_id: string }
+        Returns: boolean
+      }
       force_recalculate_invoice_totals: {
         Args: { p_invoice_id: string }
         Returns: undefined
