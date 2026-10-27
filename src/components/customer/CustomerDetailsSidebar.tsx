@@ -26,6 +26,7 @@ interface CustomerDetailsSidebarProps {
     event_name: string;
     event_date: string;
     start_time?: string | null;
+    serving_start_time?: string | null;
     guest_count: number;
     service_type: string;
     location?: string | null;
@@ -114,6 +115,9 @@ export function CustomerDetailsSidebar({
                 {formatDate(quote.event_date)}
                 {quote.start_time && ` at ${formatTime(quote.start_time)}`}
               </p>
+              {quote.serving_start_time && quote.serving_start_time !== quote.start_time && (
+                <p className="text-muted-foreground">Serving begins {formatTime(quote.serving_start_time)}</p>
+              )}
             </div>
 
             <div className="flex items-start gap-2">

@@ -546,7 +546,7 @@ ${(item.quantity > 1 || item.category === 'dietary') ? `<td align="right" style=
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${BRAND_COLORS.crimson};background:linear-gradient(135deg,${BRAND_COLORS.crimson},${BRAND_COLORS.crimsonDark});border-radius:8px;margin-top:12px;border-collapse:collapse;">
 <tr>
 <td align="center" style="padding:12px 16px;">
-<span style="color:white;font-size:14px;font-weight:bold;">⭐ Both proteins served to all guests</span>
+<span style="color:white;font-size:14px;font-weight:bold;">⭐ Dual Entr&eacute;e: Both meats served to each guest (2 servings per guest)</span>
 </td>
 </tr>
 </table>

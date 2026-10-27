@@ -18,6 +18,7 @@ export function useRegenerateLineItems() {
     },
     onSuccess: ({ invoiceId }) => {
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] });
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       toast({ 
         title: 'Line items regenerated', 

@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatMenuDescription } from '@/utils/invoiceFormatters';
 import { formatLocationLink, formatPhoneLink } from '@/utils/linkFormatters';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
+import { formatStaffTime } from '@/components/staff/staffUrgency';
 import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Eye, Pencil, Receipt, Play, CheckCircle, XCircle, MessageSquare, PartyPopper, Leaf, Phone, ExternalLink } from 'lucide-react';
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
@@ -223,7 +224,10 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
               </div>
               <div>
                 <span className="text-muted-foreground">Time:</span>
-                <p className="font-medium">{quote.start_time || 'TBD'}</p>
+                <p className="font-medium">{formatStaffTime(quote.start_time) || 'TBD'}</p>
+                {quote.serving_start_time && quote.serving_start_time !== quote.start_time && (
+                  <p className="text-xs text-muted-foreground">Serving {formatStaffTime(quote.serving_start_time)}</p>
+                )}
               </div>
               <div className="sm:col-span-2">
                 <span className="text-muted-foreground flex items-center gap-1">

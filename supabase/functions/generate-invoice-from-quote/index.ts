@@ -367,7 +367,10 @@ const handler = async (req: Request): Promise<Response> => {
         is_draft: true,
         workflow_status: 'draft',
         currency: 'usd',
-        notes: `Catering service for ${quote.event_name} on ${quote.event_date}`
+        notes: [
+          quote.special_requests ? `Customer requests: ${String(quote.special_requests).trim()}` : null,
+          `Catering service for ${quote.event_name} on ${quote.event_date}`,
+        ].filter(Boolean).join('\n\n')
       })
       .select()
       .single();

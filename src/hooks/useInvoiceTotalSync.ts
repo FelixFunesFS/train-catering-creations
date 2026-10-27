@@ -61,6 +61,7 @@ export function useInvoiceTotalSync() {
         queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) }),
         queryClient.invalidateQueries({ queryKey: invoiceKeys.all }),
         queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] }),
+        queryClient.invalidateQueries({ queryKey: ['staff-events'] }),
         queryClient.invalidateQueries({ queryKey: ['events'] }),
         queryClient.invalidateQueries({ queryKey: ['quotes'] }),
         ...(invalidateMilestones ? [
@@ -107,6 +108,7 @@ export async function syncInvoiceTotalsStandalone(
       queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) }),
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all }),
       queryClient.invalidateQueries({ queryKey: ['line-items', invoiceId] }),
+      queryClient.invalidateQueries({ queryKey: ['staff-events'] }),
       queryClient.invalidateQueries({ queryKey: ['events'] }),
       queryClient.invalidateQueries({ queryKey: ['quotes'] }),
       ...(invalidateMilestones ? [

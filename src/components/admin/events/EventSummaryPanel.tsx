@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
+import { formatStaffTime } from '@/components/staff/staffUrgency';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -193,7 +194,7 @@ export function EventSummaryPanel({ event, onClose, onViewFull }: EventSummaryPa
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{event.start_time?.slice(0, 5) || 'TBD'}</span>
+                <span>{formatStaffTime(event.start_time) || 'TBD'}{(event as any).serving_start_time && (event as any).serving_start_time !== event.start_time && ` · Serving ${formatStaffTime((event as any).serving_start_time)}`}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-3.5 w-3.5 text-muted-foreground" />

@@ -44,6 +44,7 @@ interface EstimateData {
     event_name: string;
     event_date: string;
     start_time: string;
+    serving_start_time?: string | null;
     location: string;
     service_type: string;
     guest_count: number;
@@ -102,7 +103,7 @@ export default function EstimatePrintView() {
           *,
           customers!customer_id (id, name, email, phone, address),
           quote_requests!quote_request_id (
-            id, event_name, event_date, start_time, location, service_type,
+            id, event_name, event_date, start_time, serving_start_time, location, service_type,
             guest_count, special_requests, contact_name, email, phone,
             event_type, compliance_level, guest_count_with_restrictions, vegetarian_entrees,
             proteins, sides, appetizers, desserts, drinks, both_proteins_available
@@ -244,6 +245,9 @@ export default function EstimatePrintView() {
               <p className="text-gray-600">
                 {formatDate(quote?.event_date)} {quote?.start_time && `at ${formatTime(quote.start_time)}`}
               </p>
+              {quote?.serving_start_time && quote.serving_start_time !== quote.start_time && (
+                <p className="text-gray-600">Serving begins {formatTime(quote.serving_start_time)}</p>
+              )}
               <p className="text-gray-600">{quote?.location}</p>
               <p className="text-gray-600">
                 {quote?.guest_count} guests • {formatServiceType(quote?.service_type)}
@@ -290,7 +294,7 @@ export default function EstimatePrintView() {
 
           {quote?.both_proteins_available && Array.isArray(quote.proteins) && quote.proteins.length >= 2 && (
             <div className="mb-6 rounded-md border border-primary/40 bg-primary/5 p-3 text-sm font-semibold text-primary avoid-break">
-              ⭐ Both proteins served to all guests
+              ⭐ Dual Entrée: Both meats served to each guest (2 servings per guest)
             </div>
           )}
 
