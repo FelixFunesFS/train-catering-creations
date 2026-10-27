@@ -16,7 +16,8 @@ interface StaffEventCardProps {
 }
 
 function getStatus(status: string, isPast: boolean): { text: string; dot: string } {
-  if (isPast || status === 'completed') return { text: 'Completed', dot: 'bg-muted-foreground/50' };
+  if (status === 'completed') return { text: 'Completed', dot: 'bg-muted-foreground/50' };
+  if (isPast) return { text: 'Pending close-out', dot: 'bg-[hsl(var(--gold-dark))]' };
   if (['confirmed', 'awaiting_payment', 'paid'].includes(status)) return { text: 'Confirmed', dot: 'bg-success' };
   if (status === 'approved') return { text: 'Approved', dot: 'bg-primary' };
   return { text: 'Tentative', dot: 'bg-[hsl(var(--gold))]' };
