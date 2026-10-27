@@ -19,6 +19,7 @@ import { User, Calendar, MapPin, Users, Utensils, FileText, Loader2, Package, Ey
 import { useUpdateQuoteStatus } from '@/hooks/useQuotes';
 import { EstimateEditor } from '@/components/admin/billing/EstimateEditor';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { PaymentAlertBanners } from '@/components/admin/billing/PaymentAlertBanners';
 
 type QuoteRequest = Database['public']['Tables']['quote_requests']['Row'];
 
@@ -152,6 +153,7 @@ export function EventDetail({ quote, onClose }: EventDetailProps) {
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto -mx-4 px-4 space-y-6">
+          <PaymentAlertBanners invoiceId={existingInvoice?.id} invoiceTotal={existingInvoice?.total_amount} />
           {/* Customer Info */}
           <section>
             <div className="flex items-center justify-between mb-3">
