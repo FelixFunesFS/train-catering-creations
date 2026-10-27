@@ -308,22 +308,50 @@ async function fetchAdminNotesForEvents(eventIds: string[]): Promise<Record<stri
 }
 
 // Fetch staff events with optional filter
-async function fetchStaffEvents(filter?: StaffEventFilter): Promise<StaffEvent[]> {
+export interface StaffRangeOptions {
+  /** Inclusive YYYY-MM-DD start (month view) */
+  from?: string;
+  /** Inclusive YYYY-MM-DD end (month view) */
+  to?: string;
+  /** History mode: past events, newest first */
+  history?: boolean;
+  limit?: number;
+}
+
+const STAFF_VISIBLE_STATUSES = ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid'];
+const STAFF_HISTORY_STATUSES = [...STAFF_VISIBLE_STATUSES, 'completed'];
+
+async function fetchStaffEvents(filter?: StaffEventFilter, range?: StaffRangeOptions): Promise<StaffEvent[]> {
   const today = startOfDay(new Date());
   const todayStr = formatDateToLocalString(today);
   const weekEndStr = formatDateToLocalString(addDays(today, 7));
-  
-  let query = supabase
-    .from('quote_requests')
-    .select(QUOTE_FIELDS)
-    .in('workflow_status', ['confirmed', 'approved', 'quoted', 'estimated', 'awaiting_payment', 'paid'])
-    .gte('event_date', todayStr)
-    .order('event_date', { ascending: true });
 
-  if (filter === 'today') {
-    query = query.eq('event_date', todayStr);
-  } else if (filter === 'week') {
-    query = query.lte('event_date', weekEndStr);
+  let query;
+  if (range?.history) {
+    query = supabase
+      .from('quote_requests')
+      .select(QUOTE_FIELDS)
+      .in('workflow_status', STAFF_HISTORY_STATUSES as never)
+      .lt('event_date', todayStr)
+      .order('event_date', { ascending: false })
+      .limit(range.limit ?? 30);
+  } else if (range?.from && range?.to) {
+    query = supabase
+      .from('quote_requests')
+      .select(QUOTE_FIELDS)
+      .in('workflow_status', STAFF_HISTORY_STATUSES as never)
+      .gte('event_date', range.from)
+      .lte('event_date', range.to)
+      .order('event_date', { ascending: true });
+  } else {
+    query = supabase
+      .from('quote_requests')
+      .select(QUOTE_FIELDS)
+      .in('workflow_status', STAFF_VISIBLE_STATUSES as never)
+      .gte('event_date', todayStr)
+      .order('event_date', { ascending: true });
+    if (filter === 'today') query = query.eq('event_date', todayStr);
+    else if (filter === 'week') query = query.lte('event_date', weekEndStr);
   }
 
   const { data: events, error } = await query;
@@ -425,5 +453,23 @@ export function useStaffEvent(eventId: string | null) {
     queryFn: () => eventId ? fetchStaffEvent(eventId) : null,
     enabled: !!eventId,
     staleTime: 1000 * 60 * 2,
+  });
+}
+// Month view: all staff-visible events in an inclusive date range
+export function useStaffEventsRange(from: string, to: string) {
+  return useQuery({
+    queryKey: ['staff-events', 'range', from, to],
+    queryFn: () => fetchStaffEvents(undefined, { from, to }),
+    staleTime: 1000 * 60 * 2,
+  });
+}
+
+// History: past events newest first; raise `limit` to load more
+export function useStaffHistory(limit: number) {
+  return useQuery({
+    queryKey: ['staff-events', 'history', limit],
+    queryFn: () => fetchStaffEvents(undefined, { history: true, limit }),
+    staleTime: 1000 * 60 * 5,
+    placeholderData: (prev) => prev,
   });
 }

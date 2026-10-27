@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { ArrowLeft, Calendar, CalendarDays, Loader2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { useStaffEvents, useStaffEvent, type StaffEventFilter } from '@/hooks/useStaffEvents';
@@ -14,226 +14,195 @@ import { usePagination } from '@/hooks/usePagination';
 import { PaginationControls } from '@/components/admin/PaginationControls';
 import { ListSearchInput, matchesSearch } from '@/components/admin/ListSearchInput';
 import { StaffPulseStrip } from '@/components/staff/StaffPulseStrip';
+import { StaffMonthView } from '@/components/staff/StaffMonthView';
+import { StaffHistoryList } from '@/components/staff/StaffHistoryList';
+import { formatDateToLocalString } from '@/utils/dateHelpers';
+import { cn } from '@/lib/utils';
+
+type StaffView = 'today' | 'week' | 'all' | 'month' | 'history';
+const VIEWS: { value: StaffView; label: string }[] = [
+  { value: 'today', label: 'Today' },
+  { value: 'week', label: 'Week' },
+  { value: 'all', label: 'Upcoming' },
+  { value: 'month', label: 'Month' },
+  { value: 'history', label: 'History' },
+];
+const isListView = (v: StaffView): v is StaffEventFilter => v === 'today' || v === 'week' || v === 'all';
+
+function Segmented({ value, onChange }: { value: StaffView; onChange: (v: StaffView) => void }) {
+  return (
+    <div role="tablist" aria-label="Schedule view" className="flex gap-1 overflow-x-auto no-scrollbar rounded-lg bg-muted p-1">
+      {VIEWS.map((v) => (
+        <button
+          key={v.value}
+          role="tab"
+          aria-selected={value === v.value}
+          onClick={() => onChange(v.value)}
+          className={cn(
+            'flex-1 shrink-0 whitespace-nowrap rounded-md px-3 min-h-[40px] text-sm font-medium transition-all touch-manipulation',
+            value === v.value ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          {v.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function StaffSchedule() {
   const isMobile = useIsMobile();
-  const [filter, setFilter] = useState<StaffEventFilter>('all');
+  const [params, setParams] = useSearchParams();
+  const view = (VIEWS.some((v) => v.value === params.get('view')) ? params.get('view') : 'all') as StaffView;
+  const month = /^\d{4}-\d{2}$/.test(params.get('m') ?? '') ? params.get('m')! : formatDateToLocalString(new Date()).slice(0, 7);
+  const setView = (v: StaffView) => setParams((p) => { p.set('view', v); return p; }, { replace: true });
+  const setMonth = (m: string) => setParams((p) => { p.set('m', m); return p; }, { replace: true });
+
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  
-  const { data: events, isLoading, error } = useStaffEvents(filter);
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  const listFilter: StaffEventFilter = isListView(view) ? view : 'all';
+  const { data: events, isLoading, error } = useStaffEvents(listFilter);
   const { data: selectedEvent } = useStaffEvent(selectedEventId);
 
   const PAGE_SIZE = 10;
   const eventList = (events ?? []).filter((e) =>
-    matchesSearch(search, [e.event_name, e.contact_name, e.phone, e.location, e.event_type, e.service_type])
+    matchesSearch(search, [e.event_name, e.contact_name, e.phone, e.location, e.event_type, e.service_type]),
   );
-  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [filter, search]);
-  const searchBox = (
-    <ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" />
-  );
-  const noMatch = search.trim() ? (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <p className="text-muted-foreground">No events match "{search}"</p>
-      <Button variant="link" onClick={() => setSearch('')} className="min-h-[44px]">Clear search</Button>
-    </div>
-  ) : null;
+  const { currentPage, setCurrentPage, totalPages, startIndex, endIndex } = usePagination(eventList.length, PAGE_SIZE, [view, search]);
   const paginatedEvents = eventList.slice(startIndex, endIndex);
 
-  // Desktop/tablet: auto-open the first upcoming event so the detail pane is never blank
+  // Desktop: auto-open the first upcoming event in list views so the detail pane is never blank
   useEffect(() => {
-    if (isMobile || paginatedEvents.length === 0) return;
-    if (!selectedEventId || !eventList.some((e) => e.id === selectedEventId)) {
-      setSelectedEventId(paginatedEvents[0].id);
-    }
-  }, [isMobile, paginatedEvents, eventList, selectedEventId]);
+    if (isMobile || !isListView(view) || paginatedEvents.length === 0) return;
+    if (!selectedEventId) setSelectedEventId(paginatedEvents[0].id);
+  }, [isMobile, view, paginatedEvents, selectedEventId]);
 
-  const showMobileDetails = isMobile && selectedEventId && selectedEvent;
-
-  const handleCardClick = (eventId: string) => {
-    setSelectedEventId(eventId);
+  const emptyCopy: Record<StaffEventFilter, string> = {
+    today: 'No events scheduled for today',
+    week: 'No events scheduled this week',
+    all: 'No upcoming events',
   };
 
-  const handleBack = () => {
-    setSelectedEventId(null);
-  };
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  const listContent = (
+    <div className="space-y-3">
+      {paginatedEvents.length > 0 ? (
+        paginatedEvents.map((event) => (
+          <StaffEventCard key={event.id} event={event} isSelected={!isMobile && event.id === selectedEventId} onClick={() => setSelectedEventId(event.id)} />
+        ))
+      ) : (
+        <div className="flex flex-col items-center justify-center py-14 text-center rounded-xl border border-dashed">
+          <Calendar className="h-10 w-10 text-muted-foreground/40 mb-3" />
+          <p className="font-medium">{search.trim() ? `No events match "${search}"` : emptyCopy[listFilter]}</p>
+          {search.trim() ? (
+            <Button variant="link" onClick={() => setSearch('')} className="min-h-[44px]">Clear search</Button>
+          ) : (
+            <Button variant="link" onClick={() => setView('month')} className="min-h-[44px]">Open month view</Button>
+          )}
         </div>
-      </AdminLayout>
-    );
-  }
+      )}
+      <PaginationControls currentPage={currentPage} totalPages={totalPages} startIndex={startIndex} endIndex={endIndex} totalItems={eventList.length} onPageChange={setCurrentPage} />
+    </div>
+  );
 
-  // Error state
-  if (error) {
+  const body = view === 'month' ? (
+    <StaffMonthView month={month} onMonthChange={setMonth} selectedEventId={selectedEventId} onSelectEvent={setSelectedEventId} />
+  ) : view === 'history' ? (
+    <StaffHistoryList selectedEventId={selectedEventId} onSelectEvent={setSelectedEventId} />
+  ) : isLoading ? (
+    <div className="flex justify-center py-16"><Loader2 className="h-7 w-7 animate-spin text-muted-foreground" /></div>
+  ) : error ? (
+    <div className="py-12 text-center">
+      <p className="text-destructive mb-1">Failed to load events</p>
+      <p className="text-sm text-muted-foreground">{(error as Error).message}</p>
+    </div>
+  ) : (
+    <div className="space-y-4">
+      <StaffPulseStrip events={events ?? []} className={isMobile ? undefined : 'md:grid-cols-2 xl:grid-cols-4'} />
+      {(searchOpen || !isMobile || search) && (
+        <ListSearchInput value={search} onChange={setSearch} placeholder="Search event, client, venue, phone" />
+      )}
+      {listContent}
+    </div>
+  );
+
+  // Mobile details
+  if (isMobile && selectedEventId && selectedEvent) {
     return (
       <AdminLayout>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
-          <p className="text-destructive mb-2">Failed to load events</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  // Mobile Details View
-  if (showMobileDetails) {
-    return (
-      <AdminLayout>
-        <div className="sticky top-14 z-40 bg-background border-b print:hidden">
-          <div className="flex items-center h-12 px-4">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={handleBack}
-              className="h-11 w-11 min-w-[44px] -ml-2"
-            >
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-30 bg-background/95 backdrop-blur border-b print:hidden">
+          <div className="flex items-center h-12 px-2">
+            <Button variant="ghost" size="icon" onClick={() => setSelectedEventId(null)} className="h-11 w-11" aria-label="Back to schedule">
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <span className="font-medium ml-2">Event Details</span>
+            <span className="font-medium ml-1">Event Details</span>
           </div>
         </div>
-        
-        <div className="p-4">
-          <StaffEventDetails event={selectedEvent} onBack={handleBack} />
+        <div className="p-4 pb-24">
+          <StaffEventDetails event={selectedEvent} onBack={() => setSelectedEventId(null)} />
         </div>
       </AdminLayout>
     );
   }
 
-  // Mobile List View
+  // Mobile list
   if (isMobile) {
     return (
       <AdminLayout>
-        <div className="sticky top-14 z-40 bg-background border-b">
-          <div className="flex items-center justify-between h-12 px-4">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold text-lg">Staff Schedule</h2>
-            </div>
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Staff</p>
+            <h2 className="text-2xl font-semibold tracking-tight">Schedule</h2>
+          </div>
+          <div className="flex items-center gap-1">
+            {isListView(view) && (
+              <Button variant="ghost" size="icon" className="h-11 w-11" aria-label={searchOpen ? 'Close search' : 'Search'} onClick={() => { setSearchOpen((o) => !o); if (searchOpen) setSearch(''); }}>
+                {searchOpen ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              </Button>
+            )}
             <SubscribeCalendarButton variant="icon" />
           </div>
-          
-          <div className="px-4 pb-3">
-            <Tabs value={filter} onValueChange={(v) => setFilter(v as StaffEventFilter)}>
-              <TabsList className="w-full grid grid-cols-3">
-                <TabsTrigger value="today" className="h-10">Today</TabsTrigger>
-                <TabsTrigger value="week" className="h-10">This Week</TabsTrigger>
-                <TabsTrigger value="all" className="h-10">All</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="px-4 pb-3">{searchBox}</div>
         </div>
-        
-        <div className="p-4 pb-20 space-y-3">
-          <StaffPulseStrip events={events ?? []} className="mb-1" />
-          {paginatedEvents.length > 0 ? (
-            paginatedEvents.map((event) => (
-              <StaffEventCard 
-                key={event.id} 
-                event={event}
-                onClick={() => handleCardClick(event.id)}
-              />
-            ))
-          ) : noMatch ?? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground">No upcoming events</p>
-              <p className="text-sm text-muted-foreground/70">
-                {filter === 'today' && 'No events scheduled for today'}
-                {filter === 'week' && 'No events scheduled this week'}
-                {filter === 'all' && 'No upcoming events found'}
-              </p>
-            </div>
-          )}
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={totalPages}
-            startIndex={startIndex}
-            endIndex={endIndex}
-            totalItems={eventList.length}
-            onPageChange={setCurrentPage}
-          />
+        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-30 bg-background/95 backdrop-blur px-4 py-2 border-b">
+          <Segmented value={view} onChange={(v) => { setView(v); setSelectedEventId(null); }} />
         </div>
+        <div className="p-4 pb-24">{body}</div>
       </AdminLayout>
     );
   }
 
-  // Desktop Split View
+  // Desktop / tablet split view
   return (
     <AdminLayout>
-      <div className="h-14 border-b print:hidden flex items-center justify-between px-6">
-        <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-primary" />
-          <h2 className="font-semibold text-lg">Staff Schedule</h2>
+      <div className="h-16 border-b print:hidden flex items-center justify-between gap-4 px-6">
+        <div className="flex items-center gap-3 min-w-0">
+          <CalendarDays className="h-5 w-5 text-primary shrink-0" />
+          <h2 className="font-semibold text-lg tracking-tight truncate">Staff Schedule</h2>
         </div>
-        
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-[440px] max-w-[50vw]"><Segmented value={view} onChange={setView} /></div>
           <SubscribeCalendarButton />
-          <Tabs value={filter} onValueChange={(v) => setFilter(v as StaffEventFilter)}>
-            <TabsList>
-              <TabsTrigger value="today">Today</TabsTrigger>
-              <TabsTrigger value="week">This Week</TabsTrigger>
-              <TabsTrigger value="all">All Events</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
       </div>
 
-      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-7.5rem)]">
-        <ResizablePanel defaultSize={35} minSize={25} maxSize={50} className="print:hidden">
+      <ResizablePanelGroup direction="horizontal" className="h-[calc(100vh-8rem)]">
+        <ResizablePanel defaultSize={view === 'month' ? 55 : 38} minSize={28} maxSize={65} className="print:hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-3">
-              <StaffPulseStrip events={events ?? []} className="md:grid-cols-2 xl:grid-cols-4" />
-              {searchBox}
-              {paginatedEvents.length > 0 ? (
-                paginatedEvents.map((event) => (
-                  <StaffEventCard 
-                    key={event.id} 
-                    event={event}
-                    isSelected={event.id === selectedEventId}
-                    onClick={() => handleCardClick(event.id)}
-                  />
-                ))
-              ) : noMatch ?? (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                  <p className="text-muted-foreground">
-                    {filter === 'today' && 'No events scheduled for today'}
-                    {filter === 'week' && 'No events scheduled this week'}
-                    {filter === 'all' && 'No upcoming events found'}
-                  </p>
-                </div>
-              )}
-              <PaginationControls
-                currentPage={currentPage}
-                totalPages={totalPages}
-                startIndex={startIndex}
-                endIndex={endIndex}
-                totalItems={eventList.length}
-                onPageChange={setCurrentPage}
-              />
-            </div>
+            <div className="p-5">{body}</div>
           </ScrollArea>
         </ResizablePanel>
-
         <ResizableHandle withHandle className="print:hidden" />
-
-        <ResizablePanel defaultSize={65}>
+        <ResizablePanel defaultSize={view === 'month' ? 45 : 62}>
           <ScrollArea className="h-full">
             <div className="p-6">
-              {selectedEvent && eventList.some((e) => e.id === selectedEvent.id) ? (
+              {selectedEvent ? (
                 <StaffEventDetails event={selectedEvent} />
               ) : (
                 <div className="flex flex-col items-center justify-center h-[60vh] text-center">
-                  <Calendar className="h-16 w-16 text-muted-foreground/30 mb-4" />
-                  <p className="text-muted-foreground">Select an event to view details</p>
+                  <Calendar className="h-14 w-14 text-muted-foreground/30 mb-4" />
+                  <p className="font-medium">Select an event</p>
+                  <p className="text-sm text-muted-foreground">Details, menu, and crew will appear here.</p>
                 </div>
               )}
             </div>
