@@ -5,7 +5,8 @@
  * Consolidates PaymentProgress and PaymentOptions into a single, adaptive component.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -58,6 +59,14 @@ export function PaymentCard({
 }: PaymentCardProps) {
   const { initiatePayment, isProcessing } = usePaymentCheckout();
   const [customAmount, setCustomAmount] = useState('');
+  const [processingPayment, setProcessingPayment] = useState<{ amount: number; created_at: string } | null>(null);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    (supabase.rpc as any)('get_processing_online_payment', { access_token: accessToken })
+      .then(({ data }: any) => setProcessingPayment(Array.isArray(data) && data[0] ? data[0] : null))
+      .catch(() => {});
+  }, [accessToken]);
 
   const showPaymentActions = ['approved', 'partially_paid', 'payment_pending'].includes(workflowStatus);
   const { amountPaid, remaining, percentComplete } = calculatePaymentProgress(milestones, totalPaidFromTransactions);
@@ -169,6 +178,16 @@ export function PaymentCard({
             </>
           )}
         </CardTitle>
+        {showPaymentActions && processingPayment && (
+          <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 p-3 text-sm">
+            <p className="font-semibold">Your bank payment is processing</p>
+            <p className="text-muted-foreground">
+              We received a payment of {formatPaymentCurrency(processingPayment.amount)} started on{' '}
+              {new Date(processingPayment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}.
+              Bank payments usually clear in 3-5 business days — no need to pay again. Questions? Call (843) 970-0265.
+            </p>
+          </div>
+        )}
         {showPaymentActions && (
           <CardDescription>
             Balance remaining: {formatPaymentCurrency(remaining)}

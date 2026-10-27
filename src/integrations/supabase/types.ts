@@ -2240,6 +2240,13 @@ export type Database = {
         Args: { current_status: string; entity_type: string }
         Returns: string[]
       }
+      get_processing_online_payment: {
+        Args: { access_token: string }
+        Returns: {
+          amount: number
+          created_at: string
+        }[]
+      }
       get_status_label: { Args: { status: string }; Returns: string }
       grant_first_admin: { Args: never; Returns: undefined }
       has_any_role: { Args: { _user_id: string }; Returns: string }

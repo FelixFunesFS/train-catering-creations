@@ -210,6 +210,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     const sessionParams: Record<string, unknown> = {
       customer: stripeCustomerId,
+      // Abandoned checkouts expire after 1 hour; webhook marks the pending row expired.
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
       payment_method_types: ["card", "us_bank_account"],
       payment_method_options: {
         us_bank_account: {
