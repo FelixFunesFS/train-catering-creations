@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { History, CreditCard, DollarSign, Check, X, Clock, Wallet, Ban, AlertCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { ListSearchInput, matchesSearch } from '../ListSearchInput';
 import { PaymentDataService } from '@/services/PaymentDataService';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -99,6 +100,7 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
   const [voidingId, setVoidingId] = useState<string | null>(null);
   const [showVoidConfirm, setShowVoidConfirm] = useState(false);
   const [pendingVoidId, setPendingVoidId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
 
   // Calculate payment summary - only count completed/succeeded transactions
   const summary = useMemo(() => {
@@ -117,15 +119,15 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
 
   // Separate transactions by status
   const { activeTransactions, voidedTransactions, pendingTransactions, failedTransactions } = useMemo(() => {
-    if (!transactions) return { activeTransactions: [], voidedTransactions: [], pendingTransactions: [] };
-    
+    if (!transactions) return { activeTransactions: [], voidedTransactions: [], pendingTransactions: [], failedTransactions: [] };
+    const txs = transactions.filter((tx: any) => matchesSearch(search, [tx.customer_email, tx.description, tx.payment_method, tx.amount, (tx.amount / 100).toFixed(2), tx.status]));
     return {
-      activeTransactions: transactions.filter(tx => tx.status === 'completed' || tx.status === 'succeeded'),
-      voidedTransactions: transactions.filter(tx => tx.status === 'voided'),
-      pendingTransactions: transactions.filter(tx => tx.status === 'pending'),
-      failedTransactions: transactions.filter(tx => tx.status === 'failed'),
+      activeTransactions: txs.filter(tx => tx.status === 'completed' || tx.status === 'succeeded'),
+      voidedTransactions: txs.filter(tx => tx.status === 'voided'),
+      pendingTransactions: txs.filter(tx => tx.status === 'pending'),
+      failedTransactions: txs.filter(tx => tx.status === 'failed'),
     };
-  }, [transactions]);
+  }, [transactions, search]);
 
   const handleVoidTransaction = async (transactionId: string) => {
     setPendingVoidId(transactionId);
@@ -258,6 +260,9 @@ export function PaymentHistory({ invoiceId, onClose }: PaymentHistoryProps) {
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="sticky top-0 z-10 bg-background pb-1">
+                  <ListSearchInput value={search} onChange={setSearch} placeholder="Search email, memo, method, amount" />
+                </div>
                 {/* Pending Transactions - Show with warning */}
                 {pendingTransactions.length > 0 && (
                   <div className="space-y-2">
