@@ -65,6 +65,7 @@ import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
 import { ContactLogCard } from '@/components/admin/events/ContactLogCard';
 import { AdjustDueDateDialog, type AdjustableMilestone } from '@/components/admin/events/AdjustDueDateDialog';
 import { CalendarClock } from 'lucide-react';
+import { PaymentAlertBanners } from '@/components/admin/billing/PaymentAlertBanners';
 
 interface MobileEstimateViewProps {
   quote: any;
@@ -366,6 +367,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-4 pb-32 w-full">
           
+          <PaymentAlertBanners invoiceId={invoice?.id} invoiceTotal={currentInvoice?.total_amount ?? invoice?.total_amount} />
           <ContactLogCard quoteId={quote.id} invoiceId={invoice?.id} />
 
           {/* Event Summary Section */}
