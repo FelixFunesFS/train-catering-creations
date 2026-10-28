@@ -69,7 +69,7 @@ function CollapsibleSection({
       <CollapsibleTrigger asChild>
         <Button 
           variant="ghost" 
-          className="w-full justify-between h-12 px-3 hover:bg-muted/50"
+          className="w-full justify-between h-12 px-4 rounded-none !shadow-none !bg-none bg-transparent border-0 hover:bg-muted/40 hover:!translate-y-0"
           aria-expanded={isOpen}
         >
           <div className="flex items-center gap-2">
@@ -397,19 +397,19 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
       <StaffBeoPrintView event={event} />
       {onBack && (
         <div className="flex items-center justify-between gap-2 -mt-1 print:hidden">
-          <Button variant="ghost" onClick={onBack} className="h-11 -ml-2 gap-1 px-2" aria-label="Back to schedule">
+          <Button variant="ghost" onClick={onBack} className="h-11 -ml-2 gap-1 px-2 !shadow-none !bg-none bg-transparent border-0 hover:!translate-y-0" aria-label="Back to schedule">
             <ArrowLeft className="h-5 w-5" /> Schedule
           </Button>
           <div className="flex items-center gap-1">
             <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>{confirmation.text}</Badge>
-            <Button variant="ghost" size="icon" onClick={handleRefresh} className="h-11 w-11" aria-label="Refresh event data">
+            <Button variant="ghost" size="icon" onClick={handleRefresh} className="h-11 w-11 !shadow-none !bg-none bg-transparent border-0 hover:!translate-y-0" aria-label="Refresh event data">
               <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
             </Button>
           </div>
         </div>
       )}
       {/* Header */}
-      <Card className="relative overflow-hidden rounded-xl shadow-sm">
+      <Card className="relative overflow-hidden rounded-xl !shadow-none !bg-none bg-card border border-border/60 hover:!shadow-none hover:!translate-y-0">
         <CardHeader className="pb-4 pt-5 space-y-2">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -431,7 +431,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                 variant="ghost"
                 size="icon"
                 onClick={handleRefresh}
-                className="h-11 w-11 md:h-9 md:w-9"
+                className="h-11 w-11 md:h-9 md:w-9 !shadow-none !bg-none bg-transparent border-0 hover:!translate-y-0"
                 title="Refresh event data"
                 aria-label="Refresh event data"
               >
@@ -458,11 +458,11 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
 
           {/* Key facts grid */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
-            <div className="rounded-lg bg-muted/50 px-3 py-2">
+            <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Date</div>
               <div className="text-sm font-semibold">{format(parseDateFromLocalString(event.event_date), 'EEE, MMM d')}</div>
             </div>
-            <div className="rounded-lg bg-muted/50 px-3 py-2">
+            <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" aria-hidden="true" />Serving</div>
               <div className="text-sm font-semibold">
                 {formatStaffTime(event.serving_start_time || event.start_time) || '—'}
@@ -471,7 +471,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                 <div className="text-[11px] text-muted-foreground">Starts {formatStaffTime(event.start_time)}</div>
               )}
             </div>
-            <div className="rounded-lg bg-muted/50 px-3 py-2 col-span-2 sm:col-span-1">
+            <div className="rounded-lg border border-border/50 bg-muted/30 px-3 py-2 col-span-2 sm:col-span-1">
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Guests</div>
               <div className="text-sm font-semibold flex items-center gap-1"><Users className="h-3.5 w-3.5" aria-hidden="true" />{event.guest_count}</div>
             </div>
@@ -541,7 +541,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
       <RunOfShowTimeline event={event} />
 
       {/* Collapsible Sections */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden rounded-xl !shadow-none !bg-none bg-card border border-border/60 hover:!shadow-none hover:!translate-y-0">
         {/* Event Requirements (from line items, or raw menu fallback) */}
         {(hasLineItems || hasMenuItems) && (
           <>

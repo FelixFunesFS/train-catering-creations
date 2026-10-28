@@ -20,7 +20,7 @@ export function StaffQuickActions({ event }: { event: StaffEvent }) {
     }
   };
 
-  const btn = 'h-12 md:h-10 w-full gap-2 touch-manipulation font-medium';
+  const btn = 'h-12 md:h-10 w-full gap-2 touch-manipulation font-medium rounded-lg !border !border-border/70 !bg-none bg-background !text-foreground !shadow-none hover:!bg-muted hover:!text-foreground hover:!translate-y-0 [&_svg]:text-muted-foreground';
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 print:hidden" role="group" aria-label="Quick actions">

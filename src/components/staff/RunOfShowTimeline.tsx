@@ -32,7 +32,7 @@ export function RunOfShowTimeline({ event }: { event: StaffEvent }) {
   const current = getCurrentStepIndex(steps, now, event.is_today);
 
   return (
-    <Card className="rounded-xl shadow-sm p-4 sm:p-5">
+    <Card className="rounded-xl p-4 sm:p-5 !shadow-none !bg-none bg-card border border-border/60 hover:!shadow-none hover:!translate-y-0">
       <div className="flex items-center justify-between mb-4">
         <h3 className="flex items-center gap-2 font-semibold">
           <ListOrdered className="h-4 w-4 text-primary" aria-hidden="true" />
