@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Calendar, CalendarDays, Loader2, Search, X } from 'lucide-react';
+import { Calendar, CalendarDays, Loader2, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -132,14 +132,6 @@ export default function StaffSchedule() {
   if (isMobile && selectedEventId && selectedEvent) {
     return (
       <AdminLayout>
-        <div className="sticky top-[calc(env(safe-area-inset-top)+3.5rem)] z-30 bg-background/95 backdrop-blur border-b print:hidden">
-          <div className="flex items-center h-12 px-2">
-            <Button variant="ghost" size="icon" onClick={() => setSelectedEventId(null)} className="h-11 w-11" aria-label="Back to schedule">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <span className="font-medium ml-1">Event Details</span>
-          </div>
-        </div>
         <div className="p-4 pb-24">
           <StaffEventDetails event={selectedEvent} onBack={() => setSelectedEventId(null)} />
         </div>
