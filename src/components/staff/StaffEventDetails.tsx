@@ -23,6 +23,8 @@ import { findMyAssignment } from './myShift';
 import { MyShiftBanner } from './MyShiftBanner';
 import { RunOfShowTimeline } from './RunOfShowTimeline';
 import { StaffQuickActions } from './StaffQuickActions';
+import { StaffBeoPrintView } from './StaffBeoPrintView';
+import { ArrowLeft } from 'lucide-react';
 import { getUrgency, urgencyStyles, getCountdownLabel, formatStaffTime } from './staffUrgency';
 
 interface StaffEventDetailsProps {
@@ -392,6 +394,20 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
 
   return (
     <div className="space-y-4">
+      <StaffBeoPrintView event={event} />
+      {onBack && (
+        <div className="flex items-center justify-between gap-2 -mt-1 print:hidden">
+          <Button variant="ghost" onClick={onBack} className="h-11 -ml-2 gap-1 px-2" aria-label="Back to schedule">
+            <ArrowLeft className="h-5 w-5" /> Schedule
+          </Button>
+          <div className="flex items-center gap-1">
+            <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>{confirmation.text}</Badge>
+            <Button variant="ghost" size="icon" onClick={handleRefresh} className="h-11 w-11" aria-label="Refresh event data">
+              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <Card className="relative overflow-hidden rounded-xl shadow-sm">
         <CardHeader className="pb-4 pt-5 space-y-2">
@@ -407,7 +423,7 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
                 </Badge>
               )}
             </div>
-            <div className="flex items-center gap-1">
+            <div className={cn("flex items-center gap-1", onBack && "hidden")}>
               <Badge variant="outline" className={cn("text-xs font-medium", confirmation.className)}>
                 {confirmation.text}
               </Badge>
@@ -446,9 +462,9 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Date</div>
               <div className="text-sm font-semibold">{format(parseDateFromLocalString(event.event_date), 'EEE, MMM d')}</div>
             </div>
-            <div className="rounded-lg bg-primary/10 px-3 py-2">
-              <div className="text-[11px] uppercase tracking-wider text-primary">Serving</div>
-              <div className="text-sm font-semibold text-primary">
+            <div className="rounded-lg bg-muted/50 px-3 py-2">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" aria-hidden="true" />Serving</div>
+              <div className="text-sm font-semibold">
                 {formatStaffTime(event.serving_start_time || event.start_time) || '—'}
               </div>
               {event.serving_start_time && event.start_time && event.serving_start_time !== event.start_time && (
@@ -502,12 +518,12 @@ export function StaffEventDetails({ event, onBack }: StaffEventDetailsProps) {
           {/* Military badge */}
           {isMilitaryEvent(event.event_type) && (
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+              <Badge variant="outline">
                 <Shield className="h-3 w-3 mr-1" />
                 Military
               </Badge>
               {event.military_organization && (
-                <span className="text-sm text-primary">{event.military_organization}</span>
+                <span className="text-sm text-muted-foreground">{event.military_organization}</span>
               )}
             </div>
           )}

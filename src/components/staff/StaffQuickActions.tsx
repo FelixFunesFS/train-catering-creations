@@ -24,7 +24,7 @@ export function StaffQuickActions({ event }: { event: StaffEvent }) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 print:hidden" role="group" aria-label="Quick actions">
-      <Button asChild className={btn}>
+      <Button asChild variant="outline" className={btn}>
         <a href={getDirectionsUrl(event.location)} target="_blank" rel="noopener noreferrer">
           <Navigation className="h-4 w-4" aria-hidden="true" /> Directions
         </a>

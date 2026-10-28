@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { createPortal } from 'react-dom';
 import type { StaffEvent } from '@/hooks/useStaffEvents';
 import { parseDateFromLocalString } from '@/utils/dateHelpers';
 import { convertMenuIdToReadableText } from '@/utils/menuNLP';
@@ -23,7 +24,7 @@ export function StaffBeoPrintView({ event }: { event: StaffEvent }) {
       <tr><td style={{ fontWeight: 600, padding: '3px 8px 3px 0', width: '30%', verticalAlign: 'top' }}>{label}</td><td style={{ padding: '3px 0' }}>{value}</td></tr>
     ) : null;
 
-  return (
+  return createPortal(
     <div className="print-only print-only-view" style={{ color: '#000', fontSize: '11pt', fontFamily: 'Georgia, serif' }}>
       <div style={{ borderBottom: '2px solid #000', paddingBottom: 8, marginBottom: 12 }}>
         <div style={{ fontSize: '18pt', fontWeight: 700 }}>Soul Train's Eatery</div>
@@ -98,6 +99,7 @@ export function StaffBeoPrintView({ event }: { event: StaffEvent }) {
         </>
       )}
       <p style={{ marginTop: 16, fontSize: '8pt' }}>Printed {format(new Date(), 'MMM d, yyyy h:mm a')}</p>
-    </div>
+    </div>,
+    document.body,
   );
 }
