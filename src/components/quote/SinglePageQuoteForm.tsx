@@ -122,7 +122,7 @@ export const SinglePageQuoteForm = ({
       start_time: "",
       guest_count: 1,
       location: "",
-      service_type: undefined,
+      service_type: 'delivery-only',
       serving_start_time: "",
       proteins: [],
       both_proteins_available: false,

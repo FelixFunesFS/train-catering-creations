@@ -15,7 +15,7 @@ type ServiceType = Database['public']['Enums']['service_type'];
 
 const SERVICE_OPTIONS: { id: ServiceType; name: string; description: string; icon: React.ReactNode; badge?: string }[] = [
   { id: 'delivery-only', name: 'Delivery Only', description: 'Food delivered, you handle setup', icon: <Package className="h-4 w-4" /> },
-  { id: 'delivery-setup', name: 'Delivery + Setup', description: 'We deliver and set up everything', icon: <Truck className="h-4 w-4" />, badge: 'Most Popular' },
+  { id: 'delivery-setup', name: 'Delivery + Setup', description: 'We deliver and set up everything', icon: <Truck className="h-4 w-4" /> },
   { id: 'full-service', name: 'Full-Service Catering', description: 'Complete service with staff', icon: <Users className="h-4 w-4" />, badge: 'Premium' },
 ];
 

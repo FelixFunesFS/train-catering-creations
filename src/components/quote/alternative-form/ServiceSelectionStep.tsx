@@ -62,7 +62,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                 <FormControl>
                   <div className="space-y-4">
                     <div 
-                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-border transition-colors duration-300 cursor-pointer"
                       onClick={() => {
                         trackFieldInteraction('service_type');
                         field.onChange('delivery-only');
@@ -92,7 +92,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     </div>
 
                     <div 
-                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-border transition-colors duration-300 cursor-pointer"
                       onClick={() => {
                         trackFieldInteraction('service_type');
                         field.onChange('delivery-setup');
@@ -108,7 +108,6 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                           <Label className="flex items-center gap-3 text-base font-medium cursor-pointer">
                             <Truck className="h-5 w-5 text-secondary" />
                             Delivery + Setup
-                            <span className="text-sm text-primary bg-primary/10 px-2 py-1 rounded-full">Most Popular</span>
                           </Label>
                           <p className="text-sm text-muted-foreground mt-2 ml-8">
                             We deliver and professionally set up your food with chafing dishes and professional presentation, then you take it from there.
@@ -123,7 +122,7 @@ const ServiceSelectionStepComponent = ({ form, trackFieldInteraction }: ServiceS
                     </div>
 
                     <div 
-                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-primary/50 transition-colors duration-300 cursor-pointer"
+                      className="bg-card p-4 rounded-lg border border-border/50 hover:border-border transition-colors duration-300 cursor-pointer"
                       onClick={() => {
                         trackFieldInteraction('service_type');
                         field.onChange('full-service');
