@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { expireStaleCheckouts } from '@/lib/staleCheckouts';
@@ -72,6 +72,13 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
 
   const data = ai.data && ai.dataUpdatedAt >= status.dataUpdatedAt ? ai.data : status.data;
   const lock = status.data?.lock;
+  const defaultTier: TierKey = data?.basis?.group === 'formal' ? 'premium' : 'recommended';
+  const defaultedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!data || defaultedFor.current === invoiceId) return;
+    defaultedFor.current = invoiceId;
+    setPicked(defaultTier);
+  }, [data, invoiceId, defaultTier]);
 
   const refreshAll = () => {
     qc.removeQueries({ queryKey: ['pricing-assistant', invoiceId, 'suggest'] });
