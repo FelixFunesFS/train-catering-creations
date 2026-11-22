@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { formatDateToString, subtractDaysFromDate } from '../_shared/dateHelpers.ts';
+import { planSchedule, splitAmounts } from '../_shared/paymentSchedule.ts';
+import { verifyAdminAuth, isInternalRequest } from '../_shared/security.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -24,6 +26,14 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     logStep("Received request");
+
+    // Only admins (or other server functions) may build or rebuild payment plans
+    if (!isInternalRequest(req)) {
+      const auth = await verifyAdminAuth(req);
+      if (!auth.isAdmin) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 });
+      }
+    }
 
     const { invoice_id, force_regenerate = false }: MilestoneRequest = await req.json();
 
@@ -51,6 +61,24 @@ const handler = async (req: Request): Promise<Response> => {
         logStep("Milestones already exist, use force_regenerate to recreate", { count: existingMilestones.length });
         return new Response(
           JSON.stringify({ message: "Milestones already exist", milestones: existingMilestones }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      }
+
+      // Safeguard: never erase a plan that has money attached or customer-visible progress
+      const { data: moneyRows } = await supabase
+        .from("payment_transactions")
+        .select("id")
+        .eq("invoice_id", invoice_id)
+        .in("status", ["completed", "pending", "processing"])
+        .limit(1);
+      const touched = existingMilestones.some((m: any) => m.status && m.status !== "pending");
+      if ((moneyRows && moneyRows.length > 0) || touched) {
+        logStep("Regeneration skipped - payments exist", { invoice_id });
+        return new Response(
+          JSON.stringify({ success: false, skipped: true, reason: "payments_exist",
+            message: "This payment plan already has payments, so it was kept as is. Amounts still follow the invoice total.",
+            milestones: existingMilestones }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
         );
       }
@@ -155,81 +183,24 @@ const handler = async (req: Request): Promise<Response> => {
         status: "pending",
         description: "Full payment due (event date has passed)",
       });
-    } else if (daysUntilEvent <= 14) {
-      // Rush: 100% due immediately
-      milestones.push({
-        invoice_id,
-        milestone_type: "FULL",
-        percentage: 100,
-        amount_cents: totalAmountCents,
-        due_date: formatDateToString(now),
-        is_due_now: true,
-        is_net30: false,
-        status: "pending",
-        description: "Full payment due immediately (rush event)",
-      });
-    } else if (daysUntilEvent <= 30) {
-      // Short notice (15-30 days): 30-day milestone has passed, so 10% + 40% are due now
-      const finalDue = subtractDaysFromDate(eventDate, 14);
-      const depositAmount = Math.round(totalAmountCents * 0.5);
-      milestones.push({
-        invoice_id, milestone_type: "DEPOSIT", percentage: 50, amount_cents: depositAmount,
-        due_date: formatDateToString(now), is_due_now: true, is_net30: false, status: "pending",
-        description: "Booking payment (50%) due now - covers the 10% deposit and 40% milestone",
-      });
-      milestones.push({
-        invoice_id, milestone_type: "FINAL", percentage: 50, amount_cents: totalAmountCents - depositAmount,
-        due_date: formatDateToString(finalDue), is_due_now: false, is_net30: false, status: "pending",
-        description: "Final balance (50%) due 14 days before event",
-      });
     } else {
-      // Standard: 10% now, 40% at 30 days before, 50% at 14 days before
-      // Cumulative model: deposit (10%) + milestone (40%) = 50% paid by 30 days out
-      const midDue = subtractDaysFromDate(eventDate, 30);
-      const finalDue = subtractDaysFromDate(eventDate, 14);
-
-      const bookingAmount = Math.round(totalAmountCents * 0.1);
-      const midAmount = Math.round(totalAmountCents * 0.4);
-      const finalAmount = totalAmountCents - bookingAmount - midAmount;
-
-      const bookingStatus = "pending";
-      const midStatus = "pending";
-      const finalStatus = "pending";
-
-      milestones.push({
-        invoice_id,
-        milestone_type: "DEPOSIT",
-        percentage: 10,
-        amount_cents: bookingAmount,
-        due_date: formatDateToString(now),
-        is_due_now: true,
-        is_net30: false,
-        status: bookingStatus,
-        description: "10% booking deposit due now",
-      });
-
-      milestones.push({
-        invoice_id,
-        milestone_type: "MILESTONE",
-        percentage: 40,
-        amount_cents: midAmount,
-        due_date: formatDateToString(midDue),
-        is_due_now: false,
-        is_net30: false,
-        status: midStatus,
-        description: "Milestone payment (40%) due 30 days before event — brings total paid to 50%",
-      });
-
-      milestones.push({
-        invoice_id,
-        milestone_type: "FINAL",
-        percentage: 50,
-        amount_cents: finalAmount,
-        due_date: formatDateToString(finalDue),
-        is_due_now: false,
-        is_net30: false,
-        status: finalStatus,
-        description: "Final balance (50%) due 14 days before event",
+      // Tiers come from the shared plan (10/40/50 with short-notice roll-up)
+      const parts = planSchedule(daysUntilEvent);
+      const amounts = splitAmounts(totalAmountCents, parts);
+      const describe = (type: string, pct: number): string => {
+        if (type === "FULL") return "Full payment due immediately (booked within 14 days)";
+        if (type === "DEPOSIT" && pct === 50) return "Booking payment (50%) due now - covers the 10% deposit and 40% milestone";
+        if (type === "DEPOSIT") return "10% booking deposit due now";
+        if (type === "MILESTONE") return "Milestone payment (40%) due 30 days before event - brings total paid to 50%";
+        return "Final balance (50%) due 14 days before event";
+      };
+      parts.forEach((p, i) => {
+        const due = p.daysBeforeEvent === null ? now : subtractDaysFromDate(eventDate, p.daysBeforeEvent);
+        milestones.push({
+          invoice_id, milestone_type: p.type, percentage: p.percentage, amount_cents: amounts[i],
+          due_date: formatDateToString(due), is_due_now: p.daysBeforeEvent === null,
+          is_net30: false, status: "pending", description: describe(p.type, p.percentage),
+        });
       });
     }
 

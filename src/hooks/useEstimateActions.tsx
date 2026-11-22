@@ -90,10 +90,14 @@ export function useEstimateActions({
     if (!invoiceId) return;
     setIsRegenerating(true);
     try {
-      const { error } = await supabase.functions.invoke('generate-payment-milestones', {
+      const { data, error } = await supabase.functions.invoke('generate-payment-milestones', {
         body: { invoice_id: invoiceId, force_regenerate: true }
       });
       if (error) throw error;
+      if (data?.skipped) {
+        toast({ title: 'Payment schedule kept', description: data.message });
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
       queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'with-milestones'] });
       queryClient.invalidateQueries({ queryKey: [...invoiceKeys.detail(invoiceId), 'payment-summary'] });

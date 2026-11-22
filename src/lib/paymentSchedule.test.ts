@@ -27,3 +27,11 @@ describe("payment schedule rules (one 10/40/50 plan)", () => {
     for (const d of [1, 14, 15, 30, 31, 44, 45, 90]) expect(uiTier(d, "PERSON")).toBe(getScheduleTier(d));
   });
 });
+
+import { readFileSync } from 'fs';
+test('milestone generator imports shared schedule and protects paid plans', () => {
+  const src = readFileSync('supabase/functions/generate-payment-milestones/index.ts', 'utf8');
+  expect(src).toContain("from '../_shared/paymentSchedule.ts'");
+  expect(src).not.toContain('totalAmountCents * 0.4');
+  expect(src).toContain('payments_exist');
+});
