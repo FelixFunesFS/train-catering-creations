@@ -62,7 +62,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
   const status = useQuery({
     queryKey: ['pricing-assistant', invoiceId, 'status'],
     queryFn: () => callPricing({ action: 'status', invoice_id: invoiceId }),
-    enabled: !!invoiceId, staleTime: 30_000,
+    enabled: !!invoiceId, staleTime: 2 * 60_000, refetchOnWindowFocus: false,
   });
   const ai = useQuery({
     queryKey: ['pricing-assistant', invoiceId, 'suggest'],

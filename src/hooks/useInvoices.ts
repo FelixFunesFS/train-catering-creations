@@ -35,9 +35,12 @@ export function useInvoices(filters?: PaymentFilters) {
 /**
  * Hook for fetching a single invoice by ID
  */
-export function useInvoice(invoiceId: string | undefined | null) {
+export function useInvoice(invoiceId: string | undefined | null, seed?: Record<string, unknown> | null) {
   return useQuery({
     queryKey: invoiceKeys.detail(invoiceId || ''),
+    // Reuse an invoice row the page already loaded so the first paint skips a round-trip.
+    initialData: seed && invoiceId && seed.id === invoiceId ? (seed as never) : undefined,
+    initialDataUpdatedAt: seed ? Date.now() - 20_000 : undefined,
     queryFn: async () => {
       if (!invoiceId) return null;
       

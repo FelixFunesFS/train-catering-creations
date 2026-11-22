@@ -48,7 +48,7 @@ export function EventEstimateFullView({ quote, invoice, onClose }: EventEstimate
   // Data queries
   const { data: lineItems, isLoading: loadingItems } = useLineItems(invoice?.id);
   const { customItems, hasCustomItems } = useCustomLineItems(invoice?.id);
-  const { data: currentInvoice } = useInvoice(invoice?.id);
+  const { data: currentInvoice } = useInvoice(invoice?.id, invoice as unknown as Record<string, unknown>);
   const { data: invoiceWithMilestones } = useInvoiceWithMilestones(invoice?.id);
   const milestones = invoiceWithMilestones?.milestones || [];
   const deleteLineItem = useDeleteLineItem();
