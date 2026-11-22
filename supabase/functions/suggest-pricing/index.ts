@@ -159,7 +159,7 @@ Deno.serve(async (req) => {
       // Premium proteins and dual entrees lift the package even when the menu rule is the plain base.
       const arch = archetypePackageCents(quote.service_type, quote.proteins, Boolean(quote.both_proteins_available));
       if (!ruleAnchor || arch > ruleAnchor) { anchor = arch; source = "archetype"; }
-    } else if (supply && !ruleAnchor) { anchor = supplyPackageCents(quote.service_type); source = "archetype"; }
+    } else if (supply) { anchor = supplyPackageCents(quote.service_type, quote.guest_count ?? 0); source = "archetype"; }
     let selected = useSame ? same : matches;
     // Flat packages under the floor are typos (e.g. $2 supply packages), never real prices.
     if (supply) selected = selected.filter((h) => h.unit_price >= FLAT_PACKAGE_MIN_CENTS);

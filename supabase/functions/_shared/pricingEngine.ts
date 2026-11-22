@@ -216,10 +216,16 @@ export function archetypePackageCents(service: string | null | undefined, protei
 }
 
 /** Flat supply & equipment package anchors by service style (cents) and the typo floor. */
+/** Minimum supply package by service style (cents); real price scales with guests below. */
 export const SUPPLY_PACKAGE_CENTS: Record<string, number> = { 'delivery-only': 2500, 'delivery-setup': 6500, 'full-service': 15000 };
+/** Per-guest supply rate (cents) covering pans, warmers, fuel and disposables, from paid history (~$0.85-$1.25/guest). */
+export const SUPPLY_PER_GUEST_CENTS: Record<string, number> = { 'delivery-only': 85, 'delivery-setup': 100, 'full-service': 125 };
 export const FLAT_PACKAGE_MIN_CENTS = 1500;
 export const isSupplyPackage = (title?: string | null) => /supply|equipment/.test(norm(title));
-export const supplyPackageCents = (service?: string | null) => SUPPLY_PACKAGE_CENTS[svc(service)] ?? SUPPLY_PACKAGE_CENTS['delivery-only'];
+export function supplyPackageCents(service?: string | null, guests = 0): number {
+  const k = SUPPLY_PACKAGE_CENTS[svc(service)] !== undefined ? svc(service) : 'delivery-only';
+  return Math.max(SUPPLY_PACKAGE_CENTS[k], Math.round(Math.max(0, guests) * SUPPLY_PER_GUEST_CENTS[k] / 100) * 100);
+}
 
 // ---------- Delivery distance from North Charleston, SC ----------
 export const DELIVERY_ORIGIN = 'North Charleston, SC';

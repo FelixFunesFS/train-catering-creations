@@ -124,6 +124,12 @@ describe('cold-start archetype pricing', () => {
   });
   it('supply packages anchor at $25 / $65 / $150 and $2 entries fall under the floor', () => {
     expect([supplyPackageCents('delivery-only'), supplyPackageCents('delivery-setup'), supplyPackageCents('full-service')]).toEqual([2500, 6500, 15000]);
+  });
+  it('scales supplies with guest count', () => {
+    expect(supplyPackageCents('delivery-only', 100)).toBe(8500);
+    expect(supplyPackageCents('delivery-setup', 100)).toBe(10000);
+    expect(supplyPackageCents('full-service', 200)).toBe(25000);
+    expect(supplyPackageCents('delivery-only', 10)).toBe(2500);
     expect(200 < FLAT_PACKAGE_MIN_CENTS).toBe(true);
   });
 });
