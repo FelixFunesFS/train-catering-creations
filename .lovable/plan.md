@@ -29,6 +29,17 @@
 - **Tax never touched**: tax and government tax-exempt stay fully manual.
 - **Phone safety**: Apply asks for a second confirmation on phones.
 
+
+## Phone-first design
+- Designed for the phone first, then widened for tablet and desktop.
+- On phones the suggestions open as a bottom sheet you can swipe down to close; on tablet and desktop it slides in from the side.
+- The three tiers are big tappable cards stacked top to bottom (Recommended first), one price per card, easy to read with one thumb.
+- The line-by-line breakdown is folded away under "See breakdown" so the screen stays clean.
+- The Apply button stays pinned at the bottom of the sheet, within thumb reach, and asks for a second confirmation on phones.
+- Lock states show as a single slim bar, never stacked badges; nothing overlaps the top bar.
+- Same flat, minimal look as the redesigned staff screens: thin borders, no raised shadows, red only for warnings.
+- Checked on small phones, tablets and desktop before calling it done.
+
 ## Technical details
 - Gate logic in a pure helper (`pricingLockState`) using quote status, sent/payment-link flags and `total_paid > 0`; server re-checks the same gate so a stale screen cannot apply to a paid event. Unit tests for each state.
 - Deterministic stats (IQR outlier removal, per-head normalization, last 8 months, grouped by event type/service style) in a shared module with tests.
@@ -36,4 +47,5 @@
 - New `pricing_suggestion_log` table (RLS admin-only) for audit; manual unlock stored per invoice.
 - UI wired into `EstimateEditor` and `MobileEstimateView`; apply goes through existing line-item save path so totals triggers and validation stay the single source of truth; React Query invalidations per existing admin cache standards.
 - New `pricing_adjustments` table (effective_date, scope: all/category/item, flat or percent; admin-only RLS). Stats normalize each historical line to today by applying adjustments dated after that event; recency weighting via exponential decay (half-life ~3 months). Tests for date cutoffs and adjustment math.
+- Layout uses Tailwind `md:` (768px) breakpoints only, no JS width hooks; shadcn Drawer below md, Sheet at md+. Playwright screenshots at 375, 768 and 1280 widths.
 - Floors and minimums stored as admin-editable settings.
