@@ -19,6 +19,7 @@ interface Tier { items: { id: string; unit_price: number; expected_price: number
 interface Range { id: string; title: string | null; category: string | null; quantity: number; current: number;
   range: { low: number; mid: number; high: number; sampleCount: number; limitedData: boolean } | null; comparedAcross: string }
 interface PricingResponse {
+  suggestion_id: string | null;
   lock: 'open' | 'unlocked' | 'guarded' | 'locked';
   guests: number; ranges: Range[]; tiers: Record<TierKey, Tier>;
   basis: { windowFrom: string; windowTo: string; group: string; sampleEvents: number; excludedOutliers: number;
@@ -34,7 +35,7 @@ const TIER_ORDER: { key: TierKey; label: string }[] = [
   { key: 'premium', label: 'Premium' },
 ];
 
-async function callPricing(body: Record<string, unknown>): Promise<PricingResponse & { error?: string; previous?: { id: string; unit_price: number }[] }> {
+async function callPricing(body: Record<string, unknown>): Promise<PricingResponse & { error?: string; undo_id?: string }> {
   const { data, error } = await supabase.functions.invoke('suggest-pricing', { body });
   if (error) {
     let msg = error.message;
@@ -75,9 +76,9 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
     qc.invalidateQueries({ queryKey: ['invoices'] });
     qc.invalidateQueries({ queryKey: ['pricing-assistant', invoiceId] });
     qc.invalidateQueries({ queryKey: ['payment-milestones'] });
-    supabase.functions.invoke('generate-payment-milestones', { body: { invoice_id: invoiceId, force_regenerate: true } })
-      .then(() => qc.invalidateQueries({ queryKey: ['payment-milestones'] }))
-      .catch(() => {});
+    qc.invalidateQueries({ queryKey: ['invoice', invoiceId] });
+    qc.invalidateQueries({ queryKey: ['events'] });
+    qc.invalidateQueries({ queryKey: ['staff-events'] });
   };
 
   const openDrawer = () => { setOpen(true); ai.refetch(); };
@@ -86,19 +87,19 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
     if (!data || applying || disabled || ai.isFetching || !['open', 'unlocked'].includes(lock ?? '')) return;
     setApplying(true);
     try {
-      const res = await callPricing({ action: 'apply', invoice_id: invoiceId, tier, items: data.tiers[tier].items });
+      const res = await callPricing({ action: 'apply', invoice_id: invoiceId, tier, suggestion_id: data.suggestion_id });
       refreshAll();
       setOpen(false);
-      const previous = res.previous ?? [];
+      const undoId = res.undo_id;
       toast({
         title: `${TIER_ORDER.find((t) => t.key === tier)?.label} pricing applied`,
         description: 'Tax was not changed.',
-        action: (
+        action: undoId ? (
           <ToastAction altText="Undo" onClick={async () => {
-            try { await callPricing({ action: 'apply', invoice_id: invoiceId, tier: 'undo', items: previous }); refreshAll(); toast({ title: 'Prices restored' }); }
+            try { await callPricing({ action: 'apply', invoice_id: invoiceId, tier: 'undo', suggestion_id: undoId }); refreshAll(); toast({ title: 'Prices restored' }); }
             catch (e: any) { toast({ title: 'Could not undo', description: e.message, variant: 'destructive' }); }
           }}>Undo</ToastAction>
-        ),
+        ) : undefined,
       });
     } catch (e: any) {
       toast({ title: 'Not applied', description: e.message, variant: 'destructive' });
@@ -235,7 +236,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
           </div>
 
           <div className="border-t border-border/60 bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <Button className="w-full min-h-[48px]" disabled={!data || applying || ai.isFetching || disabled || !['open', 'unlocked'].includes(lock ?? '') || !tier?.items.length} onClick={() => setConfirmTier(picked)}>
+            <Button className="w-full min-h-[48px]" disabled={!data?.suggestion_id || applying || ai.isFetching || disabled || !['open', 'unlocked'].includes(lock ?? '') || !tier?.items.length} onClick={() => setConfirmTier(picked)}>
               {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Apply {TIER_ORDER.find((t) => t.key === picked)?.label} to estimate
             </Button>

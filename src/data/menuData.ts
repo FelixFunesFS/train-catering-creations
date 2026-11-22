@@ -328,12 +328,6 @@ export const menuData = {
             id: "fried-fish",
             name: "Fried Fish",
             description: "Crispy fried fish fillets"
-          },
-          {
-            id: "catfish",
-            name: "Fried Catfish",
-            description: "Cornmeal-crusted Southern fried catfish",
-            isPopular: true
           }
         ]
       },
@@ -752,7 +746,6 @@ const REGULAR_PROTEINS: ProteinOption[] = [
   { id: "lasagna", name: "Lasagna", category: "Pasta" },
   { id: "tacos", name: "Tacos", category: "Mexican" },
   { id: "baked-salmon", name: "Baked Salmon", isPremium: true, category: "Seafood" },
-  { id: "catfish", name: "Fried Catfish", isPopular: true, category: "Seafood" },
   { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true, category: "Seafood" },
   { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "Seafood" },
   { id: "crabs", name: "Crabs", isPremium: true, category: "Seafood" },
@@ -784,6 +777,7 @@ export const getVegetarianEntrees = (variant: MenuVariant = 'regular') =>
 export const LEGACY_MENU_ALIASES: Record<string, string> = {
   "baked-smoked-chicken": "Baked Chicken",
   "barbecue-chicken": "BBQ Chicken",
+  "catfish": "Fried Catfish",
   "catfish-fried": "Fried Catfish",
   "salmon-fillet": "Salmon Fillet",
   "beef-brisket": "Beef Brisket",

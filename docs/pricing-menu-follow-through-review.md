@@ -1,5 +1,50 @@
 # Pricing/menu follow-through review
 
+## Latest safety pass — November 22, 2026
+
+### Delivered
+- Fried Catfish removed from active website, regular/wedding form and admin protein options. Fried Fish remains. Retired `catfish` and `catfish-fried` records retain their original label and are shown only when already selected on an older admin record.
+- Apply/undo now use `apply_pricing_suggestion`: one database transaction validates the invoice, locks its line items and inquiry, updates prices and authoritative totals, updates unpaid milestone amounts, and records the audit. A later error rolls back earlier writes, totals, milestones and audit together.
+- Payment transaction inserts/updates acquire the same invoice lock. A completed payment committed before the pricing transaction prevents its application; a payment writer arriving during pricing waits. This addresses the original check-then-write race, not outstanding Stripe sessions described below.
+- Suggestions have server-stored tiers and an admin-bound ID, expire after 15 minutes, and require the same invoice/quote/menu/settings revision. The browser cannot choose arbitrary replacement prices. Settings tables are share-locked during apply/undo. Unchanged lines and descriptions are included in revision validation.
+- Existing milestone IDs, dates and percentages are retained; amounts are allocated to the new invoice total with the final cent remainder assigned to the last milestone. A missing schedule is created inside the transaction, with standard 10/40/50, rush/full or manually selected Net 30. No browser regeneration is needed after AI apply/undo.
+- `pricing_sent_at` re-locks revised estimates separately from the original `sent_at`. A database trigger also protects old timestamp writers from extending the seven-day validity clock. No expired quote dates were retroactively repaired.
+- Estimate sends now lock before reading the delivery content; previews do not change dates or locks. Existing advanced payment statuses are not regressed. A delivery failure leaves pricing guarded; admins can retry sending or deliberately unlock.
+- The secondary invoice-email hook now sends a real email instead of merely recording a sent timestamp. Protected portal emails accept verified admins or internal service calls only.
+- Historical invoice and line-item queries are ordered and paginated. Draft/sent-only estimates are excluded; only invoice approval/payment-progress statuses enter history.
+
+### Quality checks actually completed
+- 71 Bun tests passed, 170 assertions; no failing tests. New tests cover Catfish retirement/history preservation and separate resend lock boundaries.
+- Rollback-only database checks ran successfully twice, including after the final transaction changes: multi-line apply, exact 10/40/50 schedule, totals/schedule read-back, undo, second-line failure rolling back the first write, stale revision rejection, paid-status rejection, resend retaining original sent date and preserving payment status. Retained QA quote count verified as zero.
+- Public `/menu` and both quote forms checked at 390×844, 980×738 and 1280×1800. Forms used test contact/event values, reached Mains, selected the correct salmon plus five vegetarian portions, and read selections back. No form submitted, no Catfish options, Fried Fish retained in regular options, no horizontal overflow or browser runtime errors. Screenshots checked after menu closing animations finished.
+- Preview reported build OK; whitespace/diff checks passed. Updated `suggest-pricing` and `send-customer-portal-email` deployed. Both reject explicitly invalid authorization with 403.
+- New migration warnings were fixed; 63 older security warnings remain, not introduced by this pass.
+- Production rules are accessible to read-only diagnostics: 54 active rules; two active generic `Chafer Rental` rules share the same name/service. The assistant's ambiguity rule deliberately avoids choosing one.
+
+### What this does not prove
+The browser still reports `external_unmanaged` Supabase; no managed admin/staff session can be restored. Public walkthroughs and rollback-only database tests are not authenticated admin-to-customer-to-staff end-to-end tests. SMTP delivery, actual Stripe checkout/webhooks, staff BEO printing, simultaneous connections and the AI rationale success path were not exercised with a signed-in test account. Earlier blanket assurances that no workflows could break were too strong.
+
+### Next-pass plan, in priority order
+1. **Payment-in-progress and outstanding checkout safety.** Freeze revisions during ACH processing and expire/reconcile existing Stripe checkout sessions before permitting an unpaid revision. Test an already-open checkout completing after a price revision, simultaneous admins and payment recording, and webhook retry behavior in an isolated authenticated environment.
+2. **Canonical schedule generation.** Audit and consolidate the separate `generate-payment-milestones` function. It still deletes/recreates rows outside a single transaction and contains legacy 60/40 short-notice rules, unlike the documented 10/40/50 policy. Resolve the exact short-notice treatment before altering existing arrangements; cover Net 30, rush, month boundaries, cent rounding, due dates, linked transactions and manual edits. This pass intentionally preserves existing schedule dates/percentages rather than silently rewriting commitments.
+3. **Customer documents and delivery.** Share canonical labels with server invoice generation and then verify quote submission → admin edit → apply → totals/milestones → PDF/email → approval/payment → staff/BEO print. Leave historical/custom descriptions untouched. Add an explicit delivery-attempt/success state so a failed first send does not look like a delivered quote or start validity without delivery; email delivery and database updates cannot be one transaction.
+4. **Pricing data quality.** Compare included sides, drinks, dietary portions, equipment/service scope and normalized legacy protein IDs before widening package comparisons. Exclude embedded discounts and count only invoices whose samples survive outlier filtering. Add history-volume tests and settings-revision tests. Review the duplicate Chafer Rental rules rather than choosing or deleting one without the owner's rate decision.
+5. **Security and accessibility audit.** Triage the 63 existing warnings by intended public/customer/admin access. Do not blindly revoke customer portal RPCs. Check collapsed public menu content for keyboard/screen-reader visibility; its CSS-only collapse leaves hidden controls represented in the DOM.
+
+### Unresolved edge cases that need attention
+- A previously opened Stripe checkout or processing ACH can still carry an older amount; serialization of database writes does not invalidate external checkout amounts.
+- The manual/general milestone generator still has non-atomic replacement and legacy 60/40 short-notice behavior. Existing schedules may therefore differ from standard policy; this pass does not silently replace them.
+- A failed send stays locked and can retain a first sent date despite no email delivery; retry/unlock is safe, but accurate delivery/validity state needs an outbox/attempt record.
+- Server-generated labels and some sides/desserts/drinks still use separate formatters; older/custom descriptions are intentionally not rewritten.
+- Package comparisons still omit some menu/logistics differences and per-line discounts; event-count provenance can include later-rejected samples.
+- Two generic Chafer Rental rules are ambiguous and need the correct current rate confirmed.
+- Full signed-in booking/payment/document/staff workflows and real concurrency are unverified; no claim of zero workflow regressions or unconditional publishing certainty.
+- 63 pre-existing security warnings remain for a separate targeted review.
+
+---
+
+## Earlier pass (historical record; superseded where noted above)
+
 ## Implemented
 - Known Catering Package title variants and Standard Entree Package rules share a key. Package-category fallback cannot mix unrelated protein/equipment items.
 - Anchors select the current service arrangement, including legacy drop-off → delivery-only. Duplicate/ambiguous rules and lump-sum packages do not silently use a per-person anchor.
@@ -19,7 +64,7 @@
 - Expanded public menu renders Baked Salmon and Fried Catfish. Existing menu tests cover the seven vegetarian IDs and retired aliases.
 - Updated suggest-pricing deployed successfully. An explicit invalid session received 403, not protected data.
 
-## Remaining safety work — not represented as fixed
+## Earlier remaining safety work — see latest status above
 1. **Atomic apply/undo:** writes still occur row by row. A later error can leave an earlier row changed; an audit-write error can occur after prices change. A database transaction with an invoice revision, atomic audit and payment recheck is still required for all-or-nothing safety.
 2. **Payment race:** the initial payment check fails closed, but a payment can arrive between that check and a write. Solve with a transaction/locking protocol shared with payment recording, not a client-only lock.
 3. **Stale composition/settings:** expected prices and quantities are checked, but changes to descriptions/menu contents, floors and rules are not revision-checked. Server-issued suggestion IDs with revision validation remain needed; submitted tier prices are not recalculated server-side.

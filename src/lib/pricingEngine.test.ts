@@ -3,6 +3,11 @@ import { describe, it, expect } from 'bun:test';
 import { pricingLockState, adjustToToday, removeOutliers, applyFloors, windowStart, eventGroup, itemRange, matchingPriceHistory, currentPriceAnchor, expectedPriceMatches } from '../../supabase/functions/_shared/pricingEngine';
 
 describe('pricing lock states', () => {
+  it('resend re-locks without changing the original seven-day sent date', () => {
+    const sentAt = '2026-11-01T00:00:00Z';
+    expect(pricingLockState({ workflowStatus: 'sent', sentAt, pricingSentAt: '2026-11-03T00:00:00Z', lastUnlockAt: '2026-11-02T00:00:00Z', totalPaidCents: 0 })).toBe('guarded');
+    expect(new Date(Date.parse(sentAt) + 7 * 86400000).toISOString()).toBe('2026-11-08T00:00:00.000Z');
+  });
   it('new inquiry not sent and unpaid is open', () => {
     expect(pricingLockState({ workflowStatus: 'draft', sentAt: null, totalPaidCents: 0 })).toBe('open');
   });

@@ -4,6 +4,14 @@ import { getProteins, getVegetarianEntrees, LEGACY_MENU_ALIASES, resolveMenuLabe
 import { convertMenuIdToReadableText } from '../utils/menuNLP';
 
 describe("menu integrity", () => {
+  test('Fried Catfish is retired everywhere while Fried Fish and historical selections remain', () => {
+    const activeIds = [...getProteins('regular').map((i) => i.id), ...getProteins('wedding').map((i) => i.id), ...menuData.entrees.sections.flatMap((s) => s.items.map((i) => i.id))];
+    expect(activeIds).not.toContain('catfish');
+    expect(activeIds).not.toContain('catfish-fried');
+    expect(getProteins('regular').some((i) => i.id === 'fried-fish')).toBe(true);
+    expect(resolveMenuLabel('catfish')).toBe('Fried Catfish');
+    expect(resolveMenuLabel('catfish-fried')).toBe('Fried Catfish');
+  });
   test('operational descriptions resolve every canonical protein and vegetarian selection', () => {
     for (const item of [...getProteins('regular'), ...getProteins('wedding'), ...getVegetarianEntrees()]) {
       expect(convertMenuIdToReadableText(item.id)).toBe(resolveMenuLabel(item.id));

@@ -6,6 +6,7 @@ export type LockState = 'open' | 'unlocked' | 'guarded' | 'locked';
 export interface LockInput {
   workflowStatus: string | null | undefined;
   sentAt: string | null | undefined;
+  pricingSentAt?: string | null;
   totalPaidCents: number | null | undefined;
   lastUnlockAt?: string | null;
 }
@@ -17,9 +18,10 @@ export function pricingLockState(i: LockInput): LockState {
   const paid = i.totalPaidCents ?? 0;
   const status = i.workflowStatus ?? 'draft';
   if (paid > 0 || PAID_STATUSES.includes(status) || status === 'cancelled') return 'locked';
-  const sent = !!i.sentAt || !PRE_SEND_STATUSES.includes(status);
+  const boundary = i.pricingSentAt ?? i.sentAt;
+  const sent = !!boundary || !PRE_SEND_STATUSES.includes(status);
   if (!sent) return 'open';
-  if (i.lastUnlockAt && (!i.sentAt || new Date(i.lastUnlockAt).getTime() > new Date(i.sentAt).getTime())) return 'unlocked';
+  if (i.lastUnlockAt && (!boundary || new Date(i.lastUnlockAt).getTime() > new Date(boundary).getTime())) return 'unlocked';
   return 'guarded';
 }
 

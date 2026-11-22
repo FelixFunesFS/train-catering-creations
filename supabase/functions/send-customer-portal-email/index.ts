@@ -7,6 +7,7 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
+import { isInternalRequest, verifyAdminAuth } from '../_shared/security.ts';
 import { 
   generateStandardEmail,
   EMAIL_CONFIGS,
@@ -53,6 +54,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    if (!isInternalRequest(req)) {
+      const auth = await verifyAdminAuth(req);
+      if (!auth.isAdmin) return new Response(JSON.stringify({ error: 'Admins only' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     const { quote_request_id, type, preview_only = false, override_email, metadata, custom_message }: PortalEmailRequest & { custom_message?: string } = await req.json();
 
     if (!quote_request_id || !type) {
@@ -67,6 +72,14 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // Lock before reading prices for delivery. Previews never change send dates or locks.
+    if (type === 'estimate_ready' && !preview_only) {
+      const { data: target, error: targetError } = await supabase.from('invoices').select('id').eq('quote_request_id', quote_request_id).single();
+      if (targetError || !target) throw new Error('Estimate not found. No email sent.');
+      const { error: boundaryError } = await supabase.rpc('record_estimate_send', { p_invoice_id: target.id });
+      if (boundaryError) throw new Error('Could not lock estimate for sending. No email sent.');
+    }
 
     // Fetch quote request details
     const { data: quote, error: quoteError } = await supabase

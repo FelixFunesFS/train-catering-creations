@@ -5,7 +5,7 @@ import { z } from "https://esm.sh/zod@3.23.8";
 import { verifyAdminAuth } from "../_shared/security.ts";
 import {
   adjustToToday, applyFloors, canSuggest, eventGroup, itemRange, MIN_SIMILAR, pricingLockState,
-  recencyWeight, windowStart, matchingPriceHistory, currentPriceAnchor, expectedPriceMatches, type Floors, type PriceAdjustment, type Sample,
+  recencyWeight, windowStart, matchingPriceHistory, currentPriceAnchor, type Floors, type PriceAdjustment, type Sample,
 } from "../_shared/pricingEngine.ts";
 
 const MODEL = "openai/gpt-6.1-sol";
@@ -16,6 +16,7 @@ const Body = z.object({
   action: z.enum(["status", "suggest", "apply", "unlock"]),
   invoice_id: z.string().uuid(),
   tier: z.string().max(40).optional(),
+  suggestion_id: z.string().uuid().optional(),
   items: z.array(z.object({ id: z.string().uuid(), unit_price: z.number().int().min(0).max(100_000_000), expected_price: z.number().int().min(0).optional(), expected_quantity: z.number().positive().optional() })).max(200).optional(),
   reason: z.string().max(500).optional(),
 });
@@ -37,7 +38,7 @@ Deno.serve(async (req) => {
   const db = createClient(url, serviceKey, { auth: { persistSession: false } });
 
   const { data: invoice, error: invErr } = await db.from("invoices")
-    .select("id, workflow_status, sent_at, quote_request_id, discount_amount").eq("id", body.invoice_id).maybeSingle();
+    .select("id, workflow_status, sent_at, pricing_sent_at, quote_request_id, discount_amount").eq("id", body.invoice_id).maybeSingle();
   if (invErr || !invoice) return json({ error: "Estimate not found" }, 404);
 
   const [{ data: paidRows, error: paidError }, { data: unlockRows, error: unlockError }] = await Promise.all([
@@ -48,7 +49,7 @@ Deno.serve(async (req) => {
   if (paidError || unlockError) return json({ error: "Could not verify payment and pricing lock. No prices changed." }, 503);
   const totalPaid = (paidRows ?? []).reduce((t, r) => t + (r.amount ?? 0), 0);
   const lock = pricingLockState({
-    workflowStatus: invoice.workflow_status, sentAt: invoice.sent_at, totalPaidCents: totalPaid,
+    workflowStatus: invoice.workflow_status, sentAt: invoice.sent_at, pricingSentAt: invoice.pricing_sent_at, totalPaidCents: totalPaid,
     lastUnlockAt: unlockRows?.[0]?.created_at ?? null,
   });
 
@@ -67,36 +68,17 @@ Deno.serve(async (req) => {
   // ---------- apply ----------
   if (body.action === "apply") {
     if (!canSuggest(lock)) return json({ error: lock === "locked" ? "Payment received - pricing is frozen." : "Pricing is locked because the quote was sent. Unlock for revision first.", lock }, 409);
-    const items = body.items ?? [];
-    if (!items.length || new Set(items.map((i) => i.id)).size !== items.length) return json({ error: "Choose a tier with unique priced items." }, 400);
-    const { data: current, error: currentError } = await db.from("invoice_line_items").select("id, quantity, unit_price, title")
-      .eq("invoice_id", invoice.id);
-    if (currentError) return json({ error: "Could not verify current prices." }, 503);
-    const byId = new Map((current ?? []).map((c) => [c.id, c]));
-    if (items.some((i) => !byId.has(i.id))) return json({ error: "Some line items changed. Refresh and try again." }, 409);
-    if (items.some((i) => {
-      const c = byId.get(i.id);
-      return !c || !expectedPriceMatches(c, i);
-    })) return json({ error: "This estimate changed. Refresh suggestions before applying or undoing." }, 409);
-    const previous = [];
-    for (const i of items) {
-      const c = byId.get(i.id);
-      if (!c) return json({ error: "Line item missing." }, 409);
-      previous.push({ id: i.id, unit_price: c.unit_price, expected_price: i.unit_price, expected_quantity: c.quantity });
-      const { data: updated, error } = await db.from("invoice_line_items")
-        .update({ unit_price: i.unit_price, total_price: i.unit_price * c.quantity }).eq("id", i.id)
-        .eq("invoice_id", invoice.id).eq("unit_price", c.unit_price).eq("quantity", c.quantity).select("id");
-      if (error || !updated?.length) return json({ error: "Could not complete all price updates. Refresh the estimate and review its prices." }, 409);
-    }
-    const { error: auditError } = await db.from("pricing_suggestion_log").insert({
-      invoice_id: invoice.id, action: body.tier === "undo" ? "undo" : "apply", tier: body.tier ?? null,
-      previous_items: previous, applied_items: items, performed_by: auth.userId,
+    if (!body.suggestion_id || !body.tier) return json({ error: "Refresh suggestions before applying prices." }, 409);
+    const { data: result, error } = await db.rpc("apply_pricing_suggestion", {
+      p_invoice_id: invoice.id, p_suggestion_id: body.suggestion_id, p_tier: body.tier, p_user_id: auth.userId,
     });
-    if (auditError) return json({ error: "Prices changed, but the audit record could not be saved. Refresh and review the estimate." }, 500);
-    return json({ ok: true, previous });
+    if (error) return json({ error: error.message + ". No prices or payment schedule were changed." }, 409);
+    return json(result);
   }
 
   // ---------- status / suggest: build baseline ----------
+  const { data: revision, error: revisionError } = await db.rpc("pricing_revision", { p_invoice_id: invoice.id });
+  if (revisionError || !revision) return json({ error: "Could not verify estimate revision." }, 503);
   const { data: quote, error: quoteError } = await db.from("quote_requests")
     .select("event_type, event_date, guest_count, military_organization, service_type, both_proteins_available, special_requests, custom_menu_requests, proteins, vegetarian_entrees, guest_count_with_restrictions, dietary_restrictions")
     .eq("id", invoice.quote_request_id).maybeSingle();
@@ -110,16 +92,22 @@ Deno.serve(async (req) => {
   const from = windowStart(today, 8);
   const group = eventGroup(quote?.event_type, quote?.military_organization);
 
-  const [{ data: histInvoices, error: historyError }, { data: adjRows, error: adjustmentError }, { data: rules, error: ruleError }, { data: floorCfg, error: floorError }] = await Promise.all([
-    db.from("invoices")
-      .select("id, discount_amount, workflow_status, quote_requests!inner(event_date, event_type, military_organization, service_type, both_proteins_available, proteins, guest_count)")
-      .neq("id", invoice.id).neq("workflow_status", "cancelled")
-      .gte("quote_requests.event_date", from).lte("quote_requests.event_date", today).limit(1000),
+  const [{ data: adjRows, error: adjustmentError }, { data: rules, error: ruleError }, { data: floorCfg, error: floorError }] = await Promise.all([
     db.from("pricing_adjustments").select("effective_date, scope, scope_value, adjustment_type, amount"),
     db.from("pricing_rules").select("item_name, base_price, price_per_person, service_type, is_active").eq("is_active", true),
     db.from("business_config").select("config_value").eq("config_key", "pricing_floors").maybeSingle(),
   ]);
-  if (historyError || adjustmentError || ruleError || floorError) return json({ error: "Could not read pricing history and settings. Try again before applying prices." }, 503);
+  if (adjustmentError || ruleError || floorError) return json({ error: "Could not read pricing history and settings. Try again before applying prices." }, 503);
+  let histInvoices: any[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const { data: page, error } = await db.from("invoices")
+      .select("id, discount_amount, workflow_status, quote_requests!inner(event_date, event_type, military_organization, service_type, both_proteins_available, proteins, guest_count)")
+      .neq("id", invoice.id).in("workflow_status", ["approved", "payment_pending", "partially_paid", "paid", "overdue"])
+      .gte("quote_requests.event_date", from).lte("quote_requests.event_date", today).order("id").range(offset, offset + 499);
+    if (error) return json({ error: "Could not read accepted pricing history." }, 503);
+    histInvoices.push(...(page ?? []));
+    if ((page?.length ?? 0) < 500) break;
+  }
   const adjustments = (adjRows ?? []) as PriceAdjustment[];
   const floors: Floors = { per_head_cents: 0, minimum_order_cents: 0, ...(floorCfg?.config_value as Floors ?? {}) };
 
@@ -129,10 +117,13 @@ Deno.serve(async (req) => {
   const ids = clean.map((i) => i.id);
   let histLines: any[] = [];
   for (let k = 0; k < ids.length; k += 150) {
-    const { data, error } = await db.from("invoice_line_items").select("invoice_id, title, category, unit_price, quantity")
-      .in("invoice_id", ids.slice(k, k + 150)).limit(5000);
-    if (error) return json({ error: "Could not read historical prices." }, 503);
-    histLines = histLines.concat(data ?? []);
+    for (let offset = 0; ; offset += 500) {
+      const { data, error } = await db.from("invoice_line_items").select("invoice_id, title, category, unit_price, quantity")
+        .in("invoice_id", ids.slice(k, k + 150)).order("id").range(offset, offset + 499);
+      if (error) return json({ error: "Could not read historical prices." }, 503);
+      histLines = histLines.concat(data ?? []);
+      if ((data?.length ?? 0) < 500) break;
+    }
   }
 
   const futureAdjustments = adjustments.filter((a) => a.effective_date > today)
@@ -184,7 +175,17 @@ Deno.serve(async (req) => {
     windowFrom: from, windowTo: today, group, sampleEvents, excludedOutliers: excluded, excludedDiscounted: discounted,
     appliedAdjustments, upcomingAdjustment: futureAdjustments[0] ?? null, limitedData, floors,
   };
-  const base = { lock, totalPaid, guests, eventType: quote?.event_type ?? null, ranges, tiers, basis };
+  const { data: finalRevision, error: finalRevisionError } = await db.rpc("pricing_revision", { p_invoice_id: invoice.id });
+  if (finalRevisionError || finalRevision !== revision) return json({ error: "Estimate changed while calculating. Refresh suggestions." }, 409);
+  let suggestionId: string | null = null;
+  if (canSuggest(lock)) {
+    const { data: saved, error: saveError } = await db.from("pricing_suggestion_log").insert({
+      invoice_id: invoice.id, action: "suggest", performed_by: auth.userId, basis: { ...basis, revision, tiers },
+    }).select("id").single();
+    if (saveError) return json({ error: "Could not save a verified suggestion. No prices changed." }, 503);
+    suggestionId = saved.id;
+  }
+  const base = { lock, totalPaid, guests, eventType: quote?.event_type ?? null, ranges, tiers, basis, suggestion_id: suggestionId };
 
   if (body.action === "status") return json(base);
 

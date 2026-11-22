@@ -923,6 +923,7 @@ export type Database = {
           payment_order: number | null
           payment_schedule_type: string | null
           pdf_url: string | null
+          pricing_sent_at: string | null
           quote_request_id: string | null
           reminder_count: number | null
           reviewed_at: string | null
@@ -964,6 +965,7 @@ export type Database = {
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          pricing_sent_at?: string | null
           quote_request_id?: string | null
           reminder_count?: number | null
           reviewed_at?: string | null
@@ -1005,6 +1007,7 @@ export type Database = {
           payment_order?: number | null
           payment_schedule_type?: string | null
           pdf_url?: string | null
+          pricing_sent_at?: string | null
           quote_request_id?: string | null
           reminder_count?: number | null
           reviewed_at?: string | null
@@ -2256,6 +2259,15 @@ export type Database = {
       }
     }
     Functions: {
+      apply_pricing_suggestion: {
+        Args: {
+          p_invoice_id: string
+          p_suggestion_id: string
+          p_tier: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       can_access_estimate: {
         Args: { access_token: string; customer_email: string }
         Returns: boolean
@@ -2384,6 +2396,11 @@ export type Database = {
       is_valid_status_transition: {
         Args: { entity_type: string; from_status: string; to_status: string }
         Returns: boolean
+      }
+      pricing_revision: { Args: { p_invoice_id: string }; Returns: string }
+      record_estimate_send: {
+        Args: { p_invoice_id: string }
+        Returns: undefined
       }
       staff_name_aliases: { Args: { _t: string }; Returns: string[] }
       staff_name_matches: {

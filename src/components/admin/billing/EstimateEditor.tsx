@@ -206,19 +206,8 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
 
       if (error) throw error;
 
-      // Update invoice status (only if first send)
-      if (!isResendMode) {
-        await supabase
-          .from('invoices')
-          .update({ 
-            workflow_status: 'sent',
-            sent_at: new Date().toISOString(),
-            is_draft: false,
-          })
-          .eq('id', invoice.invoice_id);
-      }
-
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['pricing-assistant', invoice.invoice_id] });
 
       toast({
         title: isResendMode ? 'Estimate Resent' : 'Estimate Sent',
@@ -233,6 +222,8 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
         variant: 'destructive',
       });
     } finally {
+      queryClient.invalidateQueries({ queryKey: ['pricing-assistant', invoice.invoice_id] });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
       setIsSending(false);
     }
   };

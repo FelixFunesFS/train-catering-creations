@@ -449,20 +449,17 @@ export function useSendInvoiceEmail() {
       invoiceId: string;
       emailType?: 'estimate' | 'invoice' | 'reminder';
     }) => {
-      // Update sent_at timestamp
-      const { error } = await supabase
-        .from('invoices')
-        .update({
-          sent_at: new Date().toISOString(),
-          workflow_status: 'sent',
-        })
-        .eq('id', invoiceId);
-
+      const { data: invoice, error: readError } = await supabase.from('invoices').select('quote_request_id').eq('id', invoiceId).single();
+      if (readError || !invoice?.quote_request_id) throw new Error('An inquiry is required to send this email.');
+      const { error } = await supabase.functions.invoke('send-customer-portal-email', {
+        body: { quote_request_id: invoice.quote_request_id, type: emailType === 'estimate' ? 'estimate_ready' : 'payment_reminder' },
+      });
       if (error) throw error;
       return { invoiceId, emailType };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: invoiceKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['pricing-assistant', data.invoiceId] });
       toast({
         title: 'Email sent',
         description: `${data.emailType} email has been sent successfully.`,

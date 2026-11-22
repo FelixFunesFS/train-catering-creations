@@ -1,7 +1,12 @@
 # Pricing and menu follow-through
+- [x] Remove active Fried Catfish choices; preserve retired selections and Fried Fish.
+- [x] Make pricing apply/undo and schedule updates authoritative; verify failure safety with rollback-only database checks.
+- [x] Separate resend pricing lock from the original seven-day validity date.
+- [x] Run regression and viewport checks; document next-pass blockers and unresolved edge cases.
 - [x] Unify package matching and service-specific price anchors; expose dietary context without invented surcharges.
 - [x] Resolve menu labels in quote review and client operational descriptions; retain legacy IDs.
 - [x] Add regression checks and verify public menu/forms at phone and desktop sizes; fix picker Escape navigating backward.
 - [x] Deploy pricing service and document remaining risks and unavailable end-to-end checks.
 - [ ] Verify signed-in pricing apply/undo, resend, payment freeze and staff BEO end to end — blocked by externally managed Supabase session access.
-- [ ] Verify active production pricing rules — read-only diagnostics unavailable for externally managed Supabase.
+- [x] Verify active production pricing rules — 54 active; duplicate generic Chafer Rental rules flagged for owner review.
+- [x] Record the next-pass priorities and unresolved checkout/ACH, schedule-generator, delivery, document and history risks in the review.
