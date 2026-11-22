@@ -1,3 +1,4 @@
+// @ts-ignore - bun test runner types are not part of the app tsconfig
 import { describe, expect, test } from "bun:test";
 import { getScheduleTier, planSchedule, splitAmounts } from "../../supabase/functions/_shared/paymentSchedule";
 import { getScheduleTier as uiTier } from "../utils/paymentScheduling";
