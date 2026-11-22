@@ -106,7 +106,14 @@ export function useEditableInvoice(
       const hasNewItems = sourceLineItems.some(item => !currentIds.has(item.id));
       const hasDeletedItems = Array.from(currentIds).some(id => !sourceIds.has(id));
       
-      if (hasNewItems || hasDeletedItems) {
+      const fields = ['unit_price', 'quantity', 'total_price', 'title', 'description', 'category', 'sort_order'] as const;
+      const hasValueChanges = sourceLineItems.some(item => {
+        const local = state.localLineItems.get(item.id) as Record<string, unknown> | undefined;
+        if (!local) return false;
+        return fields.some(f => (item as Record<string, unknown>)[f] !== local[f]);
+      });
+
+      if (hasNewItems || hasDeletedItems || hasValueChanges) {
         const itemsMap = new Map<string, LocalLineItem>();
         sourceLineItems.forEach(item => {
           itemsMap.set(item.id, { ...item, isDirty: false });

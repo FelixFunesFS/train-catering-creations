@@ -75,8 +75,10 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
 
   const refreshAll = () => {
     qc.removeQueries({ queryKey: ['pricing-assistant', invoiceId, 'suggest'] });
-    qc.invalidateQueries({ queryKey: ['line-items', invoiceId] });
+    qc.refetchQueries({ queryKey: ['line-items', invoiceId], type: 'active' });
+    qc.invalidateQueries({ queryKey: ['line-items'] });
     qc.invalidateQueries({ queryKey: ['invoices'] });
+    qc.invalidateQueries({ queryKey: ['invoices', 'detail', invoiceId] });
     qc.invalidateQueries({ queryKey: ['pricing-assistant', invoiceId] });
     qc.invalidateQueries({ queryKey: ['payment-milestones'] });
     qc.invalidateQueries({ queryKey: ['invoice', invoiceId] });
