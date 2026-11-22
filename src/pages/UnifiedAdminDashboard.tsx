@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { EventsView } from '@/components/admin/events';
 import { PaymentList } from '@/components/admin/billing';
+import { ChangeRequestsPanel } from '@/components/admin/billing/ChangeRequestsPanel';
 import { EmailTemplatePreview } from '@/components/admin/settings/EmailTemplatePreview';
 import { EmailDeliveryPanel } from '@/components/admin/settings/EmailDeliveryPanel';
 import { NotificationPreferencesPanel } from '@/components/admin/settings/NotificationPreferencesPanel';
@@ -21,7 +22,12 @@ export function UnifiedAdminDashboard() {
       <div className="container mx-auto px-4 py-6">
         {currentView === 'events' && <EventsView />}
         
-        {currentView === 'billing' && <PaymentList />}
+        {currentView === 'billing' && (
+          <div className="space-y-6">
+            <ChangeRequestsPanel />
+            <PaymentList />
+          </div>
+        )}
 
         {currentView === 'reports' && <ReportsView />}
         

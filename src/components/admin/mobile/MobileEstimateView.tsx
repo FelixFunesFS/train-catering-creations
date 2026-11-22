@@ -62,6 +62,7 @@ import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
 import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
 import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
+import { PaymentAlertBanners } from '@/components/admin/billing/PaymentAlertBanners';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
 import { ContactLogCard } from '@/components/admin/events/ContactLogCard';
 import { AdjustDueDateDialog, type AdjustableMilestone } from '@/components/admin/events/AdjustDueDateDialog';
@@ -666,6 +667,7 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </Button>
                   ) : (
                     <>
+                      {invoice?.id && <PaymentAlertBanners invoiceId={invoice.id} invoiceTotal={currentInvoice?.total_amount} />}
                       {!!sortedLineItems.length && (
                         <PricingAssistant
                           invoiceId={invoice.id}

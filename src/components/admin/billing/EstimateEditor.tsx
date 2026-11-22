@@ -33,6 +33,7 @@ import {
 } from '@dnd-kit/sortable';
 import { LineItemsService } from '@/services/LineItemsService';
 import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
+import { PaymentAlertBanners } from '@/components/admin/billing/PaymentAlertBanners';
 
 interface EstimateEditorProps {
   invoice: InvoicePaymentSummary;
@@ -322,6 +323,8 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           </div>
 
           <Separator />
+
+          {invoice.invoice_id && <PaymentAlertBanners invoiceId={invoice.invoice_id} invoiceTotal={total} />}
 
           {invoice.invoice_id && !!sortedLineItems.length && (
             <PricingAssistant invoiceId={invoice.invoice_id} />
