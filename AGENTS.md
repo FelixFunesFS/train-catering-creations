@@ -6,3 +6,4 @@
 - Pricing apply/undo uses server-issued, revision-checked suggestion IDs and one service-only transaction for prices, audit and unpaid schedule totals; payment writes lock the same invoice to prevent check-then-write races.
 - Estimate sending records a separate pricing send boundary before email delivery and preserves the original sent date; why: resends must re-lock revisions without extending quote validity.
 - Customer change submissions use the token-validated edge function and service-only transaction, while direct quote/change inserts require admin identity; why: customer payloads cannot choose ownership or privileged review states.
+- Payment schedule tier rules live in `supabase/functions/_shared/paymentSchedule.ts` (pure); the UI tiers, edge generators and the `apply_pricing_suggestion` SQL fallback must match it, guarded by `src/lib/paymentSchedule.test.ts`; why: the SQL fallback once diverged and gave short-notice events 10/40/50.

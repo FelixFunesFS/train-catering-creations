@@ -115,6 +115,18 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (customAmount) {
       // Explicit amount from client (custom payments, or customer-facing full pay)
+      // Never charge more than the CURRENT balance (protects old tabs/links after a price change)
+      if (!Number.isInteger(customAmount) || customAmount < 50 || customAmount > balanceRemaining) {
+        logStep("Rejected custom amount vs current balance", { customAmount, balanceRemaining });
+        return new Response(
+          JSON.stringify({
+            code: 'AMOUNT_OUT_OF_DATE',
+            balance_remaining: balanceRemaining,
+            error: 'This payment amount no longer matches your current balance. Please refresh the page and try again.',
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       paymentAmount = customAmount;
     } else if (payment_type === 'full') {
       // Server-calculated remaining balance
@@ -323,6 +335,16 @@ const handler = async (req: Request): Promise<Response> => {
             sessionId: tx.stripe_session_id,
             error: err instanceof Error ? err.message : String(err),
           });
+        }
+
+        // Close the old Stripe page so a stale amount can no longer be paid
+        if (newStatus === 'voided') {
+          try {
+            const prior = await stripe.checkout.sessions.retrieve(tx.stripe_session_id);
+            if (prior.status === 'open') await stripe.checkout.sessions.expire(tx.stripe_session_id);
+          } catch (err) {
+            logStep("Could not expire superseded session (non-fatal)", { error: err instanceof Error ? err.message : String(err) });
+          }
         }
 
         await supabase
