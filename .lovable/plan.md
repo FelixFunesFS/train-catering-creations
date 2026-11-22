@@ -2,16 +2,16 @@
 
 ## Your decisions
 - Booked 14 days or less before the event: 100% due now.
-- Booked 15 to 29 days before: 60% now, 40% due 14 days before the event.
-- Booked 30+ days before: standard 10% / 40% (30 days prior) / 50% (14 days prior).
+- Booked 15 to 44 days before: 60% now, 40% due 14 days before the event.
+- Booked 45+ days before: standard 10% / 40% (30 days prior) / 50% (14 days prior).
 - Chafer rental: one $20 rule, the other removed.
 
-Note: today the 60/40 split covers bookings up to 44 days out. With your rule, events booked 30 to 44 days out move to 10/40/50, so the 40% payment comes due within days of booking.
+Note: this matches the current setup. 45 days is the cutoff so the 40% payment (due 30 days prior) always comes at least 15 days after booking.
 
 ## 1. One payment schedule everywhere
 - Put the three rules above in one shared place used by schedule creation, approval, the admin payment section, the PDF, emails and the quote success page.
 - Recalculating a schedule keeps dates you typed by hand and never touches paid parts.
-- Tests: 14, 15, 29, 30 and 45 days out each give the right split; amounts always add up to the total.
+- Tests: 14, 15, 44 and 45 days out each give the right split; amounts always add up to the total.
 
 ## 2. Protect open payment links and bank transfers
 - When an unpaid estimate total changes, close open card payment links so the customer must pay the new amount.
