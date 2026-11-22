@@ -189,3 +189,66 @@ export function applyFloors(lines: { quantity: number; unit: number }[], guests:
   const factor = required / subtotal;
   return lines.map((l) => Math.ceil(l.unit * factor));
 }
+
+// ---------- Cold-start archetype (no usable history or menu rule) ----------
+const svc = (s?: string | null) => (s === 'drop-off' ? 'delivery-only' : s ?? 'delivery-only');
+
+/** Per-guest package base by service style (cents). */
+export const PACKAGE_BASE_CENTS: Record<string, number> = { 'delivery-only': 1400, 'delivery-setup': 1600, 'full-service': 1800 };
+export const SEAFOOD_UPLIFT_CENTS = 500;
+export const RED_MEAT_UPLIFT_CENTS = 300;
+export const DUAL_ENTREE_UPLIFT_CENTS = 300;
+const SEAFOOD = /salmon|shrimp|low ?country|lowcountry|crab|seafood/;
+const RED_MEAT = /brisket|ribs/;
+
+export function proteinTier(ids: unknown): 'seafood' | 'red_meat' | 'standard' {
+  const list = Array.isArray(ids) ? ids.map((p) => String(typeof p === 'string' ? p : (p as any)?.id ?? '').toLowerCase()) : [];
+  if (list.some((p) => SEAFOOD.test(p))) return 'seafood';
+  if (list.some((p) => RED_MEAT.test(p))) return 'red_meat';
+  return 'standard';
+}
+
+/** Deterministic per-guest package price built from service base + protein and dual-entree uplifts. */
+export function archetypePackageCents(service: string | null | undefined, proteins: unknown, bothProteins: boolean): number {
+  const base = PACKAGE_BASE_CENTS[svc(service)] ?? PACKAGE_BASE_CENTS['delivery-only'];
+  const t = proteinTier(proteins);
+  return base + (t === 'seafood' ? SEAFOOD_UPLIFT_CENTS : t === 'red_meat' ? RED_MEAT_UPLIFT_CENTS : 0) + (bothProteins ? DUAL_ENTREE_UPLIFT_CENTS : 0);
+}
+
+/** Flat supply & equipment package anchors by service style (cents) and the typo floor. */
+export const SUPPLY_PACKAGE_CENTS: Record<string, number> = { 'delivery-only': 2500, 'delivery-setup': 6500, 'full-service': 15000 };
+export const FLAT_PACKAGE_MIN_CENTS = 1500;
+export const isSupplyPackage = (title?: string | null) => /supply|equipment/.test(norm(title));
+export const supplyPackageCents = (service?: string | null) => SUPPLY_PACKAGE_CENTS[svc(service)] ?? SUPPLY_PACKAGE_CENTS['delivery-only'];
+
+// ---------- Delivery distance from North Charleston, SC ----------
+export const DELIVERY_ORIGIN = 'North Charleston, SC';
+/** Approximate road miles from North Charleston for places the business serves. */
+const PLACE_MILES: [RegExp, number][] = [
+  [/north charleston|29405|29406|29418|29420|jb ?lg|jblg|joint base|lindsey graham|charleston afb|air base/, 0],
+  [/hanahan|29410/, 6], [/goose creek|29445|red ?bank|naval weapons|nws/, 12], [/ladson|29456/, 12],
+  [/west ashley|29407|29414/, 12],
+  [/daniel island|29492/, 14], [/summerville|29483|29485|29486/, 20], [/mount pleasant|mt\.? ?pleasant|my\.? pleasant|29464|29466/, 18],
+  [/james island|29412/, 16], [/johns island|29455/, 22], [/folly beach|29439/, 22], [/isle of palms|29451|sullivan/, 24],
+  [/moncks corner|29461/, 26], [/wando|cainhoy|huger/, 22], [/ravenel|hollywood|29470|29449/, 26],
+  [/kiawah|seabrook|29455/, 35], [/ridgeville|29472/, 32], [/awendaw/, 30], [/st\.? ?george|29477/, 45],
+  [/walterboro|29488/, 55], [/georgetown|29440/, 62], [/orangeburg|29115/, 75], [/beaufort|29902/, 75], [/blythewood|columbia|29016|292\d\d/, 115],
+  [/downtown|peninsula|29401|29403|charleston,? ?sc|^charleston$/, 10],
+];
+
+export interface DeliveryZone { miles: number | null; zone: 1 | 2 | 3 | 4 | null; surchargeCents: number; matched: string | null; needsReview: boolean }
+
+/** Zone 1: 0-15 mi included; Zone 2: 16-30 mi +$25; Zone 3: 31-45 mi +$50; Zone 4: 45+ mi $1.50/mi beyond 30 and manual review. */
+export function deliveryZone(location: string | null | undefined): DeliveryZone {
+  const loc = (location ?? '').toLowerCase();
+  const hit = loc.trim() ? PLACE_MILES.find(([re]) => re.test(loc)) : undefined;
+  if (!hit) return { miles: null, zone: null, surchargeCents: 0, matched: null, needsReview: true };
+  const miles = hit[1];
+  const matched = loc.match(hit[0])?.[0] ?? null;
+  if (miles <= 15) return { miles, zone: 1, surchargeCents: 0, matched, needsReview: false };
+  if (miles <= 30) return { miles, zone: 2, surchargeCents: 2500, matched, needsReview: false };
+  if (miles <= 45) return { miles, zone: 3, surchargeCents: 5000, matched, needsReview: false };
+  return { miles, zone: 4, surchargeCents: Math.round((miles - 30) * 150), matched, needsReview: true };
+}
+
+export const isDeliveryLine = (title?: string | null) => /service package|deliver|drop ?off|setup service/.test(norm(title));

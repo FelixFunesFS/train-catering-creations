@@ -24,7 +24,8 @@ interface PricingResponse {
   lock: 'open' | 'unlocked' | 'guarded' | 'locked';
   guests: number; ranges: Range[]; tiers: Record<TierKey, Tier>;
   basis: { windowFrom: string; windowTo: string; group: string; sampleEvents: number; excludedOutliers: number;
-    excludedDiscounted: number; appliedAdjustments: { effective_date: string }[]; upcomingAdjustment: { effective_date: string } | null; limitedData: boolean };
+    excludedDiscounted: number; appliedAdjustments: { effective_date: string }[]; upcomingAdjustment: { effective_date: string } | null; limitedData: boolean;
+    delivery?: { origin: string; miles: number | null; zone: number | null; surchargeCents: number; needsReview: boolean } };
   ai?: Record<TierKey | 'summary', string> | null; aiError?: string;
 }
 
@@ -173,6 +174,13 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
                   <div className="flex gap-2 rounded-md border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">
                     <Info className="h-4 w-4 shrink-0" /> Few similar past events, so these ranges are wider and less precise.
                   </div>
+                )}
+                {b?.delivery && (
+                  <p className="text-xs text-muted-foreground">
+                    {b.delivery.zone == null
+                      ? `Couldn't place the event location. Check the distance from ${b.delivery.origin} by hand.`
+                      : `About ${b.delivery.miles} mi from ${b.delivery.origin} (zone ${b.delivery.zone})${b.delivery.surchargeCents > 0 ? `, ${money(b.delivery.surchargeCents)} distance charge added to delivery` : ', no distance charge'}${b.delivery.needsReview ? '. Long trip, confirm by hand.' : '.'}`}
+                  </p>
                 )}
                 {b?.upcomingAdjustment && (
                   <p className="text-xs text-muted-foreground">A price change is scheduled for {new Date(b.upcomingAdjustment.effective_date + 'T12:00:00').toLocaleDateString()}.</p>

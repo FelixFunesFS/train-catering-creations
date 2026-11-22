@@ -112,3 +112,28 @@ describe('minimums', () => {
     expect(applyFloors([{ quantity: 100, unit: 2000 }], 100, { per_head_cents: 1500, minimum_order_cents: 50000 })[0]).toBe(2000);
   });
 });
+
+import { archetypePackageCents, deliveryZone, supplyPackageCents, FLAT_PACKAGE_MIN_CENTS } from '../../supabase/functions/_shared/pricingEngine';
+describe('cold-start archetype pricing', () => {
+  it('salmon full-service is $18 base + $5 seafood = $23', () => {
+    expect(archetypePackageCents('full-service', ['lemon-honey-salmon', 'fettuccine-alfredo'], false)).toBe(2300);
+  });
+  it('drop-off chicken stays at $14', () => expect(archetypePackageCents('drop-off', ['fried-chicken'], false)).toBe(1400));
+  it('brisket delivery-setup with both proteins is $16 + $3 + $3 = $22', () => {
+    expect(archetypePackageCents('delivery-setup', ['hickory-beef-brisket', 'bbq-chicken'], true)).toBe(2200);
+  });
+  it('supply packages anchor at $25 / $65 / $150 and $2 entries fall under the floor', () => {
+    expect([supplyPackageCents('delivery-only'), supplyPackageCents('delivery-setup'), supplyPackageCents('full-service')]).toEqual([2500, 6500, 15000]);
+    expect(200 < FLAT_PACKAGE_MIN_CENTS).toBe(true);
+  });
+});
+describe('delivery zones from North Charleston', () => {
+  it('Goose Creek is zone 1 with no charge', () => expect(deliveryZone('Red Bank Club, Goose Creek Sc')).toMatchObject({ zone: 1, surchargeCents: 0 }));
+  it('Summerville is zone 2, +$25', () => expect(deliveryZone('236 Apache Dr Summerville, SC')).toMatchObject({ zone: 2, surchargeCents: 2500 }));
+  it('Mount Pleasant is zone 2 even when Charleston is named', () => expect(deliveryZone('Mount Pleasant, Charleston SC').zone).toBe(2));
+  it('Kiawah is zone 3, +$50', () => expect(deliveryZone('Kiawah Island')).toMatchObject({ zone: 3, surchargeCents: 5000 }));
+  it('Blythewood is zone 4 at $1.50/mi beyond 30 and needs review', () => {
+    expect(deliveryZone('Blythewood, SC')).toMatchObject({ zone: 4, surchargeCents: 12750, needsReview: true });
+  });
+  it('unknown places need manual review', () => expect(deliveryZone('Tbd')).toMatchObject({ zone: null, needsReview: true }));
+});
