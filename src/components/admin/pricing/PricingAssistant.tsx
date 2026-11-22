@@ -33,8 +33,8 @@ const money = (c: number) => `$${(c / 100).toLocaleString('en-US', { minimumFrac
 const monthLabel = (d: string) => new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 const TIER_ORDER: { key: TierKey; label: string }[] = [
   { key: 'recommended', label: 'Recommended' },
-  { key: 'competitive', label: 'Competitive' },
   { key: 'premium', label: 'Premium' },
+  { key: 'competitive', label: 'Competitive' },
 ];
 
 async function callPricing(body: Record<string, unknown>): Promise<PricingResponse & { error?: string; undo_id?: string }> {
@@ -172,73 +172,84 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
               <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
             ) : (
               <>
-                {b?.limitedData && (
-                  <div className="flex gap-2 rounded-md border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground">
-                    <Info className="h-4 w-4 shrink-0" /> Few similar past events, so these ranges are wider and less precise.
-                  </div>
-                )}
-                {b?.delivery && (
-                  <p className="text-xs text-muted-foreground">
-                    {b.delivery.zone == null
-                      ? `Couldn't place the event location. Check the distance from ${b.delivery.origin} by hand.`
-                      : `About ${b.delivery.miles} mi from ${b.delivery.origin} (zone ${b.delivery.zone})${b.delivery.surchargeCents > 0 ? `, ${money(b.delivery.surchargeCents)} distance charge added to delivery` : ', no distance charge'}${b.delivery.needsReview ? '. Long trip, confirm by hand.' : '.'}`}
-                  </p>
-                )}
-                {b?.upcomingAdjustment && (
-                  <p className="text-xs text-muted-foreground">A price change is scheduled for {new Date(b.upcomingAdjustment.effective_date + 'T12:00:00').toLocaleDateString()}.</p>
-                )}
-
-                <div className="space-y-2" role="radiogroup" aria-label="Pricing tier">
+                <div className="grid grid-cols-3 gap-1 rounded-lg border border-border/60 bg-muted/30 p-1" role="tablist" aria-label="Pricing tier">
                   {TIER_ORDER.map(({ key, label }) => {
-                    const t = data.tiers[key];
                     const active = picked === key;
                     return (
-                      <Button key={key} type="button" variant="outline" role="radio" aria-checked={active} onClick={() => setPicked(key)}
-                        className={cn('block h-auto w-full whitespace-normal rounded-lg border p-3 text-left transition-colors min-h-[64px] !shadow-none',
-                          active ? 'border-foreground bg-muted/40' : 'border-border/60 bg-background hover:bg-muted/30')}>
-                        <div className="flex items-baseline justify-between gap-2">
-                          <span className="text-sm font-medium">{label}</span>
-                          <span className="text-lg font-semibold tabular-nums">{money(t.subtotal)}</span>
-                        </div>
-                        <div className="mt-0.5 flex justify-between text-xs text-muted-foreground">
-                          <span>{t.perHead != null ? `${money(t.perHead)} per guest` : ''}</span>
-                          <span>before tax</span>
-                        </div>
-                        <p className="mt-2 text-xs text-muted-foreground min-h-[1rem]">
-                          {ai.isFetching && !data.ai ? <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Thinking it through...</span>
-                            : data.ai?.[key] ?? (t.flooredUp ? 'Raised to meet your minimums.' : '')}
-                        </p>
-                      </Button>
+                      <button key={key} type="button" role="tab" aria-selected={active} onClick={() => setPicked(key)}
+                        className={cn('min-h-[52px] rounded-md px-1 py-1.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                          active ? 'bg-background text-foreground ring-1 ring-border' : 'text-muted-foreground hover:text-foreground')}>
+                        <span className="block text-xs font-medium">{label}</span>
+                        <span className="block text-sm font-semibold tabular-nums">{money(data.tiers[key].subtotal).replace(/\.00$/, '')}</span>
+                      </button>
                     );
                   })}
                 </div>
 
-                {data.ai?.summary && <p className="text-sm text-muted-foreground">{data.ai.summary}</p>}
-                {ai.data?.aiError && <p className="text-xs text-muted-foreground">{ai.data.aiError} The ranges above still come from your history.</p>}
-                {b && <p className="text-xs text-muted-foreground">{b.excludedOutliers} unusual or $0 prices and {b.excludedDiscounted} discounted events left out.</p>}
+                {tier && (
+                  <div className="space-y-1" role="tabpanel">
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <span className="text-2xl font-semibold tabular-nums">{money(tier.subtotal)}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {tier.perHead != null ? `${money(tier.perHead)} / guest · ` : ''}before tax
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground min-h-[1.25rem]">
+                      {ai.isFetching && !data.ai ? <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Thinking it through...</span>
+                        : data.ai?.[picked] ?? (tier.flooredUp ? 'Raised to meet your minimums.' : '')}
+                    </p>
+                  </div>
+                )}
 
-                <Collapsible>
-                  <CollapsibleTrigger className="flex w-full items-center justify-between py-2 text-sm font-medium">
-                    See breakdown <ChevronDown className="h-4 w-4" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="divide-y divide-border/60 border-y border-border/60">
+                <div>
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">Line items</p>
+                  <div className="divide-y divide-border/60 border-y border-border/60">
                     {data.ranges.map((r) => {
                       const next = tier?.items.find((i) => i.id === r.id)?.unit_price;
+                      const changed = next != null && next !== r.current;
+                      const diff = changed ? next - r.current : 0;
                       return (
-                        <div key={r.id} className="flex items-start justify-between gap-3 py-2 text-sm">
+                        <div key={r.id} className="flex items-start justify-between gap-3 py-2.5 text-sm">
                           <div className="min-w-0">
-                            <p className="truncate">{r.title || r.category || 'Item'}</p>
+                            <p className="truncate font-medium">{r.title || r.category || 'Item'}{r.quantity > 1 ? <span className="font-normal text-muted-foreground"> × {r.quantity}</span> : null}</p>
                             <p className="text-xs text-muted-foreground">
                               {r.range ? `${r.range.sampleCount} past · ${money(r.range.low)}-${money(r.range.high)}` : 'No history - kept as is'}
                             </p>
                           </div>
-                          <div className="text-right tabular-nums shrink-0">
-                            <p>{money(next ?? r.current)}</p>
-                            {next != null && next !== r.current && <p className="text-xs text-muted-foreground line-through">{money(r.current)}</p>}
+                          <div className="shrink-0 text-right tabular-nums">
+                            <p className="font-medium">{money(next ?? r.current)}</p>
+                            {changed ? (
+                              <p className="text-xs text-muted-foreground"><span className="line-through">{money(r.current)}</span> {diff > 0 ? '+' : '−'}{money(Math.abs(diff))}</p>
+                            ) : <p className="text-xs text-muted-foreground">Kept</p>}
                           </div>
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+
+                {data.ai?.summary && <p className="text-sm text-muted-foreground">{data.ai.summary}</p>}
+                {ai.data?.aiError && <p className="text-xs text-muted-foreground">{ai.data.aiError} The prices above still come from your history.</p>}
+
+                <Collapsible>
+                  <CollapsibleTrigger className="group flex w-full items-center justify-between py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                    Data basis & delivery details <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 pb-2 text-xs text-muted-foreground">
+                    {b?.limitedData && (
+                      <p className="flex gap-2"><Info className="h-4 w-4 shrink-0" /> Few similar past events, so these ranges are wider and less precise.</p>
+                    )}
+                    {b?.delivery && (
+                      <p>
+                        {b.delivery.zone == null
+                          ? `Couldn't place the event location. Check the distance from ${b.delivery.origin} by hand.`
+                          : `About ${b.delivery.miles} mi from ${b.delivery.origin} (zone ${b.delivery.zone})${b.delivery.surchargeCents > 0 ? `, ${money(b.delivery.surchargeCents)} distance charge added to delivery` : ', no distance charge'}${b.delivery.needsReview ? '. Long trip, confirm by hand.' : '.'}`}
+                      </p>
+                    )}
+                    {b?.upcomingAdjustment && (
+                      <p>A price change is scheduled for {new Date(b.upcomingAdjustment.effective_date + 'T12:00:00').toLocaleDateString()}.</p>
+                    )}
+                    {b && <p>{b.excludedOutliers} unusual or $0 prices and {b.excludedDiscounted} discounted events left out.</p>}
                   </CollapsibleContent>
                 </Collapsible>
 
@@ -250,7 +261,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
           <div className="border-t border-border/60 bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
             <Button className="w-full min-h-[48px]" disabled={!data?.suggestion_id || applying || ai.isFetching || disabled || !['open', 'unlocked'].includes(lock ?? '') || !tier?.items.length} onClick={() => setConfirmTier(picked)}>
               {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Apply {TIER_ORDER.find((t) => t.key === picked)?.label} to estimate
+              Apply {TIER_ORDER.find((t) => t.key === picked)?.label}{tier ? ` (${money(tier.subtotal)})` : ""}
             </Button>
             <p className="mt-1 text-center text-[11px] text-muted-foreground">Tax stays exactly as you set it.</p>
           </div>
