@@ -198,6 +198,19 @@ export const PACKAGE_BASE_CENTS: Record<string, number> = { 'delivery-only': 140
 export const SEAFOOD_UPLIFT_CENTS = 500;
 export const RED_MEAT_UPLIFT_CENTS = 300;
 export const DUAL_ENTREE_UPLIFT_CENTS = 300;
+/** Each meat beyond two adds prep on top of the dual-entree uplift (3 meats = +$5 total). */
+export const EXTRA_ENTREE_UPLIFT_CENTS = 200;
+
+export function proteinCount(ids: unknown): number {
+  return Array.isArray(ids) ? new Set(ids.map((p) => String(typeof p === 'string' ? p : (p as any)?.id ?? '')).filter(Boolean)).size : 0;
+}
+
+/** Multi-meat uplift: 3+ meats always count as multi-entree; 2 only when both are served to each guest. */
+export function entreeUpliftCents(proteins: unknown, bothProteins: boolean): number {
+  const n = proteinCount(proteins);
+  if (n >= 3) return DUAL_ENTREE_UPLIFT_CENTS + (n - 2) * EXTRA_ENTREE_UPLIFT_CENTS;
+  return bothProteins ? DUAL_ENTREE_UPLIFT_CENTS : 0;
+}
 const SEAFOOD = /salmon|shrimp|low ?country|lowcountry|crab|seafood/;
 const RED_MEAT = /brisket|ribs/;
 
@@ -212,7 +225,7 @@ export function proteinTier(ids: unknown): 'seafood' | 'red_meat' | 'standard' {
 export function archetypePackageCents(service: string | null | undefined, proteins: unknown, bothProteins: boolean): number {
   const base = PACKAGE_BASE_CENTS[svc(service)] ?? PACKAGE_BASE_CENTS['delivery-only'];
   const t = proteinTier(proteins);
-  return base + (t === 'seafood' ? SEAFOOD_UPLIFT_CENTS : t === 'red_meat' ? RED_MEAT_UPLIFT_CENTS : 0) + (bothProteins ? DUAL_ENTREE_UPLIFT_CENTS : 0);
+  return base + (t === 'seafood' ? SEAFOOD_UPLIFT_CENTS : t === 'red_meat' ? RED_MEAT_UPLIFT_CENTS : 0) + entreeUpliftCents(proteins, bothProteins);
 }
 
 /** Flat supply & equipment package anchors by service style (cents) and the typo floor. */
