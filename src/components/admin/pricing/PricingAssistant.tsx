@@ -73,6 +73,10 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
     qc.invalidateQueries({ queryKey: ['line-items', invoiceId] });
     qc.invalidateQueries({ queryKey: ['invoices'] });
     qc.invalidateQueries({ queryKey: ['pricing-assistant', invoiceId] });
+    qc.invalidateQueries({ queryKey: ['payment-milestones'] });
+    supabase.functions.invoke('generate-payment-milestones', { body: { invoice_id: invoiceId, force_regenerate: true } })
+      .then(() => qc.invalidateQueries({ queryKey: ['payment-milestones'] }))
+      .catch(() => {});
   };
 
   const openDrawer = () => { setOpen(true); ai.refetch(); };

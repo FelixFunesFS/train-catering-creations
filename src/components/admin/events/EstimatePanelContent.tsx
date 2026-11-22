@@ -12,6 +12,7 @@ import { LineItemEditor } from '../billing/LineItemEditor';
 import { SortableLineItem } from '../billing/SortableLineItem';
 import { EstimateSummary } from '../billing/EstimateSummary';
 import { DiscountEditor } from '../billing/DiscountEditor';
+import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
 import { CopyPortalLinkButton, GuestCountSyncBanner } from './AdminQuickTools';
 
 import {
@@ -178,6 +179,10 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
       </div>
 
       {!hasUnsavedChanges && <GuestCountSyncBanner quote={quote} lineItems={sortedLineItems} />}
+
+      {invoice?.id && !!sortedLineItems?.length && (
+        <PricingAssistant invoiceId={invoice.id} disabled={hasUnsavedChanges} disabledReason="Save your edits first" />
+      )}
 
       {/* Line Items */}
       <div className="space-y-3">

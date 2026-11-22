@@ -27,10 +27,12 @@ export function PricingSettings({ onChanged }: { onChanged: () => void }) {
   const [adj, setAdj] = useState({ effective_date: '', scope: 'all', scope_value: '', adjustment_type: 'flat', amount: '' });
 
   const saveFloors = async () => {
-    const value = {
-      per_head_cents: Math.round(parseFloat(perHead || dollars(floors.data?.per_head_cents ?? 0)) * 100),
-      minimum_order_cents: Math.round(parseFloat(minimum || dollars(floors.data?.minimum_order_cents ?? 0)) * 100),
-    };
+    const ph = parseFloat(perHead.trim() || dollars(floors.data?.per_head_cents ?? 0));
+    const mo = parseFloat(minimum.trim() || dollars(floors.data?.minimum_order_cents ?? 0));
+    if (!Number.isFinite(ph) || !Number.isFinite(mo) || ph < 0 || mo < 0 || ph > 500 || mo > 100000) {
+      return toast({ title: 'Enter valid amounts (0 or more)', variant: 'destructive' });
+    }
+    const value = { per_head_cents: Math.round(ph * 100), minimum_order_cents: Math.round(mo * 100) };
     const { error } = await db.from('business_config').update({ config_value: value, updated_at: new Date().toISOString() }).eq('config_key', 'pricing_floors');
     if (error) return toast({ title: 'Could not save', variant: 'destructive' });
     qc.invalidateQueries({ queryKey: ['pricing-floors'] }); onChanged(); toast({ title: 'Minimums saved' });
@@ -38,7 +40,7 @@ export function PricingSettings({ onChanged }: { onChanged: () => void }) {
 
   const addAdjustment = async () => {
     const amt = parseFloat(adj.amount);
-    if (!adj.effective_date || !Number.isFinite(amt)) return toast({ title: 'Enter a date and amount', variant: 'destructive' });
+    if (!adj.effective_date || !Number.isFinite(amt) || Math.abs(amt) > 1000) return toast({ title: 'Enter a date and amount', variant: 'destructive' });
     const { error } = await db.from('pricing_adjustments').insert({
       effective_date: adj.effective_date, scope: adj.scope, scope_value: adj.scope === 'all' ? null : adj.scope_value.trim() || null,
       adjustment_type: adj.adjustment_type, amount: adj.adjustment_type === 'flat' ? Math.round(amt * 100) : amt,
