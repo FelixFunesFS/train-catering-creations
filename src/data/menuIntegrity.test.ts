@@ -57,3 +57,10 @@ describe("menu integrity", () => {
     expect(resolveMenuLabel("vegetarian-meatballs", "wedding")).toBe("Vegetarian Italian Meatballs");
   });
 });
+
+import { getProteins as gp } from './menuData';
+test('regular menu offers ham and roasted turkey; formal offers bourbon ham and herb-roasted turkey', () => {
+  const r = gp('regular').map((p) => p.id), w = gp('wedding').map((p) => p.id);
+  expect(r).toEqual(expect.arrayContaining(['honey-glazed-ham', 'roasted-turkey']));
+  expect(w).toEqual(expect.arrayContaining(['honey-bourbon-ham', 'herb-roasted-turkey']));
+});

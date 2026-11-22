@@ -211,6 +211,11 @@ export const menuData = {
             description: "Seasoned and slow-cooked turkey wings"
           },
           {
+            id: "roasted-turkey",
+            name: "Oven-Roasted Turkey",
+            description: "Slow-roasted sliced turkey breast with savory pan gravy"
+          },
+          {
             id: "chicken-alfredo",
             name: "Chicken Alfredo",
             description: "Creamy pasta with grilled chicken"
@@ -277,6 +282,11 @@ export const menuData = {
             id: "hamburgers",
             name: "Hamburgers",
             description: "Juicy beef patties"
+          },
+          {
+            id: "honey-glazed-ham",
+            name: "Honey-Glazed Ham",
+            description: "Brown sugar and honey-glazed sliced ham"
           },
           {
             id: "spaghetti",
@@ -609,7 +619,8 @@ export const weddingMenuItems = {
   entrees: [
     { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", description: "Slow-smoked with aromatic herbs", isPopular: true, isPremium: true },
     { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", description: "Tender, slow-smoked brisket", isPopular: true, isPremium: true },
-    { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", description: "Sweet and savory glazed ham", isPremium: true },
+    { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", description: "Sweet and savory ham with a signature bourbon glaze", isPremium: true },
+    { id: "herb-roasted-turkey", name: "Herb-Roasted Turkey Breast", description: "Carved turkey breast with fresh garden herbs and rich pan gravy", isPremium: true },
     { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", description: "Fresh salmon with citrus glaze", isPremium: true },
     { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder", description: "Traditional Southern-style pulled pork", isPremium: true },
     { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs", description: "Fall-off-the-bone tender ribs", isPremium: true },
@@ -732,6 +743,7 @@ const REGULAR_PROTEINS: ProteinOption[] = [
   { id: "baked-chicken", name: "Baked Chicken", category: "Poultry" },
   { id: "chicken-tenders", name: "Chicken Tenders", category: "Poultry" },
   { id: "turkey-wings", name: "Turkey Wings", category: "Poultry" },
+  { id: "roasted-turkey", name: "Oven-Roasted Turkey", category: "Poultry" },
   { id: "chicken-alfredo", name: "Chicken Alfredo", category: "Poultry" },
   { id: "chicken-wings", name: "Chicken Wings", category: "Poultry" },
   { id: "pulled-pork", name: "Pulled Pork", isPopular: true, category: "Beef & Pork" },
@@ -742,6 +754,7 @@ const REGULAR_PROTEINS: ProteinOption[] = [
   { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Beef & Pork" },
   { id: "meatloaf", name: "Meatloaf", category: "Beef & Pork" },
   { id: "hamburgers", name: "Hamburgers", category: "Beef & Pork" },
+  { id: "honey-glazed-ham", name: "Honey-Glazed Ham", category: "Beef & Pork" },
   { id: "spaghetti", name: "Spaghetti", category: "Pasta" },
   { id: "lasagna", name: "Lasagna", category: "Pasta" },
   { id: "tacos", name: "Tacos", category: "Mexican" },
@@ -760,6 +773,7 @@ const WEDDING_PROTEINS: ProteinOption[] = [
   { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", category: "Premium" },
   { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true, category: "Seafood" },
   { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings", category: "Premium" },
+  { id: "herb-roasted-turkey", name: "Herb-Roasted Turkey Breast", category: "Premium" },
   { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Premium" },
   { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true, category: "Southern" },
   { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf", category: "Southern" },
