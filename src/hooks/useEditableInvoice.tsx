@@ -108,9 +108,9 @@ export function useEditableInvoice(
       
       const fields = ['unit_price', 'quantity', 'total_price', 'title', 'description', 'category', 'sort_order'] as const;
       const hasValueChanges = sourceLineItems.some(item => {
-        const local = state.localLineItems.get(item.id) as Record<string, unknown> | undefined;
+        const local = state.localLineItems.get(item.id) as unknown as Record<string, unknown> | undefined;
         if (!local) return false;
-        return fields.some(f => (item as Record<string, unknown>)[f] !== local[f]);
+        return fields.some(f => (item as unknown as Record<string, unknown>)[f] !== local[f]);
       });
 
       if (hasNewItems || hasDeletedItems || hasValueChanges) {
