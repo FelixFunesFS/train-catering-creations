@@ -25,16 +25,33 @@ Goal: the website menu, both quote forms (Regular + Wedding) and the admin event
 - **Risk: website menu layout shifts.** Only the item lists change, not the page design.
 - **No database changes**, no migration — easy to roll back.
 
-## Verification
-- Run all existing tests plus the new menu checks.
-- Walk through: Regular form picks Baked Salmon → submit → appears in admin editor, estimate, BEO print and staff view.
-- Open an older event with a retired item → still shown and still there after save.
-- Check on phone and desktop sizes.
+## Verification and quality checks
+Automated (run before saying done):
+- All existing tests, plus new menu checks: every id unique, form and admin lists identical per event type, salmon premium, every legacy id resolves to a readable name, vegetarian list is exactly the 7 items.
+- Search the code for any leftover hardcoded protein/vegetarian list; must find none outside the shared file.
+- Build log clean.
+
+Hands-on walkthrough (phone and desktop sizes):
+1. Website menu shows Baked Salmon, Fried Catfish and the 7 vegetarian items.
+2. Regular form: pick Baked Salmon + a vegetarian item, submit.
+3. Same quote in admin editor: both appear selected; save without changes; reopen — still there.
+4. Estimate, BEO print, staff event view show clean names.
+5. Wedding form still shows Lemon-Honey Seared Salmon and formal vegetarian names.
+6. Older event with a retired item: shows "Legacy", survives a save.
+7. Switch a test event Regular to Wedding: selections kept with notice.
+
+## What this pass will not cover (listed so nothing is assumed)
+- Stored data is not rewritten: old quotes keep old ids; they only display through the alias map.
+- Sides, appetizers and desserts are already shared and are not reworked.
+- Menu item prices are not changed; the Pricing Assistant floors stay as set.
+- Emails already sent and PDFs already downloaded keep their old wording.
+- Server-side functions do not list menu items by name today (checked), so none are changed; if one is added later it must use the shared list.
+- Hands-on checks use test quotes; real customer quotes are not edited.
 
 ## Technical details
 - `src/data/menuData.ts`: add `getProteins(variant)`, `getVegetarianEntrees(variant)` (sourced from `vegetarianOptions.ts`), `LEGACY_MENU_ALIASES`, `resolveMenuLabel(id, variant)`; add Fried Catfish to seafood; replace Plant-Based list with the 7 entrées.
 - `MenuSelectionStep.tsx` + `MenuEditorInline.tsx`: delete hardcoded REGULAR/WEDDING protein + vegetarian arrays, import helpers; admin renders unknown selected ids as Legacy chips and merges on save; admin protein cap 4.
-- `src/lib/menuNLP.ts`: add baked-salmon, lemon-honey-salmon, fried-catfish and legacy aliases.
+- `src/utils/menuNLP.ts`: add baked-salmon, lemon-honey-salmon, fried-catfish and legacy aliases.
 - New `src/data/menuIntegrity.test.ts` (bun): ids unique, salmon premium, every legacy alias resolves, admin and form lists equal per variant.
 - Delete unused `src/data/menuItems.ts` and `src/components/quote/MenuSelection.tsx` (verified: no imports elsewhere).
 - Record rule in AGENTS.md: menu item lists come only from `menuData.ts` helpers.
