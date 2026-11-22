@@ -9,6 +9,14 @@
 6. **Audit trail** - each applied suggestion records who applied it, when, and which tier, so you can see later where a price came from.
 7. **Cost** - AI runs only when you tap "Suggest Pricing", never in the background on every page open.
 
+
+## Rolling data and price increases
+- **Always current**: every time you tap Suggest Pricing, it looks at the last 8 months as of today. Older events drop off automatically; new events count as soon as they are invoiced.
+- **Recent weighs more**: last 2 months count more than events 6-8 months ago, so trends show up quickly.
+- **Price changes you announce**: a "Price Change" setting where you enter a date and an adjustment (e.g. +$1 per head on everything, or +5% on proteins starting Jan 1). Older events are adjusted up to today's prices before being compared, so old prices never pull suggestions down. You can schedule a change ahead of time and it kicks in on that date.
+- **Your current menu prices win**: if an item has a set price in your pricing list, that is the starting point; history only fine-tunes it.
+- **Shows its basis**: the drawer says "Based on events from Mar-Nov 2026, Jan 2027 price change applied".
+
 ## What gets built
 - **Suggest Pricing button** inside the estimate editor (desktop and phone), with the three lock states:
   - Open: new inquiries with no quote sent and nothing paid.
@@ -27,4 +35,5 @@
 - New edge function `suggest-pricing` (admin-only via shared auth util) builds stats from invoices/line items and calls Lovable AI Gateway for tiers + rationale using structured output; returns pre-tax line items only.
 - New `pricing_suggestion_log` table (RLS admin-only) for audit; manual unlock stored per invoice.
 - UI wired into `EstimateEditor` and `MobileEstimateView`; apply goes through existing line-item save path so totals triggers and validation stay the single source of truth; React Query invalidations per existing admin cache standards.
+- New `pricing_adjustments` table (effective_date, scope: all/category/item, flat or percent; admin-only RLS). Stats normalize each historical line to today by applying adjustments dated after that event; recency weighting via exponential decay (half-life ~3 months). Tests for date cutoffs and adjustment math.
 - Floors and minimums stored as admin-editable settings.
