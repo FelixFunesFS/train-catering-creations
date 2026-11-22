@@ -21,7 +21,7 @@ Goal: the website menu, both quote forms (Regular + Wedding) and the admin event
 
 ## Risks and safeguards
 - **Risk: an id typo silently drops an item.** Safeguard: new automated check that every protein/vegetarian id used by forms and admin exists in the shared list, and every legacy id has an alias.
-- **Risk: deleting the old menu file breaks the original quote form.** It's still in use, so it stays; only unused parts are left alone this pass.
+- **Old menu file (`menuItems.ts`)**: only one file uses it, an old quote menu screen (`MenuSelection.tsx`) that no page shows anymore. Both are removed so nobody edits the wrong list later. Nothing customers or admins see uses them.
 - **Risk: website menu layout shifts.** Only the item lists change, not the page design.
 - **No database changes**, no migration — easy to roll back.
 
@@ -36,4 +36,5 @@ Goal: the website menu, both quote forms (Regular + Wedding) and the admin event
 - `MenuSelectionStep.tsx` + `MenuEditorInline.tsx`: delete hardcoded REGULAR/WEDDING protein + vegetarian arrays, import helpers; admin renders unknown selected ids as Legacy chips and merges on save; admin protein cap 4.
 - `src/lib/menuNLP.ts`: add baked-salmon, lemon-honey-salmon, fried-catfish and legacy aliases.
 - New `src/data/menuIntegrity.test.ts` (bun): ids unique, salmon premium, every legacy alias resolves, admin and form lists equal per variant.
+- Delete unused `src/data/menuItems.ts` and `src/components/quote/MenuSelection.tsx` (verified: no imports elsewhere).
 - Record rule in AGENTS.md: menu item lists come only from `menuData.ts` helpers.
