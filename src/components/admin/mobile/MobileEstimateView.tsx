@@ -61,6 +61,7 @@ import { AddLineItemModal } from '@/components/admin/billing/AddLineItemModal';
 import { EmailPreview } from '@/components/admin/billing/EmailPreview';
 import { DiscountEditor } from '@/components/admin/billing/DiscountEditor';
 import { LineItemEditor } from '@/components/admin/billing/LineItemEditor';
+import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
 import { CustomerEditor } from '@/components/admin/events/CustomerEditor';
 import { ContactLogCard } from '@/components/admin/events/ContactLogCard';
 import { AdjustDueDateDialog, type AdjustableMilestone } from '@/components/admin/events/AdjustDueDateDialog';
@@ -665,6 +666,13 @@ export function MobileEstimateView({ quote, invoice, onClose }: MobileEstimateVi
                     </Button>
                   ) : (
                     <>
+                      {!!sortedLineItems.length && (
+                        <PricingAssistant
+                          invoiceId={invoice.id}
+                          disabled={hasUnsavedChanges}
+                          disabledReason={hasUnsavedChanges ? 'Save your edits first.' : undefined}
+                        />
+                      )}
                       {/* Line Items */}
                       <Collapsible open={itemsOpen} onOpenChange={setItemsOpen}>
                         <CollapsibleTrigger asChild>

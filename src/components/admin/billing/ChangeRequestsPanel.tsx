@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { AlertCircle, CheckCircle, Clock, Eye, MessageSquare, XCircle, Loader2 } from 'lucide-react';
 
 import { Json } from '@/integrations/supabase/types';
+import { useUnlockPricing } from '@/components/admin/pricing/PricingAssistant';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChangeRequest {
   id: string;
@@ -30,6 +32,8 @@ export function ChangeRequestsPanel() {
   
   const [selectedRequest, setSelectedRequest] = useState<ChangeRequest | null>(null);
   const [adminResponse, setAdminResponse] = useState('');
+  const unlockPricing = useUnlockPricing();
+  const { toast } = useToast();
 
   const pendingRequests = requests?.filter(r => r.workflow_status === 'pending') || [];
   const otherRequests = requests?.filter(r => r.workflow_status !== 'pending') || [];
@@ -212,6 +216,23 @@ export function ChangeRequestsPanel() {
                   {JSON.stringify(selectedRequest.requested_changes, null, 2)}
                 </pre>
               </div>
+
+              {selectedRequest.invoice_id && selectedRequest.workflow_status === 'pending' && (
+                <Button
+                  variant="outline"
+                  className="w-full min-h-[44px]"
+                  onClick={async () => {
+                    try {
+                      await unlockPricing(selectedRequest.invoice_id!);
+                      toast({ title: 'Pricing unlocked', description: 'Open the estimate and tap Suggest Pricing.' });
+                    } catch (e: any) {
+                      toast({ title: 'Could not unlock', description: e.message, variant: 'destructive' });
+                    }
+                  }}
+                >
+                  Unlock pricing for revision
+                </Button>
+              )}
 
               <Separator />
 

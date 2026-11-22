@@ -32,6 +32,7 @@ import {
   verticalListSortingStrategy 
 } from '@dnd-kit/sortable';
 import { LineItemsService } from '@/services/LineItemsService';
+import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
 
 interface EstimateEditorProps {
   invoice: InvoicePaymentSummary;
@@ -330,6 +331,10 @@ export function EstimateEditor({ invoice, onClose }: EstimateEditorProps) {
           </div>
 
           <Separator />
+
+          {invoice.invoice_id && !!sortedLineItems.length && (
+            <PricingAssistant invoiceId={invoice.invoice_id} />
+          )}
 
           {/* Line Items with Drag-and-Drop */}
           <div className="space-y-4">

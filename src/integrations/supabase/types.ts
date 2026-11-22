@@ -1433,6 +1433,42 @@ export type Database = {
           },
         ]
       }
+      pricing_adjustments: {
+        Row: {
+          adjustment_type: string
+          amount: number
+          created_at: string
+          created_by: string | null
+          effective_date: string
+          id: string
+          note: string | null
+          scope: string
+          scope_value: string | null
+        }
+        Insert: {
+          adjustment_type?: string
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          effective_date: string
+          id?: string
+          note?: string | null
+          scope?: string
+          scope_value?: string | null
+        }
+        Update: {
+          adjustment_type?: string
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string
+          id?: string
+          note?: string | null
+          scope?: string
+          scope_value?: string | null
+        }
+        Relationships: []
+      }
       pricing_rules: {
         Row: {
           base_price: number
@@ -1471,6 +1507,64 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      pricing_suggestion_log: {
+        Row: {
+          action: string
+          applied_items: Json | null
+          basis: Json | null
+          created_at: string
+          id: string
+          invoice_id: string
+          performed_by: string | null
+          previous_items: Json | null
+          tier: string | null
+        }
+        Insert: {
+          action: string
+          applied_items?: Json | null
+          basis?: Json | null
+          created_at?: string
+          id?: string
+          invoice_id: string
+          performed_by?: string | null
+          previous_items?: Json | null
+          tier?: string | null
+        }
+        Update: {
+          action?: string
+          applied_items?: Json | null
+          basis?: Json | null
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          performed_by?: string | null
+          previous_items?: Json | null
+          tier?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_suggestion_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "event_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "pricing_suggestion_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_payment_summary"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "pricing_suggestion_log_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
