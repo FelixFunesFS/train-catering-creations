@@ -25,6 +25,11 @@ export function pricingLockState(i: LockInput): LockState {
 
 export const canSuggest = (s: LockState) => s === 'open' || s === 'unlocked';
 
+export function expectedPriceMatches(current: { unit_price: number; quantity: number }, expected: { expected_price?: number; expected_quantity?: number }): boolean {
+  return expected.expected_price !== undefined && expected.expected_quantity !== undefined
+    && current.unit_price === expected.expected_price && current.quantity === expected.expected_quantity;
+}
+
 // ---------- Event grouping ----------
 export type EventGroup = 'military' | 'formal' | 'corporate' | 'social';
 export function eventGroup(eventType: string | null | undefined, militaryOrg?: string | null): EventGroup {
@@ -45,6 +50,40 @@ export interface PriceAdjustment {
 }
 
 const norm = (s: string | null | undefined) => (s ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+
+/** Only known meal-package aliases share history; unrelated add-ons never do. */
+export function pricingItemKey(title?: string | null): string {
+  const key = norm(title);
+  return /^(catering package|standard entree package)( .*)?$/.test(key) ? 'catering package' : key;
+}
+
+export function matchingPriceHistory<T extends { title?: string | null; category?: string | null }>(item: T, history: T[]): T[] {
+  const key = pricingItemKey(item.title);
+  const exact = key ? history.filter((h) => pricingItemKey(h.title) === key) : [];
+  if (exact.length) return exact;
+  // Category fallback is safe only for the canonical meal package, not seafood or equipment.
+  if (key === 'catering package' || (!key && norm(item.category) === 'package')) {
+    return history.filter((h) => norm(h.category) === 'package');
+  }
+  return [];
+}
+
+export interface PriceRule {
+  item_name: string; base_price?: number | null; price_per_person?: number | null; service_type?: string | null;
+}
+const serviceKey = (s?: string | null) => s === 'drop-off' ? 'delivery-only' : s;
+export function currentPriceAnchor(item: { title?: string | null; quantity?: number }, rules: PriceRule[], service?: string | null): number | null {
+  const key = pricingItemKey(item.title);
+  if (!key) return null;
+  const matches = rules.filter((r) => pricingItemKey(r.item_name) === key);
+  const specific = matches.filter((r) => serviceKey(r.service_type) === serviceKey(service));
+  const candidates = specific.length ? specific : matches.filter((r) => !r.service_type);
+  if (candidates.length !== 1) return null; // Ambiguous rules must not silently choose the first row.
+  const rule = candidates[0];
+  const perHead = rule.price_per_person ?? 0;
+  if (perHead > 0) return key === 'catering package' && item.quantity === 1 ? null : perHead;
+  return (rule.base_price ?? 0) > 0 ? rule.base_price ?? null : null;
+}
 
 /** Bring a historical unit price up to today's pricing by applying adjustments dated after the event and on/before today. */
 export function adjustToToday(
@@ -105,7 +144,11 @@ export function recencyWeight(eventDate: string, today: string, halfLifeDays = 9
 
 export function windowStart(today: string, months = 8): string {
   const d = new Date(today + 'T00:00:00Z');
+  const day = d.getUTCDate();
+  d.setUTCDate(1);
   d.setUTCMonth(d.getUTCMonth() - months);
+  const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(day, last));
   return d.toISOString().slice(0, 10);
 }
 
@@ -119,7 +162,7 @@ export function itemRange(samples: Sample[], anchorCents?: number | null): ItemR
   const { kept, excluded } = removeOutliers(samples);
   if (!kept.length && !anchorCents) return null;
   if (!kept.length) {
-    const a = anchorCents!;
+    const a = anchorCents ?? 0;
     return { low: Math.round(a * 0.9), mid: a, high: Math.round(a * 1.1), sampleCount: 0, excluded, limitedData: true };
   }
   let low = weightedQuantile(kept, 0.25), mid = weightedQuantile(kept, 0.5), high = weightedQuantile(kept, 0.75);
@@ -137,9 +180,9 @@ export function itemRange(samples: Sample[], anchorCents?: number | null): ItemR
 export interface Floors { per_head_cents: number; minimum_order_cents: number }
 
 /** Scale a tier's lines up so the subtotal meets the per-head floor and catering minimum. Returns new unit prices. */
-export function applyFloors(lines: { quantity: number; unit: number }[], guests: number, floors: Floors): number[] {
+export function applyFloors(lines: { quantity: number; unit: number }[], guests: number, floors: Floors, unchangedSubtotal = 0): number[] {
   const subtotal = lines.reduce((t, l) => t + l.unit * l.quantity, 0);
-  const required = Math.max(floors.minimum_order_cents || 0, (floors.per_head_cents || 0) * Math.max(guests, 0));
+  const required = Math.max(0, Math.max(floors.minimum_order_cents ?? 0, (floors.per_head_cents ?? 0) * Math.max(guests, 0)) - unchangedSubtotal);
   if (subtotal <= 0 || subtotal >= required) return lines.map((l) => l.unit);
   const factor = required / subtotal;
   return lines.map((l) => Math.ceil(l.unit * factor));

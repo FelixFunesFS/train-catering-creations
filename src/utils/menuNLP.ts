@@ -1,6 +1,10 @@
 // NLP utilities for converting menu IDs to readable text
+import { getProteins, getVegetarianEntrees, LEGACY_MENU_ALIASES, resolveMenuLabel } from '@/data/menuData';
+
 export function convertMenuIdToReadableText(menuId: string): string {
   if (!menuId) return '';
+  if ([...getProteins('regular'), ...getProteins('wedding'), ...getVegetarianEntrees()].some((item) => item.id === menuId)
+    || Object.prototype.hasOwnProperty.call(LEGACY_MENU_ALIASES, menuId)) return resolveMenuLabel(menuId);
   
   // Handle common menu item patterns
   const conversions: Record<string, string> = {

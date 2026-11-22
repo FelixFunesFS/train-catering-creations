@@ -167,6 +167,13 @@ export function useEstimateActions({
       });
       if (error) throw error;
 
+      if (invoiceId) {
+        // Every successful send resets the pricing revision boundary without regressing payment status.
+        const { error: boundaryError } = await supabase.from('invoices')
+          .update({ sent_at: new Date().toISOString() }).eq('id', invoiceId);
+        if (boundaryError) throw new Error('Email sent, but pricing lock could not be refreshed. Review the estimate before changing prices.');
+      }
+
       if (!isResendMode && invoiceId) {
         // Safety guard: only mark as 'sent' if invoice hasn't progressed beyond draft/pending_review
         const { data: freshInvoice } = await supabase
@@ -182,13 +189,13 @@ export function useEstimateActions({
         if (safeToMarkSent) {
           await supabase.from('invoices').update({
             workflow_status: 'sent',
-            sent_at: new Date().toISOString(),
             is_draft: false,
-          }).eq('id', invoiceId);
+          }).eq('id', invoiceId).in('workflow_status', ['draft', 'pending_review']);
         }
       }
 
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['pricing-assistant', invoiceId] });
       toast({ title: isResendMode ? 'Estimate Resent' : 'Estimate Sent' });
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });

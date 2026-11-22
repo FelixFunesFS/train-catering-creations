@@ -1,8 +1,21 @@
 // @ts-ignore - bun test runner types are not part of the app tsconfig
 import { describe, expect, test } from "bun:test";
 import { getProteins, getVegetarianEntrees, LEGACY_MENU_ALIASES, resolveMenuLabel, menuData } from "./menuData";
+import { convertMenuIdToReadableText } from '../utils/menuNLP';
 
 describe("menu integrity", () => {
+  test('operational descriptions resolve every canonical protein and vegetarian selection', () => {
+    for (const item of [...getProteins('regular'), ...getProteins('wedding'), ...getVegetarianEntrees()]) {
+      expect(convertMenuIdToReadableText(item.id)).toBe(resolveMenuLabel(item.id));
+    }
+  });
+  test('public poultry IDs use current selection IDs while old IDs remain readable', () => {
+    const ids = menuData.entrees.sections.find((s) => s.title === 'Poultry')?.items.map((i) => i.id) ?? [];
+    expect(ids).toContain('baked-chicken');
+    expect(ids).toContain('bbq-chicken');
+    expect(ids).not.toContain('baked-smoked-chicken');
+    expect(convertMenuIdToReadableText('baked-smoked-chicken')).toBe('Baked Chicken');
+  });
   for (const v of ["regular", "wedding"] as const) {
     test(`${v} protein ids are unique`, () => {
       const ids = getProteins(v).map((p) => p.id);

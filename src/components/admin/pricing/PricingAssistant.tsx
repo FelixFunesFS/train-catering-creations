@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { PricingSettings } from './PricingSettings';
 
 type TierKey = 'competitive' | 'recommended' | 'premium';
-interface Tier { items: { id: string; unit_price: number }[]; subtotal: number; perHead: number | null; flooredUp: boolean }
+interface Tier { items: { id: string; unit_price: number; expected_price: number; expected_quantity: number }[]; subtotal: number; perHead: number | null; flooredUp: boolean }
 interface Range { id: string; title: string | null; category: string | null; quantity: number; current: number;
   range: { low: number; mid: number; high: number; sampleCount: number; limitedData: boolean } | null; comparedAcross: string }
 interface PricingResponse {
@@ -66,10 +66,11 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
     enabled: false, staleTime: 5 * 60_000,
   });
 
-  const data = ai.data ?? status.data;
+  const data = ai.data && ai.dataUpdatedAt >= status.dataUpdatedAt ? ai.data : status.data;
   const lock = status.data?.lock;
 
   const refreshAll = () => {
+    qc.removeQueries({ queryKey: ['pricing-assistant', invoiceId, 'suggest'] });
     qc.invalidateQueries({ queryKey: ['line-items', invoiceId] });
     qc.invalidateQueries({ queryKey: ['invoices'] });
     qc.invalidateQueries({ queryKey: ['pricing-assistant', invoiceId] });
@@ -82,7 +83,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
   const openDrawer = () => { setOpen(true); ai.refetch(); };
 
   const apply = async (tier: TierKey) => {
-    if (!data) return;
+    if (!data || applying || disabled || ai.isFetching || !['open', 'unlocked'].includes(lock ?? '')) return;
     setApplying(true);
     try {
       const res = await callPricing({ action: 'apply', invoice_id: invoiceId, tier, items: data.tiers[tier].items });
@@ -123,11 +124,11 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
     );
   } else if (lock === 'guarded') {
     bar = (
-      <button type="button" onClick={() => setConfirmUnlock(true)}
+      <Button type="button" variant="outline" onClick={() => setConfirmUnlock(true)}
         className="flex w-full items-center justify-between gap-2 rounded-md border border-border/60 bg-background px-3 min-h-[44px] text-sm hover:bg-muted/40">
         <span className="flex items-center gap-2 text-muted-foreground"><Lock className="h-4 w-4" /> Pricing locked - quote sent</span>
         <span className="font-medium text-foreground">Unlock for revision</span>
-      </button>
+      </Button>
     );
   } else {
     bar = (
@@ -179,8 +180,8 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
                     const t = data.tiers[key];
                     const active = picked === key;
                     return (
-                      <button key={key} type="button" role="radio" aria-checked={active} onClick={() => setPicked(key)}
-                        className={cn('w-full rounded-lg border p-3 text-left transition-colors min-h-[64px]',
+                      <Button key={key} type="button" variant="outline" role="radio" aria-checked={active} onClick={() => setPicked(key)}
+                        className={cn('block h-auto w-full whitespace-normal rounded-lg border p-3 text-left transition-colors min-h-[64px] !shadow-none',
                           active ? 'border-foreground bg-muted/40' : 'border-border/60 bg-background hover:bg-muted/30')}>
                         <div className="flex items-baseline justify-between gap-2">
                           <span className="text-sm font-medium">{label}</span>
@@ -194,7 +195,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
                           {ai.isFetching && !data.ai ? <span className="inline-flex items-center gap-1"><Loader2 className="h-3 w-3 animate-spin" /> Thinking it through...</span>
                             : data.ai?.[key] ?? (t.flooredUp ? 'Raised to meet your minimums.' : '')}
                         </p>
-                      </button>
+                      </Button>
                     );
                   })}
                 </div>
@@ -234,7 +235,7 @@ export function PricingAssistant({ invoiceId, disabled, disabledReason, classNam
           </div>
 
           <div className="border-t border-border/60 bg-background px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <Button className="w-full min-h-[48px]" disabled={!data || applying} onClick={() => setConfirmTier(picked)}>
+            <Button className="w-full min-h-[48px]" disabled={!data || applying || ai.isFetching || disabled || !['open', 'unlocked'].includes(lock ?? '') || !tier?.items.length} onClick={() => setConfirmTier(picked)}>
               {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Apply {TIER_ORDER.find((t) => t.key === picked)?.label} to estimate
             </Button>

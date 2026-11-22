@@ -14,8 +14,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { getMenuItems, additionalMenuItems, getProteins } from "@/data/menuData";
-import { VEGETARIAN_ENTREE_OPTIONS, getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
+import { getMenuItems, additionalMenuItems, getProteins, getVegetarianEntrees } from "@/data/menuData";
 
 interface MenuSelectionStepProps {
   form: UseFormReturn<any>;
@@ -69,9 +68,9 @@ const MenuSelectionStepComponent = ({
   const ADDITIONAL_ITEMS = additionalMenuItems;
 
   const PROTEINS = getProteins(variant);
-  const vegetarianOptions: Option[] = VEGETARIAN_ENTREE_OPTIONS.map((item) => ({
+  const vegetarianOptions: Option[] = getVegetarianEntrees(variant).map((item) => ({
     value: item.id,
-    label: getVegetarianEntreeLabel(item.id, variant),
+    label: item.name,
     category: "Vegetarian",
   }));
 

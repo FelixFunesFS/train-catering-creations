@@ -282,6 +282,9 @@ export const SinglePageQuoteForm = ({
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // A menu/date picker owns its keys; dismissing it must not navigate the wizard.
+      if (e.defaultPrevented || document.querySelector('[data-radix-popper-content-wrapper]')) return;
+      if (e.target instanceof Element && e.target.closest('button, [role="button"], [role="combobox"]')) return;
       if (e.target instanceof HTMLTextAreaElement) return;
       if (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox') {
         if (e.key === 'Enter') {

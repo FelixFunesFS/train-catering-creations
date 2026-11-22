@@ -188,14 +188,14 @@ export const menuData = {
         color: "bg-category-entrees/10 border-category-entrees/30",
         items: [
           {
-            id: "baked-smoked-chicken",
+            id: "baked-chicken",
             name: "Baked/Smoked Chicken",
             description: "Tender chicken with aromatic herbs",
             isPopular: true,
             isGlutenFree: true
           },
           {
-            id: "barbecue-chicken",
+            id: "bbq-chicken",
             name: "Barbecue Chicken",
             description: "Smoky BBQ chicken with house sauce",
             isPopular: true

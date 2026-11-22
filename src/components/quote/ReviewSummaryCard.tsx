@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Calendar, MapPin, Users, ChefHat, UtensilsCrossed, MessageSquare, Shield } from "lucide-react";
-import { getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
+import { resolveMenuLabel } from "@/data/menuData";
 import { formatDate } from "@/utils/formatters";
 
 interface ReviewSummaryCardProps {
@@ -134,7 +134,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
                     <div className="flex flex-wrap gap-1">
                       {watchedValues.proteins.map((id: string, idx: number) => (
                         <Badge key={idx} variant="secondary" className="text-xs">
-                          {id.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                          {resolveMenuLabel(id, variant)}
                         </Badge>
                       ))}
                     </div>
@@ -159,7 +159,7 @@ export const ReviewSummaryCard = ({ form, variant }: ReviewSummaryCardProps) => 
                       <div className="flex flex-wrap gap-1">
                         {watchedValues.vegetarian_entrees.map((id: string, idx: number) => (
                           <Badge key={idx} className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                            {getVegetarianEntreeLabel(id, variant)}
+                            {resolveMenuLabel(id, variant)}
                           </Badge>
                         ))}
                       </div>
