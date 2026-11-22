@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { ChangeRequestService, type ChangeRequestInput } from '@/services/ChangeRequestService';
 
 interface ChangeRequestData {
   requestType: string;
@@ -9,7 +10,7 @@ interface ChangeRequestData {
   priority?: string;
 }
 
-export function useChangeRequest(invoiceId: string, customerEmail: string) {
+export function useChangeRequest(invoiceId: string, customerEmail: string, accessToken?: string) {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -17,21 +18,13 @@ export function useChangeRequest(invoiceId: string, customerEmail: string) {
     try {
       setSubmitting(true);
 
-      const { data: changeRequest, error } = await supabase
-        .from('change_requests')
-        .insert({
-          invoice_id: invoiceId,
-          customer_email: customerEmail,
-          request_type: data.requestType,
-          requested_changes: data.requestedChanges,
-          customer_comments: data.customerComments,
-          priority: data.priority || 'medium',
-          workflow_status: 'pending'
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const changeRequest = await ChangeRequestService.submitChangeRequest({
+        quoteRequestId: '', invoiceId, customerEmail, accessToken,
+        requestType: data.requestType as ChangeRequestInput['requestType'],
+        requestedChanges: data.requestedChanges,
+        customerComments: data.customerComments ?? '',
+        priority: (data.priority ?? 'medium') as ChangeRequestInput['priority'],
+      });
 
 
       toast({

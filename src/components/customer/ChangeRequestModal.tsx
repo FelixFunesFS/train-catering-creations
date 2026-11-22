@@ -26,6 +26,7 @@ interface ChangeRequestModalProps {
   onOpenChange: (open: boolean) => void;
   invoiceId: string;
   customerEmail: string;
+  accessToken?: string;
   onSuccess?: () => void;
 }
 
@@ -43,6 +44,7 @@ export function ChangeRequestModal({
   onOpenChange,
   invoiceId,
   customerEmail,
+  accessToken,
   onSuccess,
 }: ChangeRequestModalProps) {
   const [requestType, setRequestType] = useState<RequestType>('modification');
@@ -51,6 +53,10 @@ export function ChangeRequestModal({
   const { toast } = useToast();
 
   const handleSubmit = async () => {
+    if (!accessToken) {
+      toast({ title: 'Estimate link required', description: 'Please reopen the estimate link from your email.', variant: 'destructive' });
+      return;
+    }
     if (!comments.trim()) {
       toast({
         title: 'Please add details',
@@ -66,6 +72,7 @@ export function ChangeRequestModal({
         quoteRequestId: '', // Not used in current implementation
         invoiceId,
         customerEmail,
+        accessToken,
         requestType,
         customerComments: comments,
         requestedChanges: {

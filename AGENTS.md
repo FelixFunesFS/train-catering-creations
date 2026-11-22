@@ -5,3 +5,4 @@
 - Protein and vegetarian option lists come only from `getProteins`/`getVegetarianEntrees` in `src/data/menuData.ts` (retired ids via `LEGACY_MENU_ALIASES`); why: website, quote forms and admin editor drifted when each kept its own copy. Guarded by `src/data/menuIntegrity.test.ts`.
 - Pricing apply/undo uses server-issued, revision-checked suggestion IDs and one service-only transaction for prices, audit and unpaid schedule totals; payment writes lock the same invoice to prevent check-then-write races.
 - Estimate sending records a separate pricing send boundary before email delivery and preserves the original sent date; why: resends must re-lock revisions without extending quote validity.
+- Customer change submissions use the token-validated edge function and service-only transaction, while direct quote/change inserts require admin identity; why: customer payloads cannot choose ownership or privileged review states.

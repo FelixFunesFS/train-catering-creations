@@ -273,6 +273,7 @@ export function CustomerEstimateView() {
       onOpenChange={setShowChangeModal}
       invoiceId={invoice.id}
       customerEmail={quote.email}
+      accessToken={token}
       onSuccess={() => {
         refetch();
         setShowChangeModal(false);

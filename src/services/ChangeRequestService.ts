@@ -4,6 +4,8 @@ export interface ChangeRequestInput {
   quoteRequestId: string;
   invoiceId?: string;
   customerEmail: string;
+  accessToken?: string;
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
   requestType: 'modification' | 'cancellation' | 'date_change' | 'guest_count_change';
   customerComments: string;
   requestedChanges: Record<string, any>;
@@ -20,6 +22,21 @@ export class ChangeRequestService {
    * Submit a new change request from a customer
    */
   static async submitChangeRequest(input: ChangeRequestInput): Promise<{ id: string }> {
+    if (input.accessToken) {
+      const { data, error } = await supabase.functions.invoke('submit-change-request', {
+        body: {
+          invoice_id: input.invoiceId,
+          access_token: input.accessToken,
+          request_type: input.requestType,
+          requested_changes: input.requestedChanges,
+          customer_comments: input.customerComments,
+          priority: input.priority ?? 'medium',
+        },
+      });
+      if (error || !data?.id) throw new Error('Unable to submit your request. Please use a valid estimate link and try again.');
+      return { id: data.id };
+    }
+    // Without a customer token, direct creation is allowed only by admin protection.
     const { data, error } = await supabase
       .from('change_requests')
       .insert({

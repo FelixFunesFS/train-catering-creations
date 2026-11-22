@@ -1,0 +1,3 @@
+REVOKE ALL ON FUNCTION public.submit_customer_change_request(uuid,text,jsonb,text,text,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.submit_customer_change_request(uuid,text,jsonb,text,text,text) TO service_role;
+COMMENT ON FUNCTION public.submit_customer_change_request(uuid,text,jsonb,text,text,text) IS 'Service-only customer submission helper: requires invoice-bound unexpired token, derives email and pending status server-side, accepts no privileged fields.';

@@ -206,6 +206,7 @@ export function CustomerActions({
           onOpenChange={setShowChangeModal}
           invoiceId={invoiceId}
           customerEmail={customerEmail}
+          accessToken={accessToken}
           onSuccess={onStatusChange}
         />
       </div>
@@ -252,6 +253,7 @@ export function CustomerActions({
         onOpenChange={setShowChangeModal}
         invoiceId={invoiceId}
         customerEmail={customerEmail}
+        accessToken={accessToken}
         onSuccess={onStatusChange}
       />
     </>

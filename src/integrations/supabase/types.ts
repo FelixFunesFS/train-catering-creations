@@ -2407,6 +2407,17 @@ export type Database = {
         Args: { _hay: string; _loose: boolean; _name: string }
         Returns: boolean
       }
+      submit_customer_change_request: {
+        Args: {
+          p_access_token?: string
+          p_customer_comments?: string
+          p_invoice_id: string
+          p_priority?: string
+          p_request_type: string
+          p_requested_changes: Json
+        }
+        Returns: string
+      }
     }
     Enums: {
       event_type:

@@ -123,6 +123,10 @@ verify_jwt = false
 [functions.submit-quote-request]
 verify_jwt = false
 
+# Customer estimate token is validated by the service-only submission operation.
+[functions.submit-change-request]
+verify_jwt = false
+
 # Quote Confirmation Email
 [functions.send-quote-confirmation]
 verify_jwt = false
