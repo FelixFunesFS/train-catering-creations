@@ -184,6 +184,16 @@ serve(async (req) => {
             fullyPaid: totalPaid >= (invoice?.total_amount || 0)
           });
 
+          if (invoice && totalPaid > invoice.total_amount) {
+            // Paid more than the invoice now totals (e.g. an older checkout page after a price edit)
+            const { error: alertErr } = await supabaseClient.functions.invoke('send-admin-notification', {
+              body: { invoiceId: invoice_id, notificationType: 'overpayment', metadata: {
+                totalPaid, invoiceTotal: invoice.total_amount, overBy: totalPaid - invoice.total_amount, sessionId: session.id,
+              } },
+            });
+            if (alertErr) logStep("Overpayment alert failed (non-fatal)", { error: alertErr.message });
+          }
+
           if (invoice && totalPaid >= invoice.total_amount) {
             // Invoice is fully paid
             const { error: invoiceError } = await supabaseClient

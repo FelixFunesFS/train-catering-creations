@@ -37,7 +37,9 @@ Deno.serve(async (req) => {
     return json({ error: 'Unable to submit your request. Please try again.' }, 500);
   }
   // Preserve admin notifications, but delivery failure does not undo a saved request.
-  const { data: saved } = await db.from('change_requests').select('customer_email').eq('id', id).single();
+  const { data: saved } = await db.from('change_requests').select('customer_email, created_at').eq('id', id).single();
+  // A repeat of an identical request returns the earlier one; don't alert the admin twice.
+  if (saved?.created_at && Date.now() - new Date(saved.created_at).getTime() > 5000) return json({ id, duplicate: true });
   const { error: notificationError } = await db.functions.invoke('send-admin-notification', {
     body: { invoiceId: body.invoice_id, notificationType: 'change_request', metadata: {
       requestType: body.request_type, customerComments: body.customer_comments, customerEmail: saved?.customer_email,

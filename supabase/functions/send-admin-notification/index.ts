@@ -18,7 +18,7 @@ const corsHeaders = {
 
 interface AdminNotificationRequest {
   invoiceId: string;
-  notificationType: 'customer_approval' | 'change_request' | 'payment_received' | 'payment_failed';
+  notificationType: 'customer_approval' | 'change_request' | 'payment_received' | 'payment_failed' | 'overpayment';
   metadata?: Record<string, any>;
 }
 
@@ -229,6 +229,27 @@ function buildAdminNotificationEmail(
 
       ctaButton = { text: 'View Payment Details', href: `${siteUrl}/admin?view=billing`, variant: 'primary' };
       break;
+
+    case 'overpayment': {
+      const fmt = (c: number) => `$${((c || 0) / 100).toFixed(2)}`;
+      subject = `[OVERPAYMENT] ${eventName}`;
+      preheaderText = `${contactName} paid ${fmt(metadata.overBy)} more than the invoice total`;
+      heroConfig = { badge: 'OVERPAYMENT', title: 'Customer Overpaid', subtitle: 'A refund or balance adjustment is needed', variant: 'crimson' };
+      contentBlocks = [
+        { type: 'customer_contact' },
+        { type: 'event_details' },
+        { type: 'text', data: { html: `
+          <div style="margin:16px 0;padding:16px;background:#fef3c7;border-left:4px solid #d97706;border-radius:4px;">
+            <p style="margin:0;color:#333;"><strong>Total paid:</strong> ${fmt(metadata.totalPaid)}</p>
+            <p style="margin:8px 0 0 0;color:#333;"><strong>Invoice total:</strong> ${fmt(metadata.invoiceTotal)}</p>
+            <p style="margin:8px 0 0 0;color:#333;"><strong>Overpaid by:</strong> ${fmt(metadata.overBy)}</p>
+            <p style="margin:8px 0 0 0;color:#666;font-style:italic;">Often caused by an older payment page opened before a price change. Issue a partial refund in Stripe or adjust the invoice.</p>
+          </div>
+        `}},
+      ];
+      ctaButton = { text: 'View Payment Details', href: `${siteUrl}/admin?view=billing`, variant: 'primary' };
+      break;
+    }
 
     case 'payment_failed':
       subject = `[PAYMENT FAILED] ${eventName}`;
