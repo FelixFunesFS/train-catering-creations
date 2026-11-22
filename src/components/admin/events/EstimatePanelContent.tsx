@@ -15,6 +15,7 @@ import { DiscountEditor } from '../billing/DiscountEditor';
 import { PricingAssistant } from '@/components/admin/pricing/PricingAssistant';
 import { PaymentAlertBanners } from '@/components/admin/billing/PaymentAlertBanners';
 import { CopyPortalLinkButton, GuestCountSyncBanner } from './AdminQuickTools';
+import { DuplicateEstimateButton } from './DuplicateEstimateDialog';
 
 import {
   DndContext,
@@ -166,8 +167,9 @@ export const EstimatePanelContent = memo(function EstimatePanelContent({
           <FileText className="h-5 w-5 text-primary" />
           Estimate {invoice?.invoice_number && `#${invoice.invoice_number}`}
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <CopyPortalLinkButton token={invoice?.customer_access_token} />
+          <DuplicateEstimateButton quote={quote} lineItems={sortedLineItems} />
           <Button 
             variant="outline" 
             size="sm" 
