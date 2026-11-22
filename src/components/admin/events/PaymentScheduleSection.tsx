@@ -54,7 +54,7 @@ const getScheduleTierLabel = (milestones: PaymentMilestone[], _isGovernment: boo
   if (milestones.length === 1) return 'RUSH (100%)';
   if (milestones.length === 2) {
     const deposit = milestones.find(m => m.milestone_type === 'DEPOSIT');
-    return deposit?.percentage === 60 ? 'SHORT (60/40)' : 'MID (60/40)';
+    return deposit?.percentage === 50 ? 'SHORT NOTICE (50/50)' : `LEGACY (${milestones.map(m => m.percentage).join('/')})`;
   }
   if (milestones.length === 3) return 'STANDARD (10/40/50)';
   return 'CUSTOM';

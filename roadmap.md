@@ -10,3 +10,8 @@
 - [ ] Verify signed-in pricing apply/undo, resend, payment freeze and staff BEO end to end — blocked by externally managed Supabase session access.
 - [x] Verify active production pricing rules — 54 active; duplicate generic Chafer Rental rules flagged for owner review.
 - [x] Record the next-pass priorities and unresolved checkout/ACH, schedule-generator, delivery, document and history risks in the review.
+# Payment plan and documents
+- [x] One 10/40/50 plan (31+ 10/40/50, 15-30 50/50, <=14 100%); old 60/40 removed from every generator and the database fallback.
+- [x] Emails and invoices use the website's item names.
+- [x] Log every estimate email attempt, including failures.
+- [ ] Signed-in end-to-end check (send, pay, undo) - needs a live admin session in the preview.

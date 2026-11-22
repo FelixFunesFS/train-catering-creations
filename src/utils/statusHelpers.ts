@@ -42,11 +42,10 @@ export function getEstimateStatus(workflowStatus: string): EstimateStatusInfo {
  * Only returns a status for approved+ states (when payment tracking is relevant).
  * 
  * Milestone types map to context-aware labels:
- * - DEPOSIT: "Deposit Due" (45+ days, 10% to secure date)
- * - COMBINED: "Booking Payment Due" (15-44 days, 60%)
+ * - DEPOSIT: "Deposit Due" (10% at 31+ days, or 50% booking payment at 15-30 days)
  * - FULL: "Full Payment Due" (≤14 days rush, 100%)
  * - MILESTONE: "Milestone Due" (50% at 30 days before)
- * - BALANCE: "Balance Due" (final 40%)
+ * - BALANCE: "Balance Due" (final 50%)
  * - FINAL: "Net 30 Pending" (government contracts)
  */
 export function getPaymentStatus(

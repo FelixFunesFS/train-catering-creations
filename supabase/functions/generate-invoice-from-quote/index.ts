@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { labelMenuItem } from '../_shared/menuLabels.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.52.1';
 import { TaxCalculationService } from '../_shared/TaxCalculationService.ts';
 import { formatDateToString, parseDateString } from '../_shared/dateHelpers.ts';
@@ -13,15 +14,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Helper: format menu item text
-const formatMenuDescription = (description: string): string => {
-  if (!description) return '';
-  return description
-    .replace(/-/g, ' ')
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ')
-    .trim();
-};
+const formatMenuDescription = (description: string): string => labelMenuItem(description).trim();
 
 // Helper: format service type
 const formatServiceType = (serviceType: string): string => {
@@ -420,8 +413,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Days until event: ${daysUntilEvent}, generating payment milestones...`);
     
     // For now, create placeholder milestones at $0 (will be calculated when admin sets prices)
-    // Following tier system: Rush (≤14 days) = 100%, Short Notice (15-30) = 60/40, 
-    // Mid-Range (31-44) = 60/40, Standard (45+) = 10/40/50
+    // One 10/40/50 plan: Rush (<=14 days) = 100% now, Short Notice (15-30) = 50/50, Standard (31+) = 10/40/50
     let milestones: any[] = [];
     
     // Valid milestone_type values: DEPOSIT, MILESTONE, BALANCE, FULL, COMBINED, FINAL
@@ -453,60 +445,19 @@ const handler = async (req: Request): Promise<Response> => {
         is_due_now: true,
         description: 'Full payment due immediately (rush booking)'
       }];
-    } else if (daysUntilEvent <= 30) {
-      // Short Notice: 60% now, 40% 7 days before
-      const finalDue = new Date(eventDate);
-      finalDue.setDate(finalDue.getDate() - 7);
-      milestones = [
-        {
-          invoice_id: invoice.id,
-          milestone_type: 'DEPOSIT',
-          percentage: 60,
-          amount_cents: 0,
-          due_date: formatDateToString(new Date()),
-          status: 'pending',
-          is_due_now: true,
-          description: 'Deposit (60%)'
-        },
-        {
-          invoice_id: invoice.id,
-          milestone_type: 'BALANCE',
-          percentage: 40,
-          amount_cents: 0,
-          due_date: formatDateToString(finalDue),
-          status: 'pending',
-          is_due_now: false,
-          description: 'Final balance (40%)'
-        }
-      ];
-    } else if (daysUntilEvent <= 44) {
-      // Mid-Range: 60% now, 40% 14 days before
+    } else if (daysUntilEvent <= 30) {} else if (daysUntilEvent <= 30) {
+      // Short notice (15-30 days): 50% now (10% + 40%), 50% at 14 days before
       const finalDue = new Date(eventDate);
       finalDue.setDate(finalDue.getDate() - 14);
       milestones = [
-        {
-          invoice_id: invoice.id,
-          milestone_type: 'DEPOSIT',
-          percentage: 60,
-          amount_cents: 0,
-          due_date: formatDateToString(new Date()),
-          status: 'pending',
-          is_due_now: true,
-          description: 'Deposit (60%)'
-        },
-        {
-          invoice_id: invoice.id,
-          milestone_type: 'BALANCE',
-          percentage: 40,
-          amount_cents: 0,
-          due_date: formatDateToString(finalDue),
-          status: 'pending',
-          is_due_now: false,
-          description: 'Final balance (40%)'
-        }
+        { invoice_id: invoice.id, milestone_type: 'DEPOSIT', percentage: 50, amount_cents: 0,
+          due_date: formatDateToString(new Date()), status: 'pending', is_due_now: true,
+          description: 'Booking payment (50%) - covers the 10% deposit and 40% milestone' },
+        { invoice_id: invoice.id, milestone_type: 'FINAL', percentage: 50, amount_cents: 0,
+          due_date: formatDateToString(finalDue), status: 'pending', is_due_now: false,
+          description: 'Final balance (50%)' },
       ];
-    } else {
-      // Standard (45+ days): 10% now, 40% at 30 days before, 50% at 14 days before
+    ys): 10% now, 40% at 30 days before, 50% at 14 days before
       // Cumulative model: deposit (10%) + milestone (40%) = 50% paid by 30 days out
       const midDue = new Date(eventDate);
       midDue.setDate(midDue.getDate() - 30);

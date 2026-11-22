@@ -5,14 +5,20 @@ import { getScheduleTier as uiTier } from "../utils/paymentScheduling";
 
 const pcts = (d: number) => planSchedule(d).map((p) => p.percentage);
 
-describe("payment schedule rules", () => {
+describe("payment schedule rules (one 10/40/50 plan)", () => {
   test("14 days or less is 100% now", () => expect(pcts(14)).toEqual([100]));
-  test("15 days is 60/40", () => expect(pcts(15)).toEqual([60, 40]));
-  test("44 days is 60/40 with balance 14 days prior", () => {
-    expect(pcts(44)).toEqual([60, 40]);
-    expect(planSchedule(44)[1].daysBeforeEvent).toBe(14);
+  test("15 days is 50% now, 50% at 14 days prior", () => {
+    expect(pcts(15)).toEqual([50, 50]);
+    expect(planSchedule(15)[1].daysBeforeEvent).toBe(14);
   });
-  test("45 days is 10/40/50", () => expect(pcts(45)).toEqual([10, 40, 50]));
+  test("30 days is 50/50", () => expect(pcts(30)).toEqual([50, 50]));
+  test("31 days is 10/40/50 with milestone at 30 and balance at 14", () => {
+    expect(pcts(31)).toEqual([10, 40, 50]);
+    expect(planSchedule(31).map((p) => p.daysBeforeEvent)).toEqual([null, 30, 14]);
+  });
+  test("no 60/40 split exists anywhere", () => {
+    for (let d = 0; d <= 120; d++) expect(pcts(d)).not.toContain(60);
+  });
   test("amounts always add up to the total", () => {
     for (const t of [101, 9999, 123457]) for (const d of [10, 20, 40, 60])
       expect(splitAmounts(t, planSchedule(d)).reduce((a, b) => a + b, 0)).toBe(t);

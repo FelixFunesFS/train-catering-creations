@@ -36,7 +36,7 @@ const SECTIONS: { id: string; title: string; items: { h: string; body: string[] 
     id: "payments",
     title: "4. Payments & Billing",
     items: [
-      { h: "Standard schedule (10 / 40 / 50)", body: ["10% deposit on approval to hold the date.", "40% due 30 days before the event. 50% due 14 days before.", "Booked within 14 days of the event? 100% is due up front."] },
+      { h: "Standard schedule (10 / 40 / 50)", body: ["10% deposit on approval to hold the date.", "40% due 30 days before the event. 50% due 14 days before.", "Booked 15-30 days out? 50% now, 50% at 14 days before.", "Booked within 14 days of the event? 100% is due up front."] },
       { h: "Taking a payment by phone", body: ["Tap the green Pay button on any event.", "Card or ACH: enter details in the secure Stripe form. Card numbers go straight to Stripe and are never stored by us. ACH needs the customer's written consent.", "Opening the payment window changes nothing. Only a completed payment updates the event."] },
       { h: "Recording cash, check or WaveApp", body: ["Choose Record Payment, enter the amount and pick the method (Cash, Check, WaveApp, Bank Transfer, etc.).", "Untick \"Send confirmation email\" for payments already receipted elsewhere."] },
       { h: "Changing a due date", body: ["Tap \"Change date\" next to a payment in the schedule, or set a new date while logging a call.", "The event leaves Overdue and shows \"Payment Arranged\" until the new date. The customer's page updates too."] },

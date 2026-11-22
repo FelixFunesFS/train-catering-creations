@@ -1,11 +1,10 @@
 // Payment Scheduling Engine for Soul Train's Eatery
 // Implements tiered payment schedule based on days until event
 //
-// 4-Tier Payment Schedule:
+// One plan (10/40/50); short notice rolls past-due steps into "due now":
 // - Rush (≤14 days): 100% NOW
-// - Short Notice (15-30 days): 60% NOW + 40% @ 7 days before
-// - Mid-Range (31-44 days): 60% NOW + 40% @ 14 days before
-// - Standard (45+ days): 10% NOW + 40% @ 30 days + 50% @ 14 days (cumulative: 50% paid by 30 days)
+// - Short Notice (15-30 days): 50% NOW (10% + 40%) + 50% @ 14 days before
+// - Standard (31+ days): 10% NOW + 40% @ 30 days + 50% @ 14 days
 
 export interface PaymentScheduleRule {
   type: 'DEPOSIT' | 'MILESTONE' | 'BALANCE' | 'FULL' | 'COMBINED' | 'FINAL';
@@ -21,7 +20,7 @@ export interface PaymentSchedule {
   customer_type: 'PERSON' | 'ORG' | 'GOV';
   approval_date: Date;
   event_date: Date;
-  schedule_tier: 'RUSH' | 'SHORT_NOTICE' | 'MID_RANGE' | 'STANDARD' | 'GOVERNMENT';
+  schedule_tier: 'RUSH' | 'SHORT_NOTICE' | 'STANDARD' | 'GOVERNMENT';
 }
 
 // Detect government customer from email domain
@@ -74,7 +73,6 @@ export const getScheduleTier = (daysOut: number, customerType: 'PERSON' | 'ORG' 
   if (customerType === 'GOV') return 'GOVERNMENT';
   if (daysOut <= 14) return 'RUSH';
   if (daysOut <= 30) return 'SHORT_NOTICE';
-  if (daysOut <= 44) return 'MID_RANGE';
   return 'STANDARD';
 };
 
@@ -119,35 +117,21 @@ export const buildPaymentSchedule = (
       description: 'Full payment due (event within 14 days)'
     });
   } else if (daysOut <= 30) {
-    // SHORT NOTICE: Event within 15-30 days - 60% NOW + 40% @ 7 days before
+    // SHORT NOTICE (15-30 days): 30-day milestone already passed, so 10% + 40% are due now
     rules.push({
-      type: 'COMBINED',
-      percentage: 60,
+      type: 'DEPOSIT',
+      percentage: 50,
       due_date: 'NOW',
-      description: 'Combined booking deposit + milestone (60%)'
+      description: 'Booking payment (50%) due now - covers the 10% deposit and 40% milestone'
     });
     rules.push({
       type: 'BALANCE',
-      percentage: 40,
-      due_date: dateMinus(eventDate, 7),
-      description: 'Final balance due 7 days before event'
-    });
-  } else if (daysOut <= 44) {
-    // MID-RANGE: Event within 31-44 days - 60% NOW + 40% @ 14 days before
-    rules.push({
-      type: 'COMBINED',
-      percentage: 60,
-      due_date: 'NOW',
-      description: 'Combined booking deposit + milestone (60%)'
-    });
-    rules.push({
-      type: 'BALANCE',
-      percentage: 40,
+      percentage: 50,
       due_date: dateMinus(eventDate, 14),
-      description: 'Final balance due 2 weeks before event'
+      description: 'Final balance (50%) due 2 weeks before event'
     });
   } else {
-    // STANDARD: 45+ days out - 10% NOW + 40% @ 30 days + 50% @ 14 days
+    // STANDARD: 31+ days out - 10% NOW + 40% @ 30 days + 50% @ 14 days
     // Cumulative: deposit (10%) + milestone (40%) = 50% paid by 30 days out
     rules.push({
       type: 'DEPOSIT',
@@ -234,9 +218,7 @@ export const getScheduleDescription = (tier: PaymentSchedule['schedule_tier']): 
     case 'RUSH':
       return '100% payment required immediately (event within 14 days)';
     case 'SHORT_NOTICE':
-      return '60% due now, 40% due 7 days before event';
-    case 'MID_RANGE':
-      return '60% due now, 40% due 2 weeks before event';
+      return '50% due now (deposit + milestone), final 50% at 2 weeks';
     case 'STANDARD':
       return '10% booking deposit, 40% at 30 days (50% cumulative), final 50% at 2 weeks';
     case 'GOVERNMENT':
@@ -264,7 +246,7 @@ export interface EstimateValidity {
  * Tiers:
  * - RUSH (≤14 days): 24-48 hours validity
  * - SHORT_NOTICE (15-30 days): 3 days validity
- * - MID_RANGE (31-44 days): 5 days validity
+ * - 31-44 days: 5 days validity
  * - STANDARD (45+ days): 7 days validity
  * - GOVERNMENT (any): 7 days validity (standard terms)
  */
@@ -309,7 +291,7 @@ export const getEstimateValidity = (
       expirationDate: expDate
     };
   } else if (daysUntilEvent <= 44) {
-    // MID_RANGE: 5-day validity
+    // 31-44 days: 5-day validity
     const expDate = new Date(estimateSentDate);
     expDate.setDate(expDate.getDate() + 5);
     return {

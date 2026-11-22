@@ -257,7 +257,18 @@ const handler = async (req: Request): Promise<Response> => {
       body: { to: recipientEmail, subject, html: htmlContent }
     });
 
-    if (emailError) throw emailError;
+    // Record every delivery attempt so admins can see failed sends.
+    const logAttempt = (status: 'sent' | 'failed', error_message: string | null) =>
+      supabase.from('email_send_log').insert({
+        message_id: crypto.randomUUID(), template_name: `customer_portal_${type}`, recipient_email: recipientEmail,
+        status, error_message, metadata: { quote_request_id, invoice_id: invoice?.id ?? null },
+      }).then(({ error }) => { if (error) console.error('email_send_log insert failed:', error.message); });
+
+    if (emailError) {
+      await logAttempt('failed', String(emailError.message ?? emailError).slice(0, 500));
+      throw emailError;
+    }
+    await logAttempt('sent', null);
 
     console.log(`Customer portal email sent successfully to ${recipientEmail}`);
 

@@ -21,7 +21,7 @@ export const viewHelpTips: Record<string, HelpTip[]> = {
   billing: [
     { text: "Filter by status to find payment-due, partially paid or overdue invoices. Quotes that are not yet approved are not listed as owing money." },
     { text: "Open an invoice to see payment history, record payments, copy the customer portal link, or resend reminders." },
-    { text: "Payments follow 10% deposit, 40% at 30 days before, 50% at 14 days before. Booked 14 days or less out = 100% due now." },
+    { text: "Payments follow 10% deposit, 40% at 30 days before, 50% at 14 days before. Booked 15-30 days out = 50% now, 50% at 14 days before. Booked 14 days or less out = 100% due now." },
     { text: "The last successful payment date and time appears on each invoice. Declined or pending card attempts are not counted." },
   ],
   reports: [

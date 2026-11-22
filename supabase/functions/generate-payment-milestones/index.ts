@@ -169,70 +169,18 @@ const handler = async (req: Request): Promise<Response> => {
         description: "Full payment due immediately (rush event)",
       });
     } else if (daysUntilEvent <= 30) {
-      // Short notice: 60% now, 40% 7 days before
-      const finalDue = subtractDaysFromDate(eventDate, 7);
-
-      const depositAmount = Math.round(totalAmountCents * 0.6);
-      const finalAmount = totalAmountCents - depositAmount;
-
-      const depositStatus = "pending";
-      const finalStatus = "pending";
-
-      milestones.push({
-        invoice_id,
-        milestone_type: "DEPOSIT",
-        percentage: 60,
-        amount_cents: depositAmount,
-        due_date: formatDateToString(now),
-        is_due_now: true,
-        is_net30: false,
-        status: depositStatus,
-        description: "60% deposit due now",
-      });
-
-      milestones.push({
-        invoice_id,
-        milestone_type: "FINAL",
-        percentage: 40,
-        amount_cents: finalAmount,
-        due_date: formatDateToString(finalDue),
-        is_due_now: false,
-        is_net30: false,
-        status: finalStatus,
-        description: "Final 40% due 7 days before event",
-      });
-    } else if (daysUntilEvent <= 44) {
-      // Mid-range: 60% now, 40% 14 days before
+      // Short notice (15-30 days): 30-day milestone has passed, so 10% + 40% are due now
       const finalDue = subtractDaysFromDate(eventDate, 14);
-
-      const depositAmount = Math.round(totalAmountCents * 0.6);
-      const finalAmount = totalAmountCents - depositAmount;
-
-      const depositStatus = "pending";
-      const finalStatus = "pending";
-
+      const depositAmount = Math.round(totalAmountCents * 0.5);
       milestones.push({
-        invoice_id,
-        milestone_type: "DEPOSIT",
-        percentage: 60,
-        amount_cents: depositAmount,
-        due_date: formatDateToString(now),
-        is_due_now: true,
-        is_net30: false,
-        status: depositStatus,
-        description: "60% deposit due now",
+        invoice_id, milestone_type: "DEPOSIT", percentage: 50, amount_cents: depositAmount,
+        due_date: formatDateToString(now), is_due_now: true, is_net30: false, status: "pending",
+        description: "Booking payment (50%) due now - covers the 10% deposit and 40% milestone",
       });
-
       milestones.push({
-        invoice_id,
-        milestone_type: "FINAL",
-        percentage: 40,
-        amount_cents: finalAmount,
-        due_date: formatDateToString(finalDue),
-        is_due_now: false,
-        is_net30: false,
-        status: finalStatus,
-        description: "Final 40% due 14 days before event",
+        invoice_id, milestone_type: "FINAL", percentage: 50, amount_cents: totalAmountCents - depositAmount,
+        due_date: formatDateToString(finalDue), is_due_now: false, is_net30: false, status: "pending",
+        description: "Final balance (50%) due 14 days before event",
       });
     } else {
       // Standard: 10% now, 40% at 30 days before, 50% at 14 days before

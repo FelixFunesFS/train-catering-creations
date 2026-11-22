@@ -1,3 +1,4 @@
+import { labelMenuItem } from './menuLabels.ts';
 // ============================================================================
 // SHARED EMAIL TEMPLATES - Soul Train's Eatery Brand
 // ============================================================================
@@ -612,8 +613,8 @@ export function generateCustomerContactCard(quote: any): string {
 export function generateMenuSummarySection(quote: any): string {
   const formatItems = (items: any): string => {
     if (!items || (Array.isArray(items) && items.length === 0)) return '';
-    if (typeof items === 'string') return items.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-    if (Array.isArray(items)) return items.map((item: string) => item.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')).join(', ');
+    if (typeof items === 'string') return labelMenuItem(items);
+    if (Array.isArray(items)) return items.map((item: string) => labelMenuItem(item)).join(', ');
     return '';
   };
 
