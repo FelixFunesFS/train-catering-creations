@@ -9,7 +9,7 @@ import { CheckboxCardGrid, CardOption } from '@/components/ui/checkbox-card-grid
 import { useUpdateQuote } from '@/hooks/useQuotes';
 import { useRegenerateLineItems } from '@/hooks/useRegenerateLineItems';
 import { Loader2, Save, Leaf, ChevronDown, ChevronRight, CheckCircle2, Circle } from 'lucide-react';
-import { getMenuItems, additionalMenuItems } from '@/data/menuData';
+import { getMenuItems, additionalMenuItems, getProteins, getVegetarianEntrees, resolveMenuLabel } from '@/data/menuData';
 import { cn } from '@/lib/utils';
 import { ChangeContextModal } from './ChangeContextModal';
 import { detectChanges, ChangeItem, ChangeContext } from '@/utils/changeSummaryGenerator';
@@ -20,66 +20,6 @@ interface MenuEditorInlineProps {
   invoiceId: string;
   onSave: () => void;
 }
-
-// Protein options
-const REGULAR_PROTEINS: CardOption[] = [
-  { id: "fried-chicken", name: "Fried Chicken", isPopular: true },
-  { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true },
-  { id: "baked-chicken", name: "Baked Chicken" },
-  { id: "chicken-tenders", name: "Chicken Tenders" },
-  { id: "turkey-wings", name: "Turkey Wings" },
-  { id: "chicken-alfredo", name: "Chicken Alfredo" },
-  { id: "chicken-wings", name: "Chicken Wings" },
-  { id: "pulled-pork", name: "Pulled Pork", isPopular: true },
-  { id: "brisket", name: "Beef Brisket", isPremium: true },
-  { id: "ribs", name: "BBQ Ribs", isPremium: true },
-  { id: "smoked-sausage", name: "Smoked Sausage" },
-  { id: "fried-pork-chops", name: "Fried Pork Chops" },
-  { id: "smothered-pork-chops", name: "Smothered Pork Chops" },
-  { id: "meatloaf", name: "Meatloaf" },
-  { id: "hamburgers", name: "Hamburgers" },
-  { id: "spaghetti", name: "Spaghetti" },
-  { id: "lasagna", name: "Lasagna" },
-  { id: "tacos", name: "Tacos" },
-  { id: "catfish", name: "Fried Catfish" },
-  { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true },
-  { id: "low-country-boil", name: "Low Country Boil", isPremium: true },
-  { id: "crabs", name: "Crabs", isPremium: true },
-  { id: "fried-fish", name: "Fried Fish" },
-];
-
-const WEDDING_PROTEINS: CardOption[] = [
-  { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", isPopular: true },
-  { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", isPopular: true },
-  { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham" },
-  { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true },
-  { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder" },
-  { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs" },
-  { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings" },
-  { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo" },
-  { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf" },
-  { id: "smothered-pork-chops", name: "Smothered Pork Chops" },
-  { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true },
-  { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true },
-];
-
-const REGULAR_VEGETARIAN: CardOption[] = [
-  { id: "quinoa-power-bowl", name: "Quinoa Power Bowl", isDietary: true },
-  { id: "stuffed-bell-peppers", name: "Stuffed Bell Peppers", isDietary: true },
-  { id: "black-bean-burgers", name: "Black Bean Burgers", isDietary: true },
-  { id: "roasted-vegetable-medley", name: "Roasted Vegetable Medley", isDietary: true },
-  { id: "veggie-pasta-primavera", name: "Veggie Pasta Primavera", isDietary: true },
-  { id: "garden-stir-fry", name: "Garden Stir Fry", isDietary: true },
-];
-
-const WEDDING_VEGETARIAN: CardOption[] = [
-  { id: "vegetable-fettuccine-alfredo", name: "Creamy Vegetable Fettuccine Alfredo", isDietary: true },
-  { id: "stuffed-portobello", name: "Herb-Stuffed Portobello Mushroom", isDietary: true },
-  { id: "roasted-vegetable-medley", name: "Roasted Garden Vegetable Medley", isDietary: true },
-  { id: "southern-veggie-plate", name: "Southern Vegetable Plate", isDietary: true },
-  { id: "honey-glazed-carrots-yams", name: "Honey-Glazed Carrots & Yams", isDietary: true },
-  { id: "caprese-stuffed-tomatoes", name: "Caprese Stuffed Heirloom Tomatoes", isDietary: true },
-];
 
 const getSupplyItems = (serviceType?: string): CardOption[] => {
   const normalized = (serviceType || '').toLowerCase();
@@ -158,8 +98,23 @@ export function MenuEditorInline({ quote, invoiceId, onSave }: MenuEditorInlineP
   const isWedding = quote?.event_type === 'wedding';
   const menuItems = getMenuItems(isWedding ? 'wedding' : 'regular');
   
-  const PROTEINS = isWedding ? WEDDING_PROTEINS : REGULAR_PROTEINS;
-  const VEGETARIAN = isWedding ? WEDDING_VEGETARIAN : REGULAR_VEGETARIAN;
+  const variant = isWedding ? 'wedding' : 'regular';
+  // Selected ids not in today's list (retired or other event type) stay visible as Legacy so saving never drops them.
+  const withLegacy = (base: CardOption[], stored: unknown): CardOption[] => {
+    const ids = new Set(base.map((o) => o.id));
+    const extra = (Array.isArray(stored) ? stored : [])
+      .filter((id): id is string => typeof id === 'string' && !ids.has(id))
+      .map((id) => ({ id, name: `${resolveMenuLabel(id, variant)} (Legacy)` }));
+    return [...extra, ...base];
+  };
+  const PROTEINS = withLegacy(
+    getProteins(variant).map(({ id, name, isPopular, isPremium }) => ({ id, name, isPopular, isPremium })),
+    quote?.proteins,
+  );
+  const VEGETARIAN = withLegacy(
+    getVegetarianEntrees(variant).map((v) => ({ ...v, isDietary: true })),
+    quote?.vegetarian_entrees,
+  );
   const SUPPLY_ITEMS = useMemo(() => getSupplyItems(quote?.service_type), [quote?.service_type]);
   
   const parseArray = (val: any): string[] => Array.isArray(val) ? val : [];

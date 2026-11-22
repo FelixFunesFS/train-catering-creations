@@ -14,7 +14,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import type { Option } from "@/components/ui/multi-select";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useAnimationClass } from "@/hooks/useAnimationClass";
-import { getMenuItems, additionalMenuItems } from "@/data/menuData";
+import { getMenuItems, additionalMenuItems, getProteins } from "@/data/menuData";
 import { VEGETARIAN_ENTREE_OPTIONS, getVegetarianEntreeLabel } from "@/data/vegetarianOptions";
 
 interface MenuSelectionStepProps {
@@ -28,47 +28,6 @@ interface MenuSelectionStepProps {
    */
   subStep?: 'mains' | 'extras' | 'full';
 }
-
-const REGULAR_PROTEINS = [
-  { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "Poultry" },
-  { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true, category: "Poultry" },
-  { id: "baked-chicken", name: "Baked Chicken", category: "Poultry" },
-  { id: "chicken-tenders", name: "Chicken Tenders", category: "Poultry" },
-  { id: "turkey-wings", name: "Turkey Wings", category: "Poultry" },
-  { id: "chicken-alfredo", name: "Chicken Alfredo", category: "Poultry" },
-  { id: "chicken-wings", name: "Chicken Wings", category: "Poultry" },
-  { id: "pulled-pork", name: "Pulled Pork", isPopular: true, category: "Beef & Pork" },
-  { id: "brisket", name: "Beef Brisket", isPremium: true, category: "Beef & Pork" },
-  { id: "ribs", name: "BBQ Ribs", isPremium: true, category: "Beef & Pork" },
-  { id: "smoked-sausage", name: "Smoked Sausage", category: "Beef & Pork" },
-  { id: "fried-pork-chops", name: "Fried Pork Chops", category: "Beef & Pork" },
-  { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Beef & Pork" },
-  { id: "meatloaf", name: "Meatloaf", category: "Beef & Pork" },
-  { id: "hamburgers", name: "Hamburgers", category: "Beef & Pork" },
-  { id: "spaghetti", name: "Spaghetti", category: "Pasta" },
-  { id: "lasagna", name: "Lasagna", category: "Pasta" },
-  { id: "tacos", name: "Tacos", category: "Mexican" },
-  { id: "catfish", name: "Fried Catfish", isPopular: true, category: "Seafood" },
-  { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true, category: "Seafood" },
-  { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "Seafood" },
-  { id: "crabs", name: "Crabs", isPremium: true, category: "Seafood" },
-  { id: "fried-fish", name: "Fried Fish", category: "Seafood" },
-];
-
-const WEDDING_PROTEINS = [
-  { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", isPopular: true, category: "Smoked" },
-  { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", isPopular: true, category: "Smoked" },
-  { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder", category: "Smoked" },
-  { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs", category: "Smoked" },
-  { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", category: "Premium" },
-  { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true, category: "Seafood" },
-  { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings", category: "Premium" },
-  { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Premium" },
-  { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true, category: "Southern" },
-  { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf", category: "Southern" },
-  { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo", category: "Pasta" },
-  { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true, category: "Seafood" },
-];
 
 /** Compact summary chip strip — gives users a "you have X selected" anchor while scrolling */
 const SelectionSummary = ({ items }: { items: Array<{ label: string; count: number }> }) => {
@@ -109,7 +68,7 @@ const MenuSelectionStepComponent = ({
   const menuItems = getMenuItems(variant);
   const ADDITIONAL_ITEMS = additionalMenuItems;
 
-  const PROTEINS = variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
+  const PROTEINS = getProteins(variant);
   const vegetarianOptions: Option[] = VEGETARIAN_ENTREE_OPTIONS.map((item) => ({
     value: item.id,
     label: getVegetarianEntreeLabel(item.id, variant),

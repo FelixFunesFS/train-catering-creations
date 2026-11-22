@@ -1,3 +1,4 @@
+import { VEGETARIAN_ENTREE_OPTIONS, getVegetarianEntreeLabel } from "./vegetarianOptions";
 // Shared menu data for consistency across Menu page and quote forms
 export interface MenuItem {
   id: string;
@@ -327,6 +328,12 @@ export const menuData = {
             id: "fried-fish",
             name: "Fried Fish",
             description: "Crispy fried fish fillets"
+          },
+          {
+            id: "catfish",
+            name: "Fried Catfish",
+            description: "Cornmeal-crusted Southern fried catfish",
+            isPopular: true
           }
         ]
       },
@@ -334,48 +341,12 @@ export const menuData = {
         title: "Plant-Based Options",
         subtitle: "Wholesome vegetarian choices",
         color: "bg-category-sides/10 border-category-sides/30",
-        items: [
-          {
-            id: "vegan-lasagna",
-            name: "Vegan Lasagna",
-            description: "Plant-based comfort food",
-            isVegetarian: true
-          },
-          {
-            id: "quinoa-power-bowl",
-            name: "Quinoa Power Bowl",
-            description: "Nutritious and satisfying",
-            isVegetarian: true,
-            isGlutenFree: true
-          },
-          {
-            id: "stuffed-bell-peppers",
-            name: "Stuffed Bell Peppers",
-            description: "Colorful and flavorful",
-            isVegetarian: true,
-            isGlutenFree: true
-          },
-          {
-            id: "black-bean-burgers",
-            name: "Black Bean Burgers",
-            description: "Hearty plant-based patties",
-            isVegetarian: true
-          },
-          {
-            id: "roasted-vegetable-medley",
-            name: "Roasted Vegetable Medley",
-            description: "Seasonal vegetables roasted to perfection",
-            isVegetarian: true,
-            isGlutenFree: true
-          },
-          {
-            id: "grilled-portobello",
-            name: "Grilled Portobello Mushrooms",
-            description: "Meaty mushrooms with herb marinade",
-            isVegetarian: true,
-            isGlutenFree: true
-          }
-        ]
+        items: VEGETARIAN_ENTREE_OPTIONS.map((v) => ({
+          id: v.id,
+          name: v.weddingLabel,
+          description: "Hearty Southern comfort, meat-free",
+          isVegetarian: true
+        }))
       }
     ]
   },
@@ -747,3 +718,99 @@ export const dietaryRestrictions = [
   { id: "nut-free", name: "Nut-Free" },
   { id: "diabetic-friendly", name: "Diabetic-Friendly" }
 ];
+
+// ---------------------------------------------------------------------------
+// Canonical protein + vegetarian lists. The quote forms and the admin editor
+// MUST read from these helpers (guarded by menuIntegrity.test.ts).
+// ---------------------------------------------------------------------------
+export type MenuVariant = 'regular' | 'wedding';
+export interface ProteinOption {
+  id: string;
+  name: string;
+  category: string;
+  isPopular?: boolean;
+  isPremium?: boolean;
+}
+
+const REGULAR_PROTEINS: ProteinOption[] = [
+  { id: "fried-chicken", name: "Fried Chicken", isPopular: true, category: "Poultry" },
+  { id: "bbq-chicken", name: "BBQ Chicken", isPopular: true, category: "Poultry" },
+  { id: "baked-chicken", name: "Baked Chicken", category: "Poultry" },
+  { id: "chicken-tenders", name: "Chicken Tenders", category: "Poultry" },
+  { id: "turkey-wings", name: "Turkey Wings", category: "Poultry" },
+  { id: "chicken-alfredo", name: "Chicken Alfredo", category: "Poultry" },
+  { id: "chicken-wings", name: "Chicken Wings", category: "Poultry" },
+  { id: "pulled-pork", name: "Pulled Pork", isPopular: true, category: "Beef & Pork" },
+  { id: "brisket", name: "Beef Brisket", isPremium: true, category: "Beef & Pork" },
+  { id: "ribs", name: "BBQ Ribs", isPremium: true, category: "Beef & Pork" },
+  { id: "smoked-sausage", name: "Smoked Sausage", category: "Beef & Pork" },
+  { id: "fried-pork-chops", name: "Fried Pork Chops", category: "Beef & Pork" },
+  { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Beef & Pork" },
+  { id: "meatloaf", name: "Meatloaf", category: "Beef & Pork" },
+  { id: "hamburgers", name: "Hamburgers", category: "Beef & Pork" },
+  { id: "spaghetti", name: "Spaghetti", category: "Pasta" },
+  { id: "lasagna", name: "Lasagna", category: "Pasta" },
+  { id: "tacos", name: "Tacos", category: "Mexican" },
+  { id: "baked-salmon", name: "Baked Salmon", isPremium: true, category: "Seafood" },
+  { id: "catfish", name: "Fried Catfish", isPopular: true, category: "Seafood" },
+  { id: "shrimp-alfredo", name: "Shrimp Alfredo", isPremium: true, category: "Seafood" },
+  { id: "low-country-boil", name: "Low Country Boil", isPremium: true, category: "Seafood" },
+  { id: "crabs", name: "Crabs", isPremium: true, category: "Seafood" },
+  { id: "fried-fish", name: "Fried Fish", category: "Seafood" },
+];
+
+const WEDDING_PROTEINS: ProteinOption[] = [
+  { id: "applewood-herb-chicken", name: "Applewood-Smoked Herb Chicken", isPopular: true, category: "Smoked" },
+  { id: "hickory-beef-brisket", name: "Hickory-Smoked Beef Brisket", isPopular: true, category: "Smoked" },
+  { id: "pulled-pork-shoulder", name: "Hand-Pulled Smoked Pork Shoulder", category: "Smoked" },
+  { id: "honey-glazed-ribs", name: "Honey-Glazed Ribs", category: "Smoked" },
+  { id: "honey-bourbon-ham", name: "Glazed Honey-Bourbon Ham", category: "Premium" },
+  { id: "lemon-honey-salmon", name: "Lemon-Honey Seared Salmon", isPremium: true, category: "Seafood" },
+  { id: "cajun-turkey-wings", name: "Cajun Slow Cooked Turkey Wings", category: "Premium" },
+  { id: "smothered-pork-chops", name: "Smothered Pork Chops", category: "Premium" },
+  { id: "buttermilk-fried-chicken", name: "Buttermilk Fried Chicken", isPopular: true, category: "Southern" },
+  { id: "glazed-meatloaf", name: "Homestyle Glazed Meatloaf", category: "Southern" },
+  { id: "fettuccine-alfredo", name: "Creamy Fettuccine Alfredo", category: "Pasta" },
+  { id: "lowcountry-boil", name: "Signature Lowcountry Boil", isPremium: true, category: "Seafood" },
+];
+
+export const getProteins = (variant: MenuVariant = 'regular'): ProteinOption[] =>
+  variant === 'wedding' ? WEDDING_PROTEINS : REGULAR_PROTEINS;
+
+export const getVegetarianEntrees = (variant: MenuVariant = 'regular') =>
+  VEGETARIAN_ENTREE_OPTIONS.map((v) => ({ id: v.id, name: getVegetarianEntreeLabel(v.id, variant) }));
+
+/** Retired ids that may still be stored on older quotes. Display-only; data is never rewritten. */
+export const LEGACY_MENU_ALIASES: Record<string, string> = {
+  "baked-smoked-chicken": "Baked Chicken",
+  "barbecue-chicken": "BBQ Chicken",
+  "catfish-fried": "Fried Catfish",
+  "salmon-fillet": "Salmon Fillet",
+  "beef-brisket": "Beef Brisket",
+  "pork-ribs": "Pork Ribs",
+  "vegan-lasagna": "Vegan Lasagna",
+  "quinoa-power-bowl": "Quinoa Power Bowl",
+  "stuffed-bell-peppers": "Stuffed Bell Peppers",
+  "black-bean-burgers": "Black Bean Burgers",
+  "roasted-vegetable-medley": "Roasted Vegetable Medley",
+  "grilled-portobello": "Grilled Portobello Mushrooms",
+  "veggie-pasta-primavera": "Veggie Pasta Primavera",
+  "garden-stir-fry": "Garden Stir Fry",
+  "vegetable-fettuccine-alfredo": "Creamy Vegetable Fettuccine Alfredo",
+  "stuffed-portobello": "Herb-Stuffed Portobello Mushroom",
+  "southern-veggie-plate": "Southern Vegetable Plate",
+  "honey-glazed-carrots-yams": "Honey-Glazed Carrots & Yams",
+  "caprese-stuffed-tomatoes": "Caprese Stuffed Heirloom Tomatoes",
+};
+
+const titleCase = (id: string) =>
+  id.split('-').filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
+
+/** Readable label for any stored protein/vegetarian id, current or retired. */
+export const resolveMenuLabel = (id: string, variant: MenuVariant = 'regular'): string => {
+  const p = getProteins(variant).find((o) => o.id === id)
+    ?? getProteins(variant === 'wedding' ? 'regular' : 'wedding').find((o) => o.id === id);
+  if (p) return p.name;
+  if (VEGETARIAN_ENTREE_OPTIONS.some((v) => v.id === id)) return getVegetarianEntreeLabel(id, variant);
+  return LEGACY_MENU_ALIASES[id] ?? titleCase(id);
+};

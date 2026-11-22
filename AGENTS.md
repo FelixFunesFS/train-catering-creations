@@ -1,2 +1,3 @@
 
 - Pricing suggestion math and lock states live only in `supabase/functions/_shared/pricingEngine.ts` (pure, no imports), used by the `suggest-pricing` edge function, the admin UI and bun tests; why: one rule set so the server re-check and the screen never disagree, and AI only writes explanations, never numbers or tax.
+- Protein and vegetarian option lists come only from `getProteins`/`getVegetarianEntrees` in `src/data/menuData.ts` (retired ids via `LEGACY_MENU_ALIASES`); why: website, quote forms and admin editor drifted when each kept its own copy. Guarded by `src/data/menuIntegrity.test.ts`.

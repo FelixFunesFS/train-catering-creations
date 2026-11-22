@@ -19,6 +19,11 @@ export function convertMenuIdToReadableText(menuId: string): string {
     'pulled-pork': 'Pulled Pork',
     'salmon-fillet': 'Salmon Fillet',
     'catfish-fried': 'Fried Catfish',
+    'catfish': 'Fried Catfish',
+    'baked-salmon': 'Baked Salmon',
+    'lemon-honey-salmon': 'Lemon-Honey Seared Salmon',
+    'baked-smoked-chicken': 'Baked Chicken',
+    'barbecue-chicken': 'BBQ Chicken',
     
     // Sides
     'mac-and-cheese': 'Mac & Cheese',
