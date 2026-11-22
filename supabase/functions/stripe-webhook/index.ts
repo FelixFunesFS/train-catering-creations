@@ -395,6 +395,17 @@ serve(async (req) => {
       const session = event.data.object as Stripe.Checkout.Session;
       logStep("Checkout session expired", { sessionId: session.id });
 
+      // Closed on purpose after an admin price edit: keep it 'voided', send no failure alert.
+      const { data: existing } = await supabaseClient
+        .from('payment_transactions')
+        .select('status')
+        .eq('stripe_session_id', session.id)
+        .maybeSingle();
+      if (existing?.status === 'voided') {
+        logStep("Session was voided by admin price change; skipping failure handling");
+        return new Response(JSON.stringify({ received: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 });
+      }
+
       const decline = await getDeclineFromSession(stripe, session.id);
       const failedReason = decline?.adminReason || 'Checkout session expired - no payment attempted';
 

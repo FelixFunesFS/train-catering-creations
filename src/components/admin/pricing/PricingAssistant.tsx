@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { expireStaleCheckouts } from '@/lib/staleCheckouts';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import {
@@ -42,6 +43,7 @@ async function callPricing(body: Record<string, unknown>): Promise<PricingRespon
     try { const j = await (error as any).context?.json?.(); msg = j?.error ?? msg; } catch { /* ignore */ }
     throw new Error(typeof msg === 'string' ? msg : 'Request failed');
   }
+  if (body.action === 'apply') expireStaleCheckouts(body.invoice_id as string);
   return data;
 }
 

@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { invoiceKeys } from '@/hooks/useInvoices';
+import { expireStaleCheckouts } from '@/lib/staleCheckouts';
 
 interface SyncOptions {
   /** Delay in ms to wait for DB triggers to complete (default: 200ms) */
@@ -49,6 +50,8 @@ export function useInvoiceTotalSync() {
       const { error } = await supabase.rpc('force_recalculate_invoice_totals', {
         p_invoice_id: invoiceId
       });
+
+      expireStaleCheckouts(invoiceId);
 
       if (error) {
         console.error('Error in force_recalculate_invoice_totals:', error);
@@ -103,6 +106,7 @@ export async function syncInvoiceTotalsStandalone(
     await supabase.rpc('force_recalculate_invoice_totals', {
       p_invoice_id: invoiceId
     });
+    expireStaleCheckouts(invoiceId);
 
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) }),
