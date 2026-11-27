@@ -15,8 +15,8 @@ export const CARD_INFO = {
 } as const;
 
 // Artwork palette (fixed print colors, mirrors --primary and --gold tokens)
-const INK = "#16110f";
-const INK_2 = "#2a1d1a";
+const INK = "#0a1224";
+const INK_2 = "#111d36";
 const RUBY = "#d91e43";
 const PEARL = "#f6f1e7";
 const MUTED = "rgba(246,241,231,0.62)";
@@ -95,24 +95,31 @@ export async function renderFront(): Promise<HTMLCanvasElement> {
   c.width = FULL_W; c.height = FULL_H;
   const ctx = c.getContext("2d")!;
   base(ctx);
-  const cx = FULL_W / 2;
-
-
+  // Left anchor column: crest, gold hairline, est. line
+  const lx = CARD.bleed + 200;
   try {
     const logo = await loadImage("/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png");
     ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
-    ctx.drawImage(logo, cx - 55, 120, 110, 110);
+    ctx.drawImage(logo, lx - 85, 170, 170, 170);
     ctx.shadowColor = "transparent";
   } catch { /* logo optional */ }
+  text(ctx, "EST. CHARLESTON, SC", lx, 420, '600 16px "Inter", sans-serif', gold(ctx, lx - 120, 0, lx + 120, 0), "center", 4);
+  text(ctx, "FAMILY-RUN", lx, 452, '500 15px "Inter", sans-serif', MUTED, "center", 4);
+  // vertical divider
+  const dx = CARD.bleed + 380;
+  ctx.fillStyle = gold(ctx, 0, 130, 0, FULL_H - 130);
+  ctx.fillRect(dx, 140, 2, FULL_H - 280);
 
-  text(ctx, "Soul Train's Eatery", cx, 320, '600 78px "Playfair Display", serif', gold(ctx, cx - 380, 260, cx + 380, 330));
-  // ruby rule
+  // Right editorial column (left aligned)
+  const rx = dx + 56;
+  text(ctx, "Soul Train's", rx, 250, '600 76px "Playfair Display", serif', gold(ctx, rx, 180, rx + 520, 260), "left");
+  text(ctx, "Eatery", rx, 330, '600 76px "Playfair Display", serif', gold(ctx, rx, 260, rx + 520, 340), "left");
+  text(ctx, "Charleston's Trusted Catering Partner", rx, 390, 'italic 400 30px "Playfair Display", serif', PEARL, "left");
   ctx.fillStyle = RUBY;
-  ctx.fillRect(cx - 60, 348, 120, 3);
-  text(ctx, "Charleston's Trusted Catering Partner", cx, 404, 'italic 400 34px "Playfair Display", serif', PEARL);
-  text(ctx, "AUTHENTIC SOUTHERN COOKING  ·  FAMILY-RUN", cx, 456, '500 20px "Inter", sans-serif', MUTED, "center", 4);
-  text(ctx, CARD_INFO.founders, cx, 540, '500 24px "Inter", sans-serif', gold(ctx, cx - 300, 520, cx + 300, 545));
-  text(ctx, CARD_INFO.services.toUpperCase(), cx, 584, '500 17px "Inter", sans-serif', MUTED, "center", 3);
+  ctx.beginPath(); ctx.arc(rx + 6, 452, 6, 0, Math.PI * 2); ctx.fill();
+  text(ctx, CARD_INFO.founders, rx + 26, 460, '500 22px "Inter", sans-serif', PEARL, "left");
+  text(ctx, "AUTHENTIC SOUTHERN COOKING", rx, 520, '500 16px "Inter", sans-serif', MUTED, "left", 3);
+  text(ctx, "WEDDINGS · MILITARY · CORPORATE · SOCIAL", rx, 552, '500 16px "Inter", sans-serif', MUTED, "left", 3);
   return c;
 }
 
