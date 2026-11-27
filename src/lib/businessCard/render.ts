@@ -97,11 +97,6 @@ export async function renderFront(): Promise<HTMLCanvasElement> {
   base(ctx);
   const cx = FULL_W / 2;
 
-  // debossed monogram watermark
-  ctx.save();
-  ctx.globalAlpha = 0.06;
-  text(ctx, "ST", cx, FULL_H / 2 + 150, 'italic 600 420px "Playfair Display", serif', PEARL);
-  ctx.restore();
 
   try {
     const logo = await loadImage("/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png");
