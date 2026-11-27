@@ -102,7 +102,7 @@ const AppContent = () => {
   const isEventFullView = /^\/admin\/event\/[^/]+$/.test(location.pathname);
   const isEventMenuEdit = /^\/admin\/event\/[^/]+\/menu$/.test(location.pathname);
   const isEstimatePrint = /^\/admin\/estimate-print\/[^/]+$/.test(location.pathname);
-  const isPortfolioRoute = location.pathname === '/portfolio';
+  const isPortfolioRoute = location.pathname === '/portfolio' || location.pathname === '/card';
   // Customer token/portal views are transactional: keep only their own compact red footer
   const isCustomerPortalRoute =
     location.pathname === '/estimate' ||

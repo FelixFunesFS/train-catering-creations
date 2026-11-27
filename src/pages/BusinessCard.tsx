@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Printer, RotateCw, Share2, UserPlus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowLeft, Download, Printer, RotateCw, Share2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -69,7 +70,12 @@ export default function BusinessCard() {
 
   return (
     <main className="min-h-screen bg-foreground text-background print:bg-transparent">
-      <section className="mx-auto flex max-w-5xl flex-col items-center px-5 pb-16 pt-24 md:pt-32 print:hidden">
+      <nav className="mx-auto flex max-w-5xl items-center px-5 pt-[calc(1rem+env(safe-area-inset-top))] print:hidden">
+        <Link to="/" className="inline-flex min-h-11 items-center gap-2 text-sm text-background/70 transition-colors hover:text-gold focus-visible:text-gold focus-visible:outline-none">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> soultrainseatery.com
+        </Link>
+      </nav>
+      <section className="mx-auto flex max-w-5xl flex-col items-center px-5 pb-10 pt-6 md:pt-12 print:hidden">
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Soul Train's Eatery</p>
         <h1 className="mt-3 text-center font-elegant text-3xl md:text-5xl">Our card, in your pocket</h1>
         <p className="mt-3 max-w-md text-center text-sm text-background/70">
@@ -140,6 +146,13 @@ export default function BusinessCard() {
           </div>
         </div>
       </section>
+
+      <footer className="mx-auto max-w-5xl px-5 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center print:hidden">
+        <Link to="/menu" className="inline-flex min-h-11 items-center text-sm font-medium text-gold underline-offset-4 hover:underline">
+          Explore menus &amp; request a quote
+        </Link>
+        <p className="mt-2 text-xs text-background/60">Soul Train's Eatery · Charleston, SC</p>
+      </footer>
 
       {/* Print layout: one card face per page */}
       <div className="hidden print:block">
