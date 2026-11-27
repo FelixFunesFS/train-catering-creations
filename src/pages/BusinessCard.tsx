@@ -3,13 +3,14 @@ import { Download, Printer, RotateCw, Share2, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
-  renderFront, renderBack, canvasToBlob, buildVCard, downloadBlob, CARD, FULL_W, CARD_INFO,
+  renderFront, renderBack, type FrontStyle, canvasToBlob, buildVCard, downloadBlob, CARD, FULL_W, CARD_INFO,
 } from "@/lib/businessCard/render";
 
 
 export default function BusinessCard() {
   const [front, setFront] = useState<HTMLCanvasElement | null>(null);
   const [back, setBack] = useState<HTMLCanvasElement | null>(null);
+  const [style, setStyle] = useState<FrontStyle>("editorial");
   const [flipped, setFlipped] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const stage = useRef<HTMLDivElement>(null);
@@ -17,9 +18,12 @@ export default function BusinessCard() {
 
   useEffect(() => {
     document.title = "Business Card | Soul Train's Eatery";
-    renderFront().then(setFront);
     renderBack().then(setBack);
   }, []);
+
+  useEffect(() => {
+    renderFront(style).then(setFront);
+  }, [style]);
 
   const onMove = (e: React.PointerEvent) => {
     if (reduce || !stage.current) return;
@@ -72,11 +76,25 @@ export default function BusinessCard() {
           Tap the card to flip it. Save our number straight to your phone, or share it with whoever's planning the party.
         </p>
 
+        <div role="radiogroup" aria-label="Card design" className="mt-8 grid w-full max-w-[360px] grid-cols-2 gap-1 rounded-full border border-background/20 p-1">
+          {([["editorial", "Editorial"], ["centered", "Centered"]] as const).map(([k, label]) => (
+            <button
+              key={k}
+              role="radio"
+              aria-checked={style === k}
+              onClick={() => { setStyle(k); setFlipped(false); }}
+              className={`min-h-11 rounded-full text-sm font-medium transition-colors ${style === k ? "bg-gold text-gold-foreground" : "text-background/75 hover:text-background"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div
           ref={stage}
           onPointerMove={onMove}
           onPointerLeave={() => setTilt({ x: 0, y: 0 })}
-          className="mt-10 w-full max-w-[560px] [perspective:1400px]"
+          className="mt-6 w-full max-w-[560px] [perspective:1400px]"
         >
           <button
             type="button"

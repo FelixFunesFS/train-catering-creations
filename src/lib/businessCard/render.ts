@@ -89,12 +89,32 @@ async function fonts() {
   } catch { /* fall back to serif */ }
 }
 
-export async function renderFront(): Promise<HTMLCanvasElement> {
+export type FrontStyle = "editorial" | "centered";
+
+export async function renderFront(style: FrontStyle = "editorial"): Promise<HTMLCanvasElement> {
   await fonts();
   const c = document.createElement("canvas");
   c.width = FULL_W; c.height = FULL_H;
   const ctx = c.getContext("2d")!;
   base(ctx);
+  if (style === "centered") {
+    const cx = FULL_W / 2;
+    try {
+      const logo = await loadImage("/lovable-uploads/e9a7fbdd-021d-4e32-9cdf-9a1f20d396e9.png");
+      ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 18; ctx.shadowOffsetY = 6;
+      ctx.drawImage(logo, cx - 55, 120, 110, 110);
+      ctx.shadowColor = "transparent";
+    } catch { /* logo optional */ }
+    text(ctx, "Soul Train's Eatery", cx, 320, '600 78px "Playfair Display", serif', gold(ctx, cx - 380, 260, cx + 380, 330));
+    ctx.fillStyle = RUBY;
+    ctx.fillRect(cx - 60, 348, 120, 3);
+    text(ctx, "Charleston's Trusted Catering Partner", cx, 404, 'italic 400 34px "Playfair Display", serif', PEARL);
+    text(ctx, "AUTHENTIC SOUTHERN COOKING  ·  FAMILY-RUN", cx, 456, '500 20px "Inter", sans-serif', MUTED, "center", 4);
+    text(ctx, CARD_INFO.founders, cx, 540, '500 24px "Inter", sans-serif', gold(ctx, cx - 300, 520, cx + 300, 545));
+    text(ctx, CARD_INFO.services.toUpperCase(), cx, 584, '500 17px "Inter", sans-serif', MUTED, "center", 3);
+    return c;
+  }
+
   // Left anchor column: crest, gold hairline, est. line
   const lx = CARD.bleed + 200;
   try {
