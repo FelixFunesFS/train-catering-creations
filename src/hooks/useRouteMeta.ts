@@ -40,6 +40,11 @@ const ROUTE_META: Record<string, { title: string; description: string; image?: s
     title: "Catering FAQ | Soul Train's Eatery",
     description: "Answers about booking, payments, menus, military base events and service areas for Soul Train's Eatery catering.",
   },
+  "/card": {
+    image: "/og/card.jpg",
+    title: "Soul Train's Eatery | Digital Card & Catering Contact",
+    description: "Charleston's trusted catering partner. Contact Chef Train & Tanya Ward for weddings, military ceremonies, corporate and social events. Call, email or save our contact.",
+  },
   "/privacy-policy": {
     title: "Privacy Policy | Soul Train's Eatery",
     description: "How Soul Train's Eatery collects, uses and protects your information.",
@@ -84,6 +89,7 @@ export const useRouteMeta = () => {
     upsertMeta("property", "og:image", image);
     upsertMeta("name", "twitter:image", image);
     upsertMeta("name", "twitter:card", "summary_large_image");
+    upsertMeta("property", "og:image:alt", path === "/card" ? "Soul Train's Eatery navy and gold business card, front and back" : meta.title);
     let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement("link");
