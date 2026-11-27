@@ -33,6 +33,7 @@ const WeddingEventQuote = lazy(() => import("./pages/WeddingEventQuote"));
 const Reviews = lazy(() => import("./pages/Reviews"));
 const AlternativeGallery = lazy(() => import("./pages/AlternativeGallery"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const BusinessCard = lazy(() => import("./pages/BusinessCard"));
 const TestEmail = lazy(() => import("./pages/TestEmail"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsConditions = lazy(() => import("./pages/TermsConditions"));
@@ -129,6 +130,7 @@ const AppContent = () => {
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/gallery" element={<AlternativeGallery />} />
             <Route path="/faq" element={<FAQ />} />
+            <Route path="/card" element={<BusinessCard />} />
             
             {/* Customer approval deep links (email clients may append trailing slashes) */}
             <Route path="/approve/*" element={<ApproveEstimate />} />
